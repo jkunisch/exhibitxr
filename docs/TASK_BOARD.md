@@ -7,10 +7,10 @@
 - [x] Phase 1.3 (Codex): Premium UI overlays + Zustand integration
 - [ ] Phase 2.1 (Gemini): Firestore/Storage rules fuer Membership + publish flags
 - [ ] Phase 2.2 (Gemini): Session Cookie + Custom Claims + token refresh flow
-- [ ] Phase 2.3 (Codex): Login/Dashboard flow mit SSR-sicherem Schutz
+- [x] Phase 2.3 (Codex): Login/Dashboard flow mit SSR-sicherem Schutz
 
 ## Next
-- [ ] Phase 2.4 (Codex): Dashboard CRUD Grundgeruest
+- [ ] Phase 2.4 (Codex): Dashboard CRUD Grundgeruest (create/update/delete folgt)
 - [ ] Phase 2.5 (Gemini): Security hardening pass (rules + claim checks)
 
 ## Later

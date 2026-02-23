@@ -9,6 +9,7 @@
 - Firebase Auth required for dashboard
 - Session-cookie auth for SSR-safe dashboard access
 - Custom claim `tenantId` is the primary tenant boundary
+- After claim updates, clients must call `await user.getIdToken(true)` before data access
 - Tenant boundary enforced at rules level
 - Published embeds may be public read-only (explicit flag)
 
