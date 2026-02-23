@@ -14,12 +14,15 @@ service firebase.storage {
       allow read, write: if false;
     }
 
-    // Tenant-scoped uploads and reads for private assets.
-    match /tenants/{tenantId}/{allPaths=**} {
-      // Unauth read only if object metadata isPublished is "true"
-      allow read: if isTenantMember(tenantId) || resource.metadata.isPublished == "true";
-      // Upload/Write only for Tenant-Member
+    // Tenant-scoped models: Unauth read only if object metadata isPublished is "true"
+    match /tenants/{tenantId}/models/{allPaths=**} {
+      allow read: if isTenantMember(tenantId) || (resource != null && resource.metadata.get('isPublished', 'false') == "true");
       allow write: if isTenantMember(tenantId);
+    }
+
+    // Fallback for any other tenant files: strictly private
+    match /tenants/{tenantId}/{allPaths=**} {
+      allow read, write: if isTenantMember(tenantId);
     }
   }
 }
