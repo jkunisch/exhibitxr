@@ -1,0 +1,319 @@
+import { Timestamp } from "firebase-admin/firestore";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+
+import {
+  deleteExhibitionAction,
+  updateExhibitionAction,
+} from "@/app/actions/exhibitions";
+import { GlassFormPanel } from "@/components/ui/GlassFormPanel";
+import { getAdminDb } from "@/lib/firebaseAdmin";
+import { getSessionUser } from "@/lib/session";
+
+export const dynamic = "force-dynamic";
+
+const ENVIRONMENT_OPTIONS = ["studio", "city", "sunset", "dawn", "night"] as const;
+
+type PageParams = Promise<{
+  id: string;
+}>;
+
+type PageSearchParams = Promise<{
+  created?: string | string[];
+  saved?: string | string[];
+  error?: string | string[];
+  deleteError?: string | string[];
+}>;
+
+type ExhibitionRecord = {
+  id: string;
+  title: string;
+  description: string;
+  isPublished: boolean;
+  environment: (typeof ENVIRONMENT_OPTIONS)[number];
+  createdAtLabel: string;
+  updatedAtLabel: string;
+};
+
+function asNonEmptyString(value: unknown, fallback: string): string {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : fallback;
+}
+
+function asEnvironment(value: unknown): (typeof ENVIRONMENT_OPTIONS)[number] {
+  if (typeof value !== "string") {
+    return "studio";
+  }
+
+  const option = ENVIRONMENT_OPTIONS.find((item) => item === value);
+  return option ?? "studio";
+}
+
+function formatDate(value: unknown): string {
+  if (value instanceof Timestamp) {
+    return value.toDate().toLocaleString("de-DE");
+  }
+
+  if (value instanceof Date) {
+    return value.toLocaleString("de-DE");
+  }
+
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleString("de-DE");
+    }
+  }
+
+  return "No timestamp";
+}
+
+function normalizeMessage(input: string | string[] | undefined): string | null {
+  if (typeof input !== "string" || input.trim().length === 0) {
+    return null;
+  }
+
+  return input;
+}
+
+function asSuccessFlag(input: string | string[] | undefined): boolean {
+  return input === "1";
+}
+
+async function loadExhibition(
+  tenantId: string,
+  exhibitionId: string,
+): Promise<ExhibitionRecord | null> {
+  const adminDb = getAdminDb();
+  const snapshot = await adminDb
+    .collection("tenants")
+    .doc(tenantId)
+    .collection("exhibitions")
+    .doc(exhibitionId)
+    .get();
+
+  if (!snapshot.exists) {
+    return null;
+  }
+
+  const data = snapshot.data();
+  if (!data) {
+    return null;
+  }
+
+  const dataTenantId =
+    typeof data.tenantId === "string" ? data.tenantId : tenantId;
+  if (dataTenantId !== tenantId) {
+    return null;
+  }
+
+  return {
+    id: snapshot.id,
+    title: asNonEmptyString(data.title, "Untitled exhibition"),
+    description: asNonEmptyString(data.description, ""),
+    isPublished: data.isPublished === true,
+    environment: asEnvironment(data.environment),
+    createdAtLabel: formatDate(data.createdAt),
+    updatedAtLabel: formatDate(data.updatedAt),
+  };
+}
+
+export default async function ExhibitionDetailPage({
+  params,
+  searchParams,
+}: {
+  params: PageParams;
+  searchParams: PageSearchParams;
+}) {
+  const sessionUser = await getSessionUser();
+
+  if (!sessionUser) {
+    redirect("/login?next=/dashboard/exhibitions");
+  }
+
+  const resolvedParams = await params;
+  const exhibition = await loadExhibition(sessionUser.tenantId, resolvedParams.id);
+  if (!exhibition) {
+    notFound();
+  }
+
+  const resolvedSearchParams = await searchParams;
+  const created = asSuccessFlag(resolvedSearchParams.created);
+  const saved = asSuccessFlag(resolvedSearchParams.saved);
+  const errorMessage = normalizeMessage(resolvedSearchParams.error);
+  const deleteErrorMessage = normalizeMessage(resolvedSearchParams.deleteError);
+
+  async function handleUpdate(formData: FormData) {
+    "use server";
+
+    const result = await updateExhibitionAction(formData);
+    if (!result.ok) {
+      redirect(
+        `/dashboard/exhibitions/${resolvedParams.id}?error=${encodeURIComponent(result.error)}`,
+      );
+    }
+
+    redirect(`/dashboard/exhibitions/${resolvedParams.id}?saved=1`);
+  }
+
+  async function handleDelete(formData: FormData) {
+    "use server";
+
+    const result = await deleteExhibitionAction(formData);
+    if (!result.ok) {
+      redirect(
+        `/dashboard/exhibitions/${resolvedParams.id}?deleteError=${encodeURIComponent(result.error)}`,
+      );
+    }
+
+    redirect("/dashboard/exhibitions?deleted=1");
+  }
+
+  return (
+    <section className="space-y-4">
+      <Link
+        href="/dashboard/exhibitions"
+        className="inline-flex rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
+      >
+        Back to Exhibitions
+      </Link>
+
+      {created ? (
+        <p className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+          Exhibition created successfully.
+        </p>
+      ) : null}
+
+      {saved ? (
+        <p className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+          Changes saved.
+        </p>
+      ) : null}
+
+      {errorMessage ? (
+        <p className="rounded-xl border border-rose-300/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+          {errorMessage}
+        </p>
+      ) : null}
+
+      {deleteErrorMessage ? (
+        <p className="rounded-xl border border-rose-300/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+          {deleteErrorMessage}
+        </p>
+      ) : null}
+
+      <GlassFormPanel
+        title={`Edit Exhibition: ${exhibition.title}`}
+        subtitle={`Created: ${exhibition.createdAtLabel} • Updated: ${exhibition.updatedAtLabel}`}
+      >
+        <form action={handleUpdate} className="space-y-4">
+          <input type="hidden" name="exhibitionId" value={exhibition.id} />
+
+          <div className="space-y-2">
+            <label htmlFor="title" className="text-sm font-medium text-slate-800 dark:text-slate-100">
+              Title
+            </label>
+            <input
+              id="title"
+              name="title"
+              type="text"
+              required
+              minLength={2}
+              maxLength={120}
+              defaultValue={exhibition.title}
+              className="w-full rounded-xl border border-slate-300/60 bg-white/75 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-500/70 focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-400/35 dark:border-white/20 dark:bg-black/25 dark:text-white dark:placeholder:text-white/45"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="description"
+              className="text-sm font-medium text-slate-800 dark:text-slate-100"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows={4}
+              maxLength={2000}
+              defaultValue={exhibition.description}
+              className="w-full rounded-xl border border-slate-300/60 bg-white/75 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-500/70 focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-400/35 dark:border-white/20 dark:bg-black/25 dark:text-white dark:placeholder:text-white/45"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="environment"
+              className="text-sm font-medium text-slate-800 dark:text-slate-100"
+            >
+              Environment Preset
+            </label>
+            <select
+              id="environment"
+              name="environment"
+              defaultValue={exhibition.environment}
+              className="w-full rounded-xl border border-slate-300/60 bg-white/75 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-400/35 dark:border-white/20 dark:bg-black/25 dark:text-white"
+            >
+              {ENVIRONMENT_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-slate-800 dark:text-slate-100">
+            <input
+              type="checkbox"
+              name="isPublished"
+              defaultChecked={exhibition.isPublished}
+              className="h-4 w-4 rounded border-slate-400 text-cyan-500 focus:ring-cyan-400/50 dark:border-white/30"
+            />
+            Published
+          </label>
+
+          <button
+            type="submit"
+            className="rounded-xl border border-cyan-500/45 bg-cyan-500/20 px-4 py-2.5 text-sm font-medium text-slate-900 transition hover:bg-cyan-500/30 dark:text-white"
+          >
+            Save Changes
+          </button>
+        </form>
+      </GlassFormPanel>
+
+      <GlassFormPanel
+        title="Delete Exhibition"
+        subtitle="Safety check: type the exact title before deletion."
+      >
+        <form action={handleDelete} className="space-y-4">
+          <input type="hidden" name="exhibitionId" value={exhibition.id} />
+          <div className="space-y-2">
+            <label
+              htmlFor="confirmTitle"
+              className="text-sm font-medium text-slate-800 dark:text-slate-100"
+            >
+              Type &quot;{exhibition.title}&quot; to confirm
+            </label>
+            <input
+              id="confirmTitle"
+              name="confirmTitle"
+              type="text"
+              required
+              className="w-full rounded-xl border border-rose-300/50 bg-white/75 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-500/70 focus:border-rose-500/60 focus:ring-2 focus:ring-rose-400/35 dark:border-rose-200/35 dark:bg-black/25 dark:text-white dark:placeholder:text-white/45"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="rounded-xl border border-rose-300/40 bg-rose-500/20 px-4 py-2.5 text-sm font-medium text-rose-900 transition hover:bg-rose-500/30 dark:text-rose-100"
+          >
+            Delete Exhibition
+          </button>
+        </form>
+      </GlassFormPanel>
+    </section>
+  );
+}
+
