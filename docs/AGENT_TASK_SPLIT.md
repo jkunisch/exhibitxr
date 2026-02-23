@@ -9,7 +9,7 @@ git worktree add ../exhibitxr-dashboard feature/dashboard-ui
 
 ## Suggested ownership
 - Viewer agent: `src/components/3d`, `src/data`, `src/app/embed/[id]`
-- Backend agent: `src/lib/firebase*`, `src/app/actions`, `firestore.rules`
+- Backend agent: `src/lib/firebase*`, `src/app/actions`, `firebase/*.rules`, `middleware.ts`
 - Dashboard agent: `src/app/(dashboard)`, `src/components/ui`
 
 ## Merge order

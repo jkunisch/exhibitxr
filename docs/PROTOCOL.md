@@ -9,6 +9,10 @@
 6. R3F: In `useFrame` nur `getState()` (Transient Updates)
 7. R3F: `useFrame` immer mit `delta`
 8. Firebase: Alle Reads/Writes tenant-scoped
+9. Aufgaben immer als Checkbox-Liste abarbeiten (`- [ ]` / `- [x]`)
+10. Keine halbfertigen Uebergaben: Fehler eigenstaendig fixen
+11. Kein Handholding: klarer, direkter und zielfuehrender Arbeitsstil
+12. Bei Blockade nichts kaputt machen; stattdessen stoppen und eigenes Scheitern klar benennen
 
 ## 3-Strike-Protokoll
 ### Strike 1

@@ -1,4 +1,4 @@
-# ExhibitXR - Architecture (Agent-Optimized)
+# ExhibitXR - Architecture (100% Firebase)
 
 ## Product
 ExhibitXR is a multi-tenant B2B SaaS for interactive 3D product experiences in the browser.
@@ -14,15 +14,19 @@ ExhibitXR is a multi-tenant B2B SaaS for interactive 3D product experiences in t
 - Next.js 15 App Router + React 19 + TypeScript strict
 - React Three Fiber + Drei for 3D rendering
 - Zustand for local interaction state
-- Firebase Auth + Firestore + Functions
-- Cloudflare R2 for large asset uploads
+- Firebase Auth + Firestore + Storage
+- Firebase Admin SDK for server-side auth and claims
+- SSR-friendly auth via session cookies + Next.js middleware gating
+- Multi-tenancy via custom claims (`tenantId`)
+- Realtime dashboard/editor sync via Firestore `onSnapshot`
 - Zod for runtime schema validation
 
 ## Non-negotiables
 1. `src/types/schema.ts` is single source of truth
 2. Firestore queries are always tenant-scoped
-3. Admin SDK is server-side only
-4. Performance-sensitive R3F loops use transient state reads
+3. Storage paths and rules are tenant-scoped
+4. Admin SDK is server-side only
+5. Performance-sensitive R3F loops use transient state reads
 
 ## Delivery phases
 ### Phase 0 (done)
@@ -35,10 +39,13 @@ ExhibitXR is a multi-tenant B2B SaaS for interactive 3D product experiences in t
 
 ### Phase 2
 - Firestore collections + security rules
-- R2 presigned upload flow
+- Firebase Storage upload flow + `storage.rules`
+- Session-cookie auth + middleware protection for dashboard routes
+- Custom claims (`tenantId`) set during registration/onboarding
 - Dashboard CRUD for exhibitions
 
 ### Phase 3
+- Visual editor with live Firestore sync (`onSnapshot` + Zustand)
 - AI text advisor with exhibit context
 - Generated environment backgrounds
 

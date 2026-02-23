@@ -6,8 +6,7 @@ Du arbeitest am Projekt "ExhibitXR", ein B2B SaaS fuer 3D-Web-Ausstellungen.
 - Next.js 15 (App Router), TypeScript strict, React 19
 - React Three Fiber v9 RC (@react-three/fiber@rc) + @react-three/drei@rc
 - Zustand (State Management)
-- Firebase (Firestore + Auth + Cloud Functions + Storage)
-- Cloudflare R2 (Asset Storage)
+- Firebase (Firestore + Auth + Storage)
 - TailwindCSS + Shadcn/UI
 - Zod
 
@@ -21,8 +20,12 @@ Du arbeitest am Projekt "ExhibitXR", ein B2B SaaS fuer 3D-Web-Ausstellungen.
 7. Niemals `setState` in `useFrame`
 8. `useFrame` immer mit `delta`
 9. Alle 3D-Komponenten mit `'use client'`
-10. Firestore-Reads immer tenant-scoped
-11. Wenn unsicher: nachfragen
+10. Firestore- und Storage-Zugriffe immer tenant-scoped
+11. Arbeite Aufgaben immer als Checkbox-Liste ab (`- [ ]` / `- [x]`)
+12. Keine halbfertigen Uebergaben: Fehler selbst fixen und bis zum Abschluss tragen
+13. Kein Handholding: arbeite direkt, klar und zielfuehrend
+14. Wenn etwas nicht sicher loesbar ist: nichts kaputt machen, stoppen und eigenes Scheitern klar benennen
+15. Bei Unsicherheit: nachfragen statt raten
 
 ## Datei-Konventionen
 - 3D-Komponenten: `src/components/3d/`

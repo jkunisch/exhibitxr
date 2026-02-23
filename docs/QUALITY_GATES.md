@@ -15,3 +15,5 @@
 1. Every Firestore query is tenant-scoped
 2. Security rules validate `request.auth.token.tenantId`
 3. Admin SDK used only server-side
+4. Storage rules validate tenant-scoped paths
+5. Session-cookie protection for dashboard routes is active

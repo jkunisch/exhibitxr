@@ -15,6 +15,7 @@ Enable fast parallel development with multiple coding agents while protecting ar
 - Updated `docs/DECISIONS.md` entry
 - Short risk note (what could break)
 - Validation evidence (commands + results)
+- Checklist of completed tasks (`- [x]`)
 
 ## Conflict prevention
 - `src/types/schema.ts` is protected: only owner with explicit approval edits it
@@ -25,3 +26,8 @@ Enable fast parallel development with multiple coding agents while protecting ar
 - Morning: sync + choose one priority per branch
 - During day: commit small slices
 - End of day: handoff note + open PR draft
+
+## Execution discipline
+- No laziness: each task is completed end-to-end by the assigned owner
+- No handholding mode: unblock independently and ship concrete outcomes
+- If blocked, do not break working code; stop and report failure clearly

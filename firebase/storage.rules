@@ -1,0 +1,18 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isTenantMember(tenantId) {
+      return isSignedIn() && request.auth.token.tenantId == tenantId;
+    }
+
+    // Default: tenant-scoped uploads and reads for private assets.
+    // If a path must be public, create an explicit public subtree with separate rules.
+    match /tenants/{tenantId}/models/{allPaths=**} {
+      allow read, write: if isTenantMember(tenantId);
+    }
+  }
+}

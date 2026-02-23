@@ -14,10 +14,12 @@
 
 ## Firebase
 - Client SDK nur in `'use client'` Komponenten
-- Admin SDK nur in Server Actions / API Routes / Cloud Functions
+- Admin SDK nur in Server Actions / API Routes / server-side auth checks
 - Firestore-Pfade: `/tenants/{tenantId}/exhibitions/{exhibitionId}`
+- Storage-Pfade: `/tenants/{tenantId}/models/{file}`
 - Security Rules: tenantId gegen Auth-Token pruefen
 - Kein Zugriff ohne tenantId-Filter
+- Dashboard-Auth SSR-sicher ueber Session-Cookies
 
 ## Next.js
 - Server Components by default
@@ -28,3 +30,8 @@
 - Commit nach jedem Feature
 - Format: `feat|fix|chore: kurze beschreibung`
 - Feature-Branches: `feature/[name]`
+
+## Arbeitsdisziplin
+- Aufgaben als Checkbox-Listen planen und tracken (`- [ ]` / `- [x]`)
+- Aufgaben end-to-end selbst ausfuehren, keine halbfertigen Uebergaben
+- Bei Blockade: nichts kaputt machen, klaren Fehlerstatus dokumentieren

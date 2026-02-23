@@ -6,7 +6,7 @@ ExhibitXR: B2B SaaS fuer interaktive 3D-Web-Ausstellungen im Browser.
 ## Stack
 - Next.js 15 (App Router), TypeScript strict, React 19
 - React Three Fiber v9 RC + @react-three/drei@rc
-- Zustand, Firebase (Firestore + Auth + Cloud Functions), Cloudflare R2
+- Zustand, Firebase (Firestore + Auth + Storage)
 - TailwindCSS + Shadcn/UI, Zod
 
 ## Rules
@@ -19,7 +19,13 @@ ExhibitXR: B2B SaaS fuer interaktive 3D-Web-Ausstellungen im Browser.
 - Alle 3D-Komponenten: `'use client'`
 - Server Components by default; `'use client'` nur wo noetig
 - Firebase Client SDK nur in `'use client'` Komponenten
-- Firebase Admin SDK nur in Server Actions / API Routes
+- Firebase Admin SDK nur in Server Actions / API Routes / server-side auth checks
+- Auth im App Router ueber Session-Cookies (SSR-freundlich), nicht nur Client-Auth
+- Multi-Tenancy ueber Custom Claims (`tenantId`) erzwingen
+- Aufgaben immer als Checkbox-Liste fuehren (`- [ ]` / `- [x]`) und aktiv pflegen
+- Keine Faulheit, kein Handholding: Aufgaben end-to-end selbst uebernehmen
+- Fehler immer selbst fixen; wenn blockiert, sauber stoppen statt riskant zu patchen
+- Wenn nicht loesbar, klar als eigenes Scheitern mit Grund und sicherem Status melden
 - Commit-Format: `feat|fix|chore: kurze beschreibung`
 
 ## Dateistruktur

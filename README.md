@@ -14,6 +14,8 @@ Startbasis fuer das ExhibitXR-Projekt (Phase 0).
 - `AGENTS.md`
 - `GEMINI.md`
 - `docs/`
+- `firebase/` (Rules fuer Firestore und Storage)
+- `middleware.ts` (SSR Auth-Gate fuer Dashboard)
 - `src/` (Skelett)
 
 ## Naechster Schritt
