@@ -43,9 +43,10 @@ async function setSessionCookie(idToken: string): Promise<SessionActionResult> {
 
 /**
  * Creates a tenant, adds the current user as owner member, sets custom claims,
- * and creates a session cookie.
+ * but does NOT create the final session cookie yet.
  *
- * IMPORTANT: Client must call `await user.getIdToken(true)` after success.
+ * IMPORTANT: Client must call `await user.getIdToken(true)` after success,
+ * then call `createSessionCookieAction(refreshedToken)`.
  */
 export async function registerTenantAndSession(
   idToken: string,
@@ -66,8 +67,17 @@ export async function registerTenantAndSession(
 
     const uid = decodedToken.uid;
     const email = decodedToken.email ?? null;
+    const existingTenantId =
+      typeof decodedToken.tenantId === "string" ? decodedToken.tenantId : null;
     const tenantId = crypto.randomUUID();
     const role = "owner";
+
+    if (existingTenantId) {
+      return {
+        ok: false,
+        error: "User already has a tenant claim. Use login instead.",
+      };
+    }
 
     await adminDb.collection("tenants").doc(tenantId).set({
       id: tenantId,
@@ -90,11 +100,6 @@ export async function registerTenantAndSession(
       });
 
     await adminAuth.setCustomUserClaims(uid, { tenantId, role });
-
-    const sessionResult = await setSessionCookie(idToken);
-    if (!sessionResult.ok) {
-      return sessionResult;
-    }
 
     return { ok: true, tenantId };
   } catch (error) {

@@ -1,36 +1,15 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 
-import { LoginForm } from "@/components/ui/LoginForm";
+import { RegisterForm } from "@/components/ui/RegisterForm";
 import { getSessionUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-type LoginPageProps = {
-  searchParams: Promise<{
-    next?: string | string[];
-  }>;
-};
-
-function normalizeNextPath(input: string | string[] | undefined): string {
-  if (typeof input !== "string") {
-    return "/dashboard";
-  }
-
-  if (!input.startsWith("/") || input.startsWith("//")) {
-    return "/dashboard";
-  }
-
-  return input;
-}
-
-export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const resolvedSearchParams = await searchParams;
-  const nextPath = normalizeNextPath(resolvedSearchParams.next);
+export default async function RegisterPage() {
   const sessionUser = await getSessionUser();
 
   if (sessionUser) {
-    redirect(nextPath);
+    redirect("/dashboard");
   }
 
   return (
@@ -41,32 +20,22 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
       <section className="relative z-10 w-full max-w-md rounded-3xl border border-white/15 bg-white/8 p-6 shadow-[0_40px_120px_rgba(15,23,42,0.55)] backdrop-blur-xl sm:p-8">
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/80">
-          ExhibitXR Admin
+          ExhibitXR Onboarding
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">
-          Welcome back
+          Create your tenant
         </h1>
         <p className="mt-2 text-sm text-white/70">
-          Sign in to access your tenant dashboard and exhibitions.
+          Register your organization and provision your owner account.
         </p>
 
         <div className="mt-8">
-          <LoginForm nextPath={nextPath} />
+          <RegisterForm />
         </div>
 
-        <p className="mt-4 text-center text-xs text-white/60">
-          New tenant?{" "}
-          <Link
-            href="/register"
-            className="font-medium text-cyan-200/90 underline decoration-cyan-200/55 underline-offset-2 hover:text-cyan-100"
-          >
-            Create an account
-          </Link>
-        </p>
-
         <p className="mt-5 text-xs text-white/60">
-          Claims are refreshed on login (`await user.getIdToken(true)`) before
-          session handoff.
+          After claim setup, the flow refreshes ID token and then creates the
+          session cookie.
         </p>
       </section>
     </main>
