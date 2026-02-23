@@ -11,6 +11,9 @@ Diese Prompts sind temporaer je Phase gedacht und koennen nach Abschluss geloesc
 6. `prompts/phase2_4_codex_crud.md`
 7. `prompts/phase2_5_gemini_hardening.md`
 8. `prompts/phase3_claude_realtime_editor.md`
+9. `prompts/release_wave1_claude_visual_identity.md`
+10. `prompts/release_wave1_gemini_embed_storage.md`
+11. `prompts/release_wave1_codex_polish.md`
 
 ## Regel
 - Aufgaben im Agent-Chat immer als Checkboxen tracken (`- [ ]`, `- [x]`).

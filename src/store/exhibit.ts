@@ -1,101 +1,45 @@
 import { create } from "zustand";
-
-export type ExhibitVariantOption = {
-  id: string;
-  name: string;
-  description?: string;
-  swatchHex?: string;
-};
-
-export type ExhibitVariant = {
-  id: string;
-  name: string;
-  options: ExhibitVariantOption[];
-  defaultOptionId?: string;
-};
-
-export type ExhibitHotspot = {
-  id: string;
-  title: string;
-  description: string;
-  position: {
-    x: number;
-    y: number;
-  };
-};
-
-export type ExhibitConfig = {
-  id: string;
-  title: string;
-  subtitle?: string;
-  variants: ExhibitVariant[];
-  hotspots: ExhibitHotspot[];
-};
-
-type ActiveVariants = Record<string, string>;
+import type { ExhibitConfig } from "@/types/schema";
 
 type ExhibitState = {
   config: ExhibitConfig | null;
-  activeVariants: ActiveVariants;
-  selectedHotspot: ExhibitHotspot | null;
+  activeVariantId: string | undefined;
+  selectedHotspotId: string | null;
   setConfig: (config: ExhibitConfig) => void;
-  setVariant: (variantId: string, optionId: string) => void;
+  setVariant: (variantId: string) => void;
   selectHotspot: (hotspotId: string) => void;
   clearHotspot: () => void;
 };
 
-const buildInitialActiveVariants = (config: ExhibitConfig): ActiveVariants => {
-  const result: ActiveVariants = {};
-
-  for (const variant of config.variants) {
-    const firstOptionId = variant.options[0]?.id;
-    const activeOptionId = variant.defaultOptionId ?? firstOptionId;
-
-    if (activeOptionId) {
-      result[variant.id] = activeOptionId;
-    }
-  }
-
-  return result;
-};
-
 export const useExhibitStore = create<ExhibitState>((set, get) => ({
   config: null,
-  activeVariants: {},
-  selectedHotspot: null,
+  activeVariantId: undefined,
+  selectedHotspotId: null,
   setConfig: (config) => {
     set({
       config,
-      activeVariants: buildInitialActiveVariants(config),
-      selectedHotspot: null,
+      activeVariantId: config.model.variants[0]?.id,
+      selectedHotspotId: null,
     });
   },
-  setVariant: (variantId, optionId) => {
+  setVariant: (variantId) => {
     const config = get().config;
-
     if (!config) {
       return;
     }
 
-    const variant = config.variants.find((item) => item.id === variantId);
-    const optionExists = variant?.options.some((option) => option.id === optionId);
-
-    if (!optionExists) {
+    const variantExists = config.model.variants.some((item) => item.id === variantId);
+    if (!variantExists) {
       return;
     }
 
-    set((state) => ({
-      activeVariants: {
-        ...state.activeVariants,
-        [variantId]: optionId,
-      },
-    }));
+    set({ activeVariantId: variantId });
   },
   selectHotspot: (hotspotId) => {
-    const hotspot = get().config?.hotspots.find((item) => item.id === hotspotId) ?? null;
-    set({ selectedHotspot: hotspot });
+    const hotspotExists = get().config?.model.hotspots.some((item) => item.id === hotspotId) ?? false;
+    set({ selectedHotspotId: hotspotExists ? hotspotId : null });
   },
   clearHotspot: () => {
-    set({ selectedHotspot: null });
+    set({ selectedHotspotId: null });
   },
 }));
