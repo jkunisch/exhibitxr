@@ -13,6 +13,7 @@ Startbasis fuer das ExhibitXR-Projekt (Phase 0).
 - `.antigravity/rules`
 - `AGENTS.md`
 - `GEMINI.md`
+- `.env.example`
 - `docs/`
 - `firebase/` (Rules fuer Firestore und Storage)
 - `middleware.ts` (SSR Auth-Gate fuer Dashboard)
