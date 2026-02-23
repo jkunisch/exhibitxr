@@ -1,0 +1,36 @@
+# ExhibitXR - Antigravity Workspace Rules
+
+Du arbeitest am Projekt "ExhibitXR", ein B2B SaaS fuer 3D-Web-Ausstellungen.
+
+## Stack
+- Next.js 15 (App Router), TypeScript strict, React 19
+- React Three Fiber v9 RC (@react-three/fiber@rc) + @react-three/drei@rc
+- Zustand (State Management)
+- Firebase (Firestore + Auth + Cloud Functions + Storage)
+- Cloudflare R2 (Asset Storage)
+- TailwindCSS + Shadcn/UI
+- Zod
+
+## Strikte Regeln
+1. Lies immer zuerst `src/types/schema.ts`
+2. Aendere `src/types/schema.ts` nur bei expliziter Erlaubnis
+3. TypeScript strict - kein `any`
+4. Nutze `@react-three/drei` Helpers
+5. Keine rohe Three.js-Mathematik wenn ein Helper existiert
+6. In `useFrame`: immer `useStore.getState()`
+7. Niemals `setState` in `useFrame`
+8. `useFrame` immer mit `delta`
+9. Alle 3D-Komponenten mit `'use client'`
+10. Firestore-Reads immer tenant-scoped
+11. Wenn unsicher: nachfragen
+
+## Datei-Konventionen
+- 3D-Komponenten: `src/components/3d/`
+- UI-Komponenten: `src/components/ui/`
+- Firebase Client: `src/lib/firebase.ts`
+- Firebase Admin: `src/lib/firebaseAdmin.ts`
+- Komponenten groesser als 150 Zeilen aufteilen
+
+## Lies auch
+- `docs/PROTOCOL.md`
+- `docs/CONVENTIONS.md`
