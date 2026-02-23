@@ -9,7 +9,7 @@ import { ExhibitConfigSchema, type ExhibitConfig } from "@/types/schema";
 const DEBOUNCE_MS = 300;
 
 /**
- * Firestore <-> Zustand sync hook for the exhibit editor.
+ * Firestore ↔ Zustand sync hook for the exhibit editor.
  *
  * - Subscribes to `/tenants/{tenantId}/exhibitions/{exhibitId}` via onSnapshot
  * - Pushes valid snapshots into `editorStore.setConfig`
@@ -93,8 +93,9 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
                 try {
                     const docRef = doc(db, "tenants", tenantId, "exhibitions", exhibitId);
                     // Strip id and tenantId — those are derived from the path, not stored as fields
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     const { id: _id, tenantId: _tid, ...writeData } = partial;
+                    void _id;
+                    void _tid;
 
                     await updateDoc(docRef, writeData);
 

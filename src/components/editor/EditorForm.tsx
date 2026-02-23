@@ -87,7 +87,6 @@ function NumberInput({
 
 /**
  * Editor form panel — edits ExhibitConfig fields and calls onChange with partials.
- * Renders in the left panel of the editor split layout.
  */
 export default function EditorForm({ config, onChange }: EditorFormProps) {
     const saveStatus = useEditorStore((s) => s.saveStatus);
@@ -102,13 +101,12 @@ export default function EditorForm({ config, onChange }: EditorFormProps) {
 
     return (
         <div className="flex flex-col gap-6 p-5">
-            {/* Header + Save Status */}
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <h2 className="text-base font-semibold text-white">Editor</h2>
                 <SaveIndicator status={saveStatus} error={saveError} />
             </div>
 
-            {/* ─── General ───────────────────────────────────────────────────────── */}
+            {/* General */}
             <section className="space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">General</h3>
                 <div>
@@ -124,9 +122,7 @@ export default function EditorForm({ config, onChange }: EditorFormProps) {
                             className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-500/50"
                         >
                             {["studio", "city", "sunset", "dawn", "night", "warehouse", "forest", "apartment", "park", "lobby"].map((p) => (
-                                <option key={p} value={p} className="bg-slate-900">
-                                    {p}
-                                </option>
+                                <option key={p} value={p} className="bg-slate-900">{p}</option>
                             ))}
                         </select>
                     </div>
@@ -145,16 +141,12 @@ export default function EditorForm({ config, onChange }: EditorFormProps) {
                 </div>
             </section>
 
-            {/* ─── Model ─────────────────────────────────────────────────────────── */}
+            {/* Model */}
             <section className="space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">Model</h3>
                 <div>
                     <FieldLabel>GLB URL</FieldLabel>
-                    <TextInput
-                        value={config.model.glbUrl}
-                        onChange={(v) => updateModel({ glbUrl: v })}
-                        placeholder="https://…/model.glb"
-                    />
+                    <TextInput value={config.model.glbUrl} onChange={(v) => updateModel({ glbUrl: v })} placeholder="https://…/model.glb" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -163,146 +155,61 @@ export default function EditorForm({ config, onChange }: EditorFormProps) {
                     </div>
                     <div>
                         <FieldLabel>Scale</FieldLabel>
-                        <NumberInput
-                            value={config.model.scale}
-                            onChange={(v) => updateModel({ scale: v })}
-                            step={0.1}
-                            min={0.01}
-                        />
+                        <NumberInput value={config.model.scale} onChange={(v) => updateModel({ scale: v })} step={0.1} min={0.01} />
                     </div>
                 </div>
             </section>
 
-            {/* ─── Variants ──────────────────────────────────────────────────────── */}
+            {/* Variants */}
             <section className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">
-                    Variants ({config.model.variants.length})
-                </h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">Variants ({config.model.variants.length})</h3>
                 {config.model.variants.map((variant, vi) => (
-                    <div
-                        key={variant.id}
-                        className="space-y-2 rounded-lg border border-white/10 bg-white/[0.02] p-3"
-                    >
+                    <div key={variant.id} className="space-y-2 rounded-lg border border-white/10 bg-white/[0.02] p-3">
                         <div className="grid grid-cols-2 gap-2">
                             <div>
                                 <FieldLabel>Label</FieldLabel>
-                                <TextInput
-                                    value={variant.label}
-                                    onChange={(v) => {
-                                        const variants = [...config.model.variants];
-                                        variants[vi] = { ...variant, label: v };
-                                        updateModel({ variants });
-                                    }}
-                                />
+                                <TextInput value={variant.label} onChange={(v) => { const variants = [...config.model.variants]; variants[vi] = { ...variant, label: v }; updateModel({ variants }); }} />
                             </div>
                             <div>
                                 <FieldLabel>Color</FieldLabel>
                                 <div className="flex gap-2">
-                                    <input
-                                        type="color"
-                                        value={variant.color ?? "#ffffff"}
-                                        onChange={(e) => {
-                                            const variants = [...config.model.variants];
-                                            variants[vi] = { ...variant, color: e.target.value };
-                                            updateModel({ variants });
-                                        }}
-                                        className="h-9 w-9 cursor-pointer rounded border border-white/10 bg-transparent"
-                                    />
-                                    <TextInput
-                                        value={variant.color ?? ""}
-                                        onChange={(v) => {
-                                            const variants = [...config.model.variants];
-                                            variants[vi] = { ...variant, color: v || undefined };
-                                            updateModel({ variants });
-                                        }}
-                                    />
+                                    <input type="color" value={variant.color ?? "#ffffff"} onChange={(e) => { const variants = [...config.model.variants]; variants[vi] = { ...variant, color: e.target.value }; updateModel({ variants }); }} className="h-9 w-9 cursor-pointer rounded border border-white/10 bg-transparent" />
+                                    <TextInput value={variant.color ?? ""} onChange={(v) => { const variants = [...config.model.variants]; variants[vi] = { ...variant, color: v || undefined }; updateModel({ variants }); }} />
                                 </div>
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             <div>
                                 <FieldLabel>Roughness</FieldLabel>
-                                <NumberInput
-                                    value={variant.roughness ?? 0.5}
-                                    onChange={(v) => {
-                                        const variants = [...config.model.variants];
-                                        variants[vi] = { ...variant, roughness: v };
-                                        updateModel({ variants });
-                                    }}
-                                    min={0}
-                                    max={1}
-                                    step={0.05}
-                                />
+                                <NumberInput value={variant.roughness ?? 0.5} onChange={(v) => { const variants = [...config.model.variants]; variants[vi] = { ...variant, roughness: v }; updateModel({ variants }); }} min={0} max={1} step={0.05} />
                             </div>
                             <div>
                                 <FieldLabel>Metalness</FieldLabel>
-                                <NumberInput
-                                    value={variant.metalness ?? 0}
-                                    onChange={(v) => {
-                                        const variants = [...config.model.variants];
-                                        variants[vi] = { ...variant, metalness: v };
-                                        updateModel({ variants });
-                                    }}
-                                    min={0}
-                                    max={1}
-                                    step={0.05}
-                                />
+                                <NumberInput value={variant.metalness ?? 0} onChange={(v) => { const variants = [...config.model.variants]; variants[vi] = { ...variant, metalness: v }; updateModel({ variants }); }} min={0} max={1} step={0.05} />
                             </div>
                         </div>
                     </div>
                 ))}
             </section>
 
-            {/* ─── Hotspots ──────────────────────────────────────────────────────── */}
+            {/* Hotspots */}
             <section className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">
-                    Hotspots ({config.model.hotspots.length})
-                </h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">Hotspots ({config.model.hotspots.length})</h3>
                 {config.model.hotspots.map((hotspot, hi) => (
-                    <div
-                        key={hotspot.id}
-                        className="space-y-2 rounded-lg border border-white/10 bg-white/[0.02] p-3"
-                    >
+                    <div key={hotspot.id} className="space-y-2 rounded-lg border border-white/10 bg-white/[0.02] p-3">
                         <div>
                             <FieldLabel>Label</FieldLabel>
-                            <TextInput
-                                value={hotspot.label}
-                                onChange={(v) => {
-                                    const hotspots = [...config.model.hotspots];
-                                    hotspots[hi] = { ...hotspot, label: v };
-                                    updateModel({ hotspots });
-                                }}
-                            />
+                            <TextInput value={hotspot.label} onChange={(v) => { const hotspots = [...config.model.hotspots]; hotspots[hi] = { ...hotspot, label: v }; updateModel({ hotspots }); }} />
                         </div>
                         <div>
                             <FieldLabel>Description</FieldLabel>
-                            <textarea
-                                value={hotspot.description ?? ""}
-                                onChange={(e) => {
-                                    const hotspots = [...config.model.hotspots];
-                                    hotspots[hi] = { ...hotspot, description: e.target.value || undefined };
-                                    updateModel({ hotspots });
-                                }}
-                                rows={2}
-                                className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 outline-none transition focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/25"
-                            />
+                            <textarea value={hotspot.description ?? ""} onChange={(e) => { const hotspots = [...config.model.hotspots]; hotspots[hi] = { ...hotspot, description: e.target.value || undefined }; updateModel({ hotspots }); }} rows={2} className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 outline-none transition focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/25" />
                         </div>
                         <div>
                             <FieldLabel>Position [x, y, z]</FieldLabel>
                             <div className="grid grid-cols-3 gap-2">
                                 {([0, 1, 2] as const).map((axis) => (
-                                    <NumberInput
-                                        key={axis}
-                                        value={hotspot.position[axis]}
-                                        onChange={(v) => {
-                                            const hotspots = [...config.model.hotspots];
-                                            const pos: [number, number, number] = [...hotspot.position];
-                                            pos[axis] = v;
-                                            hotspots[hi] = { ...hotspot, position: pos };
-                                            updateModel({ hotspots });
-                                        }}
-                                        step={0.05}
-                                    />
+                                    <NumberInput key={axis} value={hotspot.position[axis]} onChange={(v) => { const hotspots = [...config.model.hotspots]; const pos: [number, number, number] = [...hotspot.position]; pos[axis] = v; hotspots[hi] = { ...hotspot, position: pos }; updateModel({ hotspots }); }} step={0.05} />
                                 ))}
                             </div>
                         </div>
