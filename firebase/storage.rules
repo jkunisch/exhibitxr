@@ -9,10 +9,17 @@ service firebase.storage {
       return isSignedIn() && request.auth.token.tenantId == tenantId;
     }
 
-    // Default: tenant-scoped uploads and reads for private assets.
-    // If a path must be public, create an explicit public subtree with separate rules.
-    match /tenants/{tenantId}/models/{allPaths=**} {
-      allow read, write: if isTenantMember(tenantId);
+    // Default deny for everything
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // Tenant-scoped uploads and reads for private assets.
+    match /tenants/{tenantId}/{allPaths=**} {
+      // Unauth read only if object metadata isPublished is "true"
+      allow read: if isTenantMember(tenantId) || resource.metadata.isPublished == "true";
+      // Upload/Write only for Tenant-Member
+      allow write: if isTenantMember(tenantId);
     }
   }
 }

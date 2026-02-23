@@ -9,10 +9,23 @@ service cloud.firestore {
       return isSignedIn() && request.auth.token.tenantId == tenantId;
     }
 
+    function isTenantOwner(tenantId) {
+      return isTenantMember(tenantId) && request.auth.token.role == "owner";
+    }
+
     match /tenants/{tenantId} {
-      allow read, write: if isTenantMember(tenantId);
+      // Tenant doc: all members can read, only owners can mutate.
+      allow read: if isTenantMember(tenantId);
+      allow write: if isTenantOwner(tenantId);
+
+      match /members/{uid} {
+        // Members can read membership; only owners can manage membership docs.
+        allow read: if isTenantMember(tenantId);
+        allow write: if isTenantOwner(tenantId);
+      }
 
       match /exhibitions/{exhibitionId} {
+        // Read is allowed if they are a member, or if the exhibition is published
         allow read: if isTenantMember(tenantId) || resource.data.isPublished == true;
         allow create, update, delete: if isTenantMember(tenantId);
       }
