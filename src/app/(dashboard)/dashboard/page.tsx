@@ -1,4 +1,5 @@
 import { Timestamp } from "firebase-admin/firestore";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getAdminDb } from "@/lib/firebaseAdmin";
@@ -92,7 +93,15 @@ export default async function DashboardPage() {
             Current Tenant Collection
           </h2>
         </div>
-        <p className="text-sm text-white/70">{exhibitions.length} entries</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-white/70">{exhibitions.length} entries</p>
+          <Link
+            href="/dashboard/exhibitions"
+            className="rounded-lg border border-cyan-200/35 bg-cyan-300/15 px-3 py-2 text-xs font-medium text-cyan-100 transition hover:bg-cyan-300/25"
+          >
+            Open CRUD
+          </Link>
+        </div>
       </div>
 
       {exhibitions.length === 0 ? (
