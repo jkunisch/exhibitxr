@@ -28,9 +28,9 @@ Robustes Firebase-Backend mit SSR-sicherem Auth-Flow, sauberer Tenant-Isolation 
 - Storage default protected; unauth read nur fuer explizit publizierte Assets.
 
 ## Phase 2 Checkliste
-- [ ] P2-A (Gemini): Firestore rules fuer Tenant + Membership + published exhibits
-- [ ] P2-B (Gemini): Storage rules mit `isPublished` Metadata-Gate
-- [ ] P2-C (Gemini): Auth actions fuer Signup/Claim/Session-Cookie
+- [x] P2-A (Gemini): Firestore rules fuer Tenant + Membership + published exhibits
+- [x] P2-B (Gemini): Storage rules mit `isPublished` Metadata-Gate
+- [x] P2-C (Gemini): Auth actions fuer Signup/Claim/Session-Cookie
 - [ ] P2-D (Codex): Login flow + session cookie handoff
 - [ ] P2-E (Codex): Dashboard route protection + basic exhibitions page
 - [ ] P2-F (Owner): `npm run lint` + `npm run build` gruen
