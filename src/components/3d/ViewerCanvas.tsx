@@ -4,9 +4,10 @@ import { Canvas } from "@react-three/fiber";
 import {
     Environment,
     ContactShadows,
-    OrbitControls,
+    CameraControls,
 } from "@react-three/drei";
-import type { ReactNode } from "react";
+import { type RefObject, type ReactNode } from "react";
+import type CameraControlsImpl from "camera-controls";
 
 interface ViewerCanvasProps {
     children: ReactNode;
@@ -18,11 +19,15 @@ interface ViewerCanvasProps {
     bgColor?: string;
     /** Initial camera position [x, y, z]. */
     cameraPosition?: [number, number, number];
+    /** Optional ref to CameraControls for programmatic fly-to. */
+    cameraControlsRef?: RefObject<CameraControlsImpl | null>;
+    /** CSS class applied to the wrapper div. */
+    className?: string;
 }
 
 /**
- * Full-viewport R3F Canvas wrapper with Environment, ContactShadows,
- * and OrbitControls pre-configured. Pass 3D children inside.
+ * R3F Canvas wrapper with Environment, ContactShadows,
+ * and CameraControls pre-configured. Pass 3D children inside.
  */
 export default function ViewerCanvas({
     children,
@@ -30,9 +35,14 @@ export default function ViewerCanvas({
     contactShadows = true,
     bgColor = "#111111",
     cameraPosition = [0, 1.5, 4],
+    cameraControlsRef,
+    className,
 }: ViewerCanvasProps) {
     return (
-        <div style={{ width: "100%", height: "100vh", background: bgColor }}>
+        <div
+            className={className}
+            style={{ width: "100%", height: "100%", background: bgColor }}
+        >
             <Canvas
                 camera={{ position: cameraPosition, fov: 45, near: 0.1, far: 100 }}
                 gl={{ antialias: true, alpha: false }}
@@ -53,9 +63,9 @@ export default function ViewerCanvas({
 
                 {children}
 
-                <OrbitControls
+                <CameraControls
+                    ref={cameraControlsRef}
                     makeDefault
-                    enablePan={false}
                     minPolarAngle={Math.PI / 6}
                     maxPolarAngle={Math.PI / 2}
                     minDistance={1.5}
