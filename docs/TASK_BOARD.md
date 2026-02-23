@@ -1,9 +1,10 @@
 # Task Board
 
 ## Now
-- [ ] Phase 1.1: Next.js scaffold + dependencies
-- [ ] Phase 1.1: `schema.ts` + Firebase init + store
-- [ ] Phase 1.2: Viewer + embed route
+- [ ] Phase 1.1 (Claude): Next.js scaffold + dependencies
+- [ ] Phase 1.1 (Claude): `schema.ts` + Firebase init + validation
+- [ ] Phase 1.2 (Claude): Viewer + embed route
+- [ ] Phase 1.3 (Codex): Premium UI overlays + Zustand integration
 
 ## Next
 - [ ] Phase 1.4: Hotspots + panel
