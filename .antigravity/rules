@@ -26,6 +26,11 @@ Du arbeitest am Projekt "ExhibitXR", ein B2B SaaS fuer 3D-Web-Ausstellungen.
 13. Kein Handholding: arbeite direkt, klar und zielfuehrend
 14. Wenn etwas nicht sicher loesbar ist: nichts kaputt machen, stoppen und eigenes Scheitern klar benennen
 15. Bei Unsicherheit: nachfragen statt raten
+16. `firebase-admin` niemals in `middleware.ts` verwenden (Edge-Runtime)
+17. Middleware macht nur Cookie-Existenz-Check (`request.cookies.has('session')`)
+18. Nach Custom-Claim-Setzen immer `await user.getIdToken(true)` vor Firestore-Zugriff
+19. `tenantId` ist eine eigene Organisations-ID (UUID), niemals User-`uid`
+20. Storage default tenant-protected; public reads nur fuer explizit publizierte Assets mit Metadata-Flag
 
 ## Datei-Konventionen
 - 3D-Komponenten: `src/components/3d/`

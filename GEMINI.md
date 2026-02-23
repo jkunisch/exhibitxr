@@ -20,6 +20,16 @@ Tailwind, Shadcn/UI, Zod.
 - Kein riskantes Trial-and-Error: wenn blockiert, klar stoppen und Scheitern benennen
 - Bei Unsicherheit: nachfragen
 
+## Senior Architektur-Regeln (Strikt)
+- Edge-Safe Middleware: `firebase-admin` niemals in `middleware.ts` einsetzen.
+- Middleware nur fuer schnellen Cookie-Gate (`request.cookies.has('session')`), keine Admin-Verifikation im Edge-Context.
+- `next-firebase-auth-edge` fuer Session-Cookie-Handling nutzen ODER volle Verifikation serverseitig in Layouts/Actions erledigen.
+- Nach dem Setzen von Custom Claims immer Client-Refresh mit `await user.getIdToken(true)` erzwingen, bevor Firestore genutzt wird.
+- Tenant-Modell als Organisation: `tenantId` ist eigene UUID und nicht die User-`uid`.
+- Membership-faehiges Design: mehrere User duerfen denselben `tenantId` Claim teilen.
+- Storage standardmaessig tenant-protected; keine globalen public-reads fuer Modelle.
+- Uploads mit Custom Metadata (mindestens `isPublished`) schreiben und Reads fuer unauthentifizierte Nutzer nur bei explizit publizierten Assets erlauben.
+
 ## Kernaufgaben
 - Firestore Collections + Security Rules
 - Firebase Storage Upload-Logik + `storage.rules`

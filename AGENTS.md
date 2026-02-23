@@ -28,6 +28,17 @@ ExhibitXR: B2B SaaS fuer interaktive 3D-Web-Ausstellungen im Browser.
 - Wenn nicht loesbar, klar als eigenes Scheitern mit Grund und sicherem Status melden
 - Commit-Format: `feat|fix|chore: kurze beschreibung`
 
+## Senior Architektur-Regeln (Strikt)
+- Next.js Middleware ist Edge-Runtime: `firebase-admin` niemals in `middleware.ts` nutzen.
+- Middleware darf nur auf Session-Cookie-Existenz pruefen (`request.cookies.has('session')`).
+- Fuer Cookie-Handling `next-firebase-auth-edge` nutzen ODER echte Token-Verifikation in Server-Component Layouts/Server-Code machen.
+- Nach Setzen von Custom Claims via Admin SDK muss der Client immer `await user.getIdToken(true)` ausfuehren, bevor Firestore-Zugriffe starten.
+- Multi-Tenancy als Membership-Modell: `tenantId` ist eine separate ID (UUID), niemals `uid` des Users.
+- Schema und Datenmodell so halten, dass mehrere User denselben Tenant teilen koennen (Team-Accounts).
+- Storage-Sicherheit B2B-first: keine pauschalen public-reads fuer 3D-Modelle.
+- Beim Upload Custom Metadata setzen (z.B. `isPublished: "false"`).
+- Unauthentifizierte Storage-Reads nur fuer explizit publizierte Assets; sonst nur fuer authentifizierte User des passenden Tenants.
+
 ## Dateistruktur
 - `src/types/schema.ts` -> NICHT aendern
 - `src/lib/firebase.ts` -> Client-Side Firebase Init
