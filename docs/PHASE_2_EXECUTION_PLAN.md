@@ -31,12 +31,12 @@ Robustes Firebase-Backend mit SSR-sicherem Auth-Flow, sauberer Tenant-Isolation 
 - [x] P2-A (Gemini): Firestore rules fuer Tenant + Membership + published exhibits
 - [x] P2-B (Gemini): Storage rules mit `isPublished` Metadata-Gate
 - [x] P2-C (Gemini): Auth actions fuer Signup/Claim/Session-Cookie
-- [ ] P2-D (Codex): Login flow + session cookie handoff
-- [ ] P2-E (Codex): Dashboard route protection + basic exhibitions page
-- [ ] P2-F (Owner): `npm run lint` + `npm run build` gruen
+- [x] P2-D (Codex): Login flow + session cookie handoff
+- [x] P2-E (Codex): Dashboard route protection + basic exhibitions page
+- [x] P2-F (Owner): `npm run lint` + `npm run build` gruen
 
 ## Abnahme
-- [ ] Unauth Zugriff auf Dashboard wird geblockt
+- [x] Unauth Zugriff auf Dashboard wird geblockt
 - [ ] Auth user mit falschem Tenant sieht keine fremden Daten
 - [ ] Published Asset ist lesbar, private Assets bleiben geschuetzt
 - [ ] Nach Registrierung funktioniert Claim-basierter Firestore-Zugriff ohne Reload-Bugs

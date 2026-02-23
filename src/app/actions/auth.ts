@@ -1,105 +1,169 @@
 "use server";
 
-import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
 import { cookies } from "next/headers";
 
-/**
- * Creates a new tenant, sets custom claims, and establishes a session cookie.
- * 
- * IMPORTANT FOR CLIENT INTEGRATION:
- * After this action returns successfully, the client MUST force a token refresh:
- * `await firebase.auth().currentUser?.getIdToken(true)`
- * before attempting any Firestore accesses, otherwise the new claims won't be applied
- * locally, leading to permission denied errors.
- */
-export async function registerTenantAndSession(idToken: string, companyName: string) {
-    try {
-        const decodedToken = await adminAuth.verifyIdToken(idToken);
-        const uid = decodedToken.uid;
+import { getAdminAuth, getAdminDb } from "@/lib/firebaseAdmin";
 
-        // Generate a new tenant ID (UUID)
-        const tenantId = crypto.randomUUID();
-        const role = "owner";
+const SESSION_COOKIE_NAME = "session";
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 5; // 5 days
 
-        // Save Tenant and User in Firestore
-        await adminDb.collection("tenants").doc(tenantId).set({
-            id: tenantId,
-            name: companyName,
-            plan: "free",
-        });
+export type SessionActionResult = { ok: true } | { ok: false; error: string };
+export type RegisterTenantResult =
+  | { ok: true; tenantId: string }
+  | { ok: false; error: string };
 
-        await adminDb.collection("tenants").doc(tenantId).collection("members").doc(uid).set({
-            uid: uid,
-            email: decodedToken.email,
-            tenantId: tenantId,
-            role: role,
-        });
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
 
-        // Set Custom Claims for Multi-Tenancy
-        await adminAuth.setCustomUserClaims(uid, { tenantId, role });
+async function setSessionCookie(idToken: string): Promise<SessionActionResult> {
+  try {
+    const adminAuth = getAdminAuth();
+    const sessionCookie = await adminAuth.createSessionCookie(idToken, {
+      expiresIn: SESSION_MAX_AGE_SECONDS * 1000,
+    });
 
-        // Create a Session Cookie
-        const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-        const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
-        
-        const cookieStore = await cookies();
-        cookieStore.set("session", sessionCookie, {
-            maxAge: expiresIn / 1000,
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-        });
+    const cookieStore = await cookies();
+    cookieStore.set(SESSION_COOKIE_NAME, sessionCookie, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: SESSION_MAX_AGE_SECONDS,
+      path: "/",
+    });
 
-        return { success: true, tenantId };
-    } catch (error) {
-        console.error("Error in registerTenantAndSession:", error);
-        return { success: false, error: "Failed to register tenant and session" };
-    }
+    return { ok: true };
+  } catch (error) {
+    return {
+      ok: false,
+      error: getErrorMessage(error, "Could not create session cookie."),
+    };
+  }
 }
 
 /**
- * Validates the ID token and creates a session cookie for an existing user.
- * Expects the user to already have a tenantId claim.
+ * Creates a tenant, adds the current user as owner member, sets custom claims,
+ * and creates a session cookie.
+ *
+ * IMPORTANT: Client must call `await user.getIdToken(true)` after success.
  */
-export async function createSession(idToken: string) {
-    try {
-        const decodedToken = await adminAuth.verifyIdToken(idToken);
-        
-        // Optionally verify user actually has a tenant ID claim (already registered)
-        if (!decodedToken.tenantId) {
-            return { success: false, error: "User is not associated with a tenant" };
-        }
+export async function registerTenantAndSession(
+  idToken: string,
+  companyName: string,
+): Promise<RegisterTenantResult> {
+  if (!idToken) {
+    return { ok: false, error: "Missing ID token." };
+  }
 
-        const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-        const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
-        
-        const cookieStore = await cookies();
-        cookieStore.set("session", sessionCookie, {
-            maxAge: expiresIn / 1000,
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-        });
+  if (!companyName || companyName.trim().length < 2) {
+    return { ok: false, error: "Company name is required." };
+  }
 
-        return { success: true };
-    } catch (error) {
-        console.error("Error in createSession:", error);
-        return { success: false, error: "Failed to create session" };
+  try {
+    const adminAuth = getAdminAuth();
+    const adminDb = getAdminDb();
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
+
+    const uid = decodedToken.uid;
+    const email = decodedToken.email ?? null;
+    const tenantId = crypto.randomUUID();
+    const role = "owner";
+
+    await adminDb.collection("tenants").doc(tenantId).set({
+      id: tenantId,
+      name: companyName.trim(),
+      plan: "free",
+      createdAt: new Date().toISOString(),
+    });
+
+    await adminDb
+      .collection("tenants")
+      .doc(tenantId)
+      .collection("members")
+      .doc(uid)
+      .set({
+        uid,
+        email,
+        tenantId,
+        role,
+        createdAt: new Date().toISOString(),
+      });
+
+    await adminAuth.setCustomUserClaims(uid, { tenantId, role });
+
+    const sessionResult = await setSessionCookie(idToken);
+    if (!sessionResult.ok) {
+      return sessionResult;
     }
+
+    return { ok: true, tenantId };
+  } catch (error) {
+    return {
+      ok: false,
+      error: getErrorMessage(error, "Failed to register tenant and session."),
+    };
+  }
 }
 
 /**
- * Deletes the session cookie to sign the user out.
+ * Creates a session cookie for an already provisioned user.
+ * Requires an existing `tenantId` claim.
  */
-export async function signOut() {
-    try {
-        const cookieStore = await cookies();
-        cookieStore.delete("session");
-        return { success: true };
-    } catch (error) {
-        console.error("Error in signOut:", error);
-        return { success: false, error: "Failed to sign out" };
+export async function createSessionCookieAction(
+  idToken: string,
+): Promise<SessionActionResult> {
+  if (!idToken) {
+    return { ok: false, error: "Missing ID token." };
+  }
+
+  try {
+    const adminAuth = getAdminAuth();
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    const tenantId =
+      typeof decodedToken.tenantId === "string" && decodedToken.tenantId.length > 0
+        ? decodedToken.tenantId
+        : null;
+
+    if (!tenantId) {
+      return {
+        ok: false,
+        error:
+          "User has no tenant claim. Complete onboarding or contact support.",
+      };
     }
+
+    return setSessionCookie(idToken);
+  } catch (error) {
+    return {
+      ok: false,
+      error: getErrorMessage(error, "Could not create session cookie."),
+    };
+  }
+}
+
+// Backward-compatible alias for existing consumers.
+export async function createSession(idToken: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const result = await createSessionCookieAction(idToken);
+  return result.ok ? { success: true } : { success: false, error: result.error };
+}
+
+export async function clearSessionCookieAction(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
+}
+
+// Backward-compatible alias for existing consumers.
+export async function signOut(): Promise<{ success: boolean; error?: string }> {
+  try {
+    await clearSessionCookieAction();
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: getErrorMessage(error, "Failed to sign out."),
+    };
+  }
 }
