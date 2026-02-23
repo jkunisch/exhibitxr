@@ -38,31 +38,28 @@ const exhibitionIdSchema = z
 
 const deleteSchema = z.object({
   exhibitionId: exhibitionIdSchema,
-  confirmTitle: z
-    .string()
-    .trim()
-    .min(1, "Please type the exhibition title to confirm deletion."),
+  confirmTitle: z.string().trim().min(1, "Please type the exhibition title to confirm deletion."),
 });
 
 export type ExhibitionMutationResult =
   | {
-      ok: true;
-      exhibitionId: string;
-    }
+    ok: true;
+    exhibitionId: string;
+  }
   | {
-      ok: false;
-      error: string;
-    };
+    ok: false;
+    error: string;
+  };
 
 export type ExhibitionDeleteResult =
   | {
-      ok: true;
-      deletedId: string;
-    }
+    ok: true;
+    deletedId: string;
+  }
   | {
-      ok: false;
-      error: string;
-    };
+    ok: false;
+    error: string;
+  };
 
 function formDataToPayload(formData: FormData) {
   return {
@@ -73,8 +70,8 @@ function formDataToPayload(formData: FormData) {
   };
 }
 
-function extractZodError(error: z.ZodError): string {
-  return error.issues[0]?.message ?? "Invalid form input.";
+function extractZodError(result: { success: false; error: z.ZodError }): string {
+  return result.error.issues[0]?.message ?? "Invalid form input.";
 }
 
 export async function createExhibitionAction(
@@ -88,7 +85,7 @@ export async function createExhibitionAction(
 
   const parsedInput = exhibitionInputSchema.safeParse(formDataToPayload(formData));
   if (!parsedInput.success) {
-    return { ok: false, error: extractZodError(parsedInput.error) };
+    return { ok: false, error: extractZodError(parsedInput) };
   }
 
   const adminDb = getAdminDb();
@@ -128,12 +125,12 @@ export async function updateExhibitionAction(
 
   const exhibitionIdResult = exhibitionIdSchema.safeParse(formData.get("exhibitionId"));
   if (!exhibitionIdResult.success) {
-    return { ok: false, error: extractZodError(exhibitionIdResult.error) };
+    return { ok: false, error: extractZodError(exhibitionIdResult) };
   }
 
   const parsedInput = exhibitionInputSchema.safeParse(formDataToPayload(formData));
   if (!parsedInput.success) {
-    return { ok: false, error: extractZodError(parsedInput.error) };
+    return { ok: false, error: extractZodError(parsedInput) };
   }
 
   const exhibitionId = exhibitionIdResult.data;
@@ -189,7 +186,7 @@ export async function deleteExhibitionAction(
   });
 
   if (!parsedInput.success) {
-    return { ok: false, error: extractZodError(parsedInput.error) };
+    return { ok: false, error: extractZodError(parsedInput) };
   }
 
   const adminDb = getAdminDb();
