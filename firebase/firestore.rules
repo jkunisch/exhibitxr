@@ -25,8 +25,8 @@ service cloud.firestore {
       }
 
       match /exhibitions/{exhibitionId} {
-        // Read is allowed if they are a member, or if the exhibition is published
-        allow read: if isTenantMember(tenantId) || resource.data.isPublished == true;
+        // Read is allowed if they are a member, or if the exhibition is explicitly published
+        allow read: if isTenantMember(tenantId) || (resource != null && resource.data.get('isPublished', false) == true);
         allow create, update, delete: if isTenantMember(tenantId);
       }
 
