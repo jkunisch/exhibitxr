@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ExternalLink, SlidersHorizontal, X } from "lucide-react";
+import { Camera, ExternalLink, Settings, SlidersHorizontal, X } from "lucide-react";
 import ViewerCanvas from "@/components/3d/ViewerCanvas";
 import ModelViewer from "@/components/3d/ModelViewer";
 import EditorForm from "@/components/editor/EditorForm";
+import { ModelGeneratorPanel } from "@/components/ui/ModelGeneratorPanel";
 import { useEditorStore, type SaveStatus } from "@/store/editorStore";
 import {
     useFirestoreExhibit,
     type EditorConfigUpdate,
 } from "@/hooks/useFirestoreExhibit";
+
+type SidebarTab = "settings" | "generate";
 
 interface EditorShellProps {
     tenantId: string;
@@ -67,6 +70,7 @@ function SaveStatusBadge({
 export default function EditorShell({ tenantId, exhibitId }: EditorShellProps) {
 
     const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+    const [sidebarTab, setSidebarTab] = useState<SidebarTab>("settings");
     const { saveToFirestore } = useFirestoreExhibit(tenantId, exhibitId);
 
     const config = useEditorStore((s) => s.config);
@@ -121,6 +125,17 @@ export default function EditorShell({ tenantId, exhibitId }: EditorShellProps) {
             handleConfigChange({
                 model: { ...config!.model, position },
             });
+        },
+        [config, handleConfigChange]
+    );
+
+    const handleModelGenerated = useCallback(
+        (glbUrl: string) => {
+            if (!config) return;
+            const updatedModel = { ...config.model, glbUrl };
+            handleConfigChange({ model: updatedModel });
+            // Switch to settings tab so user sees the updated model
+            setSidebarTab("settings");
         },
         [config, handleConfigChange]
     );
@@ -227,9 +242,10 @@ export default function EditorShell({ tenantId, exhibitId }: EditorShellProps) {
                     </div>
 
                     <div
-                        className={`z-30 overflow-y-auto border-white/10 bg-black/55 backdrop-blur-xl transition-transform duration-300 md:row-start-2 md:row-end-3 md:border-t md:bg-black/35 md:translate-y-0 lg:col-start-1 lg:row-start-1 lg:row-end-2 lg:border-r lg:border-t-0 ${isMobileDrawerOpen ? "translate-y-0" : "translate-y-full"
+                        className={`z-30 flex flex-col overflow-hidden border-white/10 bg-black/55 backdrop-blur-xl transition-transform duration-300 md:row-start-2 md:row-end-3 md:border-t md:bg-black/35 md:translate-y-0 lg:col-start-1 lg:row-start-1 lg:row-end-2 lg:border-r lg:border-t-0 ${isMobileDrawerOpen ? "translate-y-0" : "translate-y-full"
                             } fixed inset-x-0 bottom-0 h-[80vh] rounded-t-2xl border-t md:static md:h-auto md:rounded-none`}
                     >
+                        {/* Mobile drawer header */}
                         <div className="sticky top-0 z-10 border-b border-white/10 bg-black/60 px-4 py-3 md:hidden">
                             <div className="mx-auto mb-2 h-1.5 w-14 rounded-full bg-white/25" />
                             <div className="flex items-center justify-between">
@@ -244,11 +260,50 @@ export default function EditorShell({ tenantId, exhibitId }: EditorShellProps) {
                             </div>
                         </div>
 
-                        <EditorForm
-                            config={config}
-                            ambientIntensity={ambientIntensity}
-                            onChange={handleConfigChange}
-                        />
+                        {/* ── Sidebar Tabs ─────────────────────────── */}
+                        <div className="flex shrink-0 border-b border-white/10">
+                            <button
+                                type="button"
+                                onClick={() => setSidebarTab("settings")}
+                                className={`flex flex-1 items-center justify-center gap-2 px-4 py-3 text-xs font-semibold transition-colors ${sidebarTab === "settings"
+                                    ? "border-b-2 border-cyan-400 bg-white/5 text-cyan-100"
+                                    : "text-white/50 hover:bg-white/5 hover:text-white/80"
+                                    }`}
+                            >
+                                <Settings className="h-3.5 w-3.5" />
+                                Einstellungen
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setSidebarTab("generate")}
+                                className={`flex flex-1 items-center justify-center gap-2 px-4 py-3 text-xs font-semibold transition-colors ${sidebarTab === "generate"
+                                    ? "border-b-2 border-cyan-400 bg-white/5 text-cyan-100"
+                                    : "text-white/50 hover:bg-white/5 hover:text-white/80"
+                                    }`}
+                            >
+                                <Camera className="h-3.5 w-3.5" />
+                                Foto → 3D
+                            </button>
+                        </div>
+
+                        {/* ── Tab Content ──────────────────────────── */}
+                        <div className="min-h-0 flex-1 overflow-y-auto">
+                            {sidebarTab === "settings" ? (
+                                <EditorForm
+                                    config={config}
+                                    ambientIntensity={ambientIntensity}
+                                    onChange={handleConfigChange}
+                                />
+                            ) : (
+                                <div className="p-4">
+                                    <ModelGeneratorPanel
+                                        tenantId={tenantId}
+                                        exhibitId={exhibitId}
+                                        onModelGenerated={handleModelGenerated}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
