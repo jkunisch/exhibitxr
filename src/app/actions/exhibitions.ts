@@ -29,6 +29,10 @@ const exhibitionInputSchema = z.object({
     .default(""),
   isPublished: z.boolean(),
   environment: environmentPresetSchema,
+  glbUrl: z
+    .union([z.literal(""), z.string().trim().url("GLB URL must be a valid URL.")])
+    .optional()
+    .default(""),
 });
 
 const exhibitionIdSchema = z
@@ -67,6 +71,7 @@ function formDataToPayload(formData: FormData) {
     description: formData.get("description"),
     isPublished: formData.get("isPublished") === "on",
     environment: formData.get("environment"),
+    glbUrl: formData.get("glbUrl"),
   };
 }
 
@@ -104,6 +109,16 @@ export async function createExhibitionAction(
       description: parsedInput.data.description,
       isPublished: parsedInput.data.isPublished,
       environment: parsedInput.data.environment,
+      glbUrl: parsedInput.data.glbUrl,
+      model: {
+        id: crypto.randomUUID(),
+        label: parsedInput.data.title,
+        glbUrl: parsedInput.data.glbUrl || "",
+        scale: 1,
+        position: [0, 0, 0],
+        variants: [],
+        hotspots: [],
+      },
       createdAt: now,
       updatedAt: now,
     });
@@ -155,12 +170,32 @@ export async function updateExhibitionAction(
   if (tenantId !== sessionUser.tenantId) {
     return { ok: false, error: "Tenant mismatch detected." };
   }
+  const modelId =
+    currentData &&
+      typeof currentData === "object" &&
+      "model" in currentData &&
+      currentData.model &&
+      typeof currentData.model === "object" &&
+      "id" in currentData.model &&
+      typeof currentData.model.id === "string"
+      ? currentData.model.id
+      : crypto.randomUUID();
 
   await exhibitionRef.update({
     title: parsedInput.data.title,
     description: parsedInput.data.description,
     isPublished: parsedInput.data.isPublished,
     environment: parsedInput.data.environment,
+    glbUrl: parsedInput.data.glbUrl,
+    model: {
+      id: modelId,
+      label: parsedInput.data.title,
+      glbUrl: parsedInput.data.glbUrl || "",
+      scale: 1,
+      position: [0, 0, 0],
+      variants: [],
+      hotspots: [],
+    },
     updatedAt: FieldValue.serverTimestamp(),
   });
 

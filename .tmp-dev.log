@@ -1,0 +1,39 @@
+
+> exhibitxr@0.1.0 dev
+> next dev --port 3000
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.188:3000
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 2.1s
+Persisting failed: Unable to write SST file 00000259.sst
+
+Caused by:
+    Der Vorgang ist bei einer Datei mit einem geöffneten Bereich, der einem Benutzer zugeordnet ist, nicht anwendbar. (os error 1224)
+ GET / 200 in 1345ms (compile: 878ms, render: 467ms)
+ GET / 200 in 98ms (compile: 5ms, render: 93ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+ GET / 200 in 1154ms (compile: 737ms, render: 418ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 105ms
+ GET / 200 in 378ms (compile: 119ms, render: 260ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 93ms
+ GET / 200 in 129ms (compile: 6ms, render: 124ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 97ms
+ GET / 200 in 103ms (compile: 6ms, render: 96ms)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+[?25h

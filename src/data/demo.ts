@@ -1,58 +1,139 @@
 import type { ExhibitConfig } from "@/types/schema";
 
+// ─── Khronos glTF Sample Models (always available, CDN-hosted) ──────────────
+const KHRONOS_CDN =
+    "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models";
+
+// ─── Demo Configs ───────────────────────────────────────────────────────────
+
 /**
- * Demo-Konfiguration mit einem oeffentlichen GLB-Modell.
- * Nutzt das Shoe-Modell aus der drei.js-Beispiel-Bibliothek.
+ * 1. Cyber-Gear — Sci-Fi Helmet (PBR showpiece with metallic reflections)
  */
 export const demoConfig: ExhibitConfig = {
     id: "demo",
     tenantId: "demo-tenant",
-    title: "Premium Sneaker Showcase",
+    title: "Cyber-Gear Configurator",
     model: {
-        id: "shoe-model",
-        label: "Sneaker",
-        glbUrl: "https://vazxmixjsiez.usemoralis.com/shoe/shoe.glb",
-        scale: 3,
-        position: [0, 0.5, 0],
+        id: "helmet-model",
+        label: "Damaged Helmet",
+        glbUrl: `${KHRONOS_CDN}/DamagedHelmet/glTF-Binary/DamagedHelmet.glb`,
+        scale: 2.5,
+        position: [0, 0.3, 0],
         variants: [
             {
-                id: "midnight-black",
-                label: "Midnight Black",
-                meshTargets: ["shoe", "shoe_1", "shoe_2"],
-                color: "#1a1a2e",
-                roughness: 0.3,
-                metalness: 0.1,
+                id: "battle-scarred",
+                label: "Battle Scarred",
+                meshTargets: ["mesh_helmet_LP_13930damagedHelmet"],
+                roughness: 0.6,
+                metalness: 0.8,
             },
             {
-                id: "arctic-white",
-                label: "Arctic White",
-                meshTargets: ["shoe", "shoe_1", "shoe_2"],
-                color: "#f0f0f0",
-                roughness: 0.5,
-                metalness: 0.0,
+                id: "chrome-finish",
+                label: "Chrome Finish",
+                meshTargets: ["mesh_helmet_LP_13930damagedHelmet"],
+                color: "#c0c0c0",
+                roughness: 0.1,
+                metalness: 1.0,
             },
         ],
         hotspots: [
             {
-                id: "sole",
-                label: "Cushioned Sole",
-                description: "Premium EVA foam provides all-day comfort and energy return.",
-                position: [0, -0.05, 0.15],
-                cameraPosition: [1.5, 0.5, 2],
+                id: "visor",
+                label: "Tactical Visor",
+                description:
+                    "Reinforced polycarbonate visor with HUD overlay capability.",
+                position: [0, 0.05, 0.45],
+                cameraPosition: [0.8, 0.3, 1.2],
                 cameraTarget: [0, 0, 0],
             },
             {
-                id: "upper",
-                label: "Flyknit Upper",
-                description: "Breathable engineered knit adapts to your foot shape.",
-                position: [0, 0.08, -0.05],
-                cameraPosition: [-1, 1.5, 2],
+                id: "ventilation",
+                label: "Cooling System",
+                description:
+                    "Integrated air-duct system maintains optimal temperature under load.",
+                position: [-0.35, 0.15, 0.1],
+                cameraPosition: [-1.2, 0.5, 0.8],
                 cameraTarget: [0, 0.1, 0],
+            },
+        ],
+    },
+    environment: "city",
+    contactShadows: true,
+    cameraPosition: [0, 0.5, 3],
+    bgColor: "#0a0a0f",
+};
+
+/**
+ * 2. Industrial / Precision Engineering — Flight Helmet
+ *    (B2B demo: shows Hotspots on technical equipment)
+ */
+export const industrialDemoConfig: ExhibitConfig = {
+    id: "demo-industrial",
+    tenantId: "demo-tenant",
+    title: "Industrial Precision Viewer",
+    model: {
+        id: "flight-helmet-model",
+        label: "Flight Helmet",
+        glbUrl: `${KHRONOS_CDN}/FlightHelmet/glTF/FlightHelmet.gltf`,
+        scale: 5,
+        position: [0, -0.2, 0],
+        variants: [],
+        hotspots: [
+            {
+                id: "oxygen-mask",
+                label: "Oxygen Mask System",
+                description:
+                    "MIL-SPEC oxygen delivery with automatic altitude compensation.",
+                position: [0, -0.1, 0.2],
+                cameraPosition: [0.5, 0.1, 1],
+                cameraTarget: [0, -0.1, 0],
+            },
+            {
+                id: "comms",
+                label: "Communications Array",
+                description:
+                    "Dual-channel encrypted comms with active noise cancellation.",
+                position: [0.2, 0.15, 0],
+                cameraPosition: [1, 0.5, 0.5],
+                cameraTarget: [0, 0.1, 0],
+            },
+        ],
+    },
+    environment: "warehouse",
+    contactShadows: true,
+    cameraPosition: [0, 0.5, 2.5],
+    bgColor: "#111111",
+};
+
+/**
+ * 3. Automotive / Luxury — Vintage Car (Corolla or similar)
+ *    Uses the AntiqueCamera as a stand-in for precision mechanical showcase.
+ */
+export const automotiveDemoConfig: ExhibitConfig = {
+    id: "demo-automotive",
+    tenantId: "demo-tenant",
+    title: "Luxury Engineering Showcase",
+    model: {
+        id: "antique-camera-model",
+        label: "Precision Optics",
+        glbUrl: `${KHRONOS_CDN}/AntiqueCamera/glTF/AntiqueCamera.gltf`,
+        scale: 0.08,
+        position: [0, 0, 0],
+        variants: [],
+        hotspots: [
+            {
+                id: "lens",
+                label: "Precision Lens Assembly",
+                description:
+                    "Hand-ground optical glass with multi-element coated design.",
+                position: [0, 5, 10],
+                cameraPosition: [15, 10, 20],
+                cameraTarget: [0, 5, 0],
             },
         ],
     },
     environment: "studio",
     contactShadows: true,
     cameraPosition: [0, 1.5, 4],
-    bgColor: "#111111",
+    bgColor: "#1a1a1a",
 };

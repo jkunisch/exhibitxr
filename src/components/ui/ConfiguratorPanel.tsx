@@ -1,28 +1,27 @@
 "use client";
 
-import { useExhibitStore } from "../../store/exhibit";
-
-const PANEL_CLASS_NAME =
-  "bg-white/70 dark:bg-black/50 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl";
+import { useEditorStore } from "@/store/editorStore";
 
 export function ConfiguratorPanel() {
-  const config = useExhibitStore((state) => state.config);
-  const activeVariantId = useExhibitStore((state) => state.activeVariantId);
-  const setVariant = useExhibitStore((state) => state.setVariant);
+  const config = useEditorStore((state) => state.config);
+  const activeVariantId = useEditorStore((state) => state.activeVariantId);
+  const setActiveVariant = useEditorStore((state) => state.setActiveVariant);
 
   if (!config) {
     return (
-      <section className={`${PANEL_CLASS_NAME} p-4 text-sm text-slate-800 dark:text-slate-100`}>
-        Loading exhibition...
+      <section className="rounded-lg border border-zinc-200 bg-white/95 p-4 text-sm text-zinc-800 shadow-sm backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100">
+        Loading exhibition…
       </section>
     );
   }
 
   return (
-    <section className={`${PANEL_CLASS_NAME} p-4 text-slate-800 dark:text-slate-100`}>
+    <section className="rounded-lg border border-zinc-200 bg-white/95 p-4 text-zinc-800 shadow-sm backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100">
       <header className="mb-4">
-        <h2 className="text-lg font-semibold">{config.title}</h2>
-        <p className="text-sm text-slate-700/80 dark:text-slate-200/80">Material Variants</p>
+        <h2 className="text-base font-semibold tracking-tight">{config.title}</h2>
+        <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+          Material Variants
+        </p>
       </header>
 
       <div className="grid grid-cols-2 gap-2">
@@ -34,15 +33,14 @@ export function ConfiguratorPanel() {
             <button
               key={variant.id}
               type="button"
-              onClick={() => setVariant(variant.id)}
-              className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition ${
-                isActive
-                  ? "border-slate-900/60 bg-slate-900 text-white dark:border-white/60 dark:bg-white dark:text-black"
-                  : "border-slate-500/30 bg-white/60 text-slate-900 hover:bg-white dark:border-white/20 dark:bg-black/20 dark:text-white dark:hover:bg-black/40"
-              }`}
+              onClick={() => setActiveVariant(variant.id)}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm font-medium transition-all ${isActive
+                  ? "border-zinc-900 bg-zinc-900 text-white shadow-sm dark:border-white dark:bg-white dark:text-zinc-900"
+                  : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
+                }`}
             >
               <span
-                className="h-4 w-4 rounded-full border border-black/10 dark:border-white/20"
+                className="h-4 w-4 shrink-0 rounded-full border border-zinc-300 dark:border-zinc-600"
                 style={{ backgroundColor: colorSwatch }}
                 aria-hidden
               />

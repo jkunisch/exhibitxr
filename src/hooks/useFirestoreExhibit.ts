@@ -5,8 +5,16 @@ import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useEditorStore } from "@/store/editorStore";
 import { ExhibitConfigSchema, type ExhibitConfig } from "@/types/schema";
+import { sanitizeAmbientIntensity } from "@/lib/lighting";
 
-const DEBOUNCE_MS = 300;
+const DEBOUNCE_MS = 2000;
+export type EditorConfigUpdate = Partial<ExhibitConfig> & {
+    ambientIntensity?: number;
+};
+
+type FirestoreExhibitWrite = Partial<Omit<ExhibitConfig, "id" | "tenantId">> & {
+    ambientIntensity?: number;
+};
 
 /**
  * Firestore ↔ Zustand sync hook for the exhibit editor.
@@ -17,6 +25,7 @@ const DEBOUNCE_MS = 300;
  */
 export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
     const setConfig = useEditorStore((s) => s.setConfig);
+    const setAmbientIntensity = useEditorStore((s) => s.setAmbientIntensity);
     const setSaveStatus = useEditorStore((s) => s.setSaveStatus);
     const reset = useEditorStore((s) => s.reset);
 
@@ -41,6 +50,7 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
                 }
 
                 const raw = snapshot.data();
+                const ambientIntensity = sanitizeAmbientIntensity(raw.ambientIntensity);
                 const result = ExhibitConfigSchema.safeParse({
                     ...raw,
                     id: snapshot.id,
@@ -48,7 +58,7 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
                 });
 
                 if (result.success) {
-                    setConfig(result.data);
+                    setConfig(result.data, ambientIntensity);
                     // Don't overwrite "saving" status from pending writes
                     const currentStatus = useEditorStore.getState().saveStatus;
                     if (currentStatus !== "saving") {
@@ -79,9 +89,14 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
     // ─── Debounced Write ─────────────────────────────────────────────────────
 
     const saveToFirestore = useCallback(
-        (partial: Partial<ExhibitConfig>) => {
+        (partial: EditorConfigUpdate) => {
+            const { ambientIntensity, ...configPartial } = partial;
+
             // Optimistically update the local store immediately
-            useEditorStore.getState().updateConfig(partial);
+            useEditorStore.getState().updateConfig(configPartial);
+            if (ambientIntensity !== undefined) {
+                setAmbientIntensity(ambientIntensity);
+            }
             setSaveStatus("saving");
 
             // Cancel any pending debounce
@@ -93,9 +108,17 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
                 try {
                     const docRef = doc(db, "tenants", tenantId, "exhibitions", exhibitId);
                     // Strip id and tenantId — those are derived from the path, not stored as fields
-                    const { id: _id, tenantId: _tid, ...writeData } = partial;
+                    const { id: _id, tenantId: _tid, ...writeConfig } = configPartial;
                     void _id;
                     void _tid;
+
+                    const writeData: FirestoreExhibitWrite = {
+                        ...writeConfig,
+                    };
+
+                    if (ambientIntensity !== undefined) {
+                        writeData.ambientIntensity = sanitizeAmbientIntensity(ambientIntensity);
+                    }
 
                     await updateDoc(docRef, writeData);
 
@@ -120,7 +143,7 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
                 }
             }, DEBOUNCE_MS);
         },
-        [tenantId, exhibitId, setSaveStatus]
+        [tenantId, exhibitId, setAmbientIntensity, setSaveStatus]
     );
 
     return { saveToFirestore };

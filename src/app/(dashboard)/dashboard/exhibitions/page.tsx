@@ -1,4 +1,5 @@
 import { Timestamp } from "firebase-admin/firestore";
+import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -203,12 +204,19 @@ export default async function ExhibitionsPage({
                 <span>Updated: {item.updatedAtLabel}</span>
               </div>
 
-              <div className="mt-3">
+              <div className="mt-3 flex flex-wrap gap-2">
                 <Link
                   href={`/dashboard/exhibitions/${item.id}`}
                   className="inline-flex rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
                 >
-                  Edit
+                  Details
+                </Link>
+                <Link
+                  href={`/dashboard/editor/${item.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-300/35 bg-cyan-300/15 px-3 py-2 text-xs font-medium text-cyan-50 transition hover:bg-cyan-300/25"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Bearbeiten
                 </Link>
               </div>
             </li>

@@ -1,104 +1,269 @@
-"use client";
-
-import { useEffect, useMemo, useRef } from "react";
-import type CameraControlsImpl from "camera-controls";
-
-import ViewerCanvas from "@/components/3d/ViewerCanvas";
-import ModelViewer from "@/components/3d/ModelViewer";
-import { ConfiguratorPanel } from "@/components/ui/ConfiguratorPanel";
-import { HotspotPanel } from "@/components/ui/HotspotPanel";
+/* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
+import { Palette, MapPin, Bot, Link2, Smartphone, Zap, Check, ChevronRight } from "lucide-react";
+import EmbedViewer from "@/components/3d/EmbedViewer";
+import Navbar from "@/components/ui/Navbar";
+import FadeIn from "@/components/ui/FadeIn";
 import { demoConfig } from "@/data/demo";
-import { parseExhibitConfig } from "@/lib/validateConfig";
-import { useExhibitStore } from "@/store/exhibit";
 
-export default function HomePage() {
-  const cameraRef = useRef<CameraControlsImpl | null>(null);
-  const setConfig = useExhibitStore((state) => state.setConfig);
-  const config = useExhibitStore((state) => state.config);
-  const activeVariantId = useExhibitStore((state) => state.activeVariantId);
-  const selectedHotspotId = useExhibitStore((state) => state.selectedHotspotId);
-  const selectHotspot = useExhibitStore((state) => state.selectHotspot);
-
-  const parsedConfig = useMemo(() => {
-    try {
-      return { data: parseExhibitConfig(demoConfig), error: null as string | null };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown config validation error.";
-      return { data: null, error: message };
-    }
-  }, []);
-
-  useEffect(() => {
-    if (parsedConfig.data) {
-      setConfig(parsedConfig.data);
-    }
-  }, [parsedConfig.data, setConfig]);
-
-  useEffect(() => {
-    if (!config || !selectedHotspotId || !cameraRef.current) {
-      return;
-    }
-
-    const hotspot = config.model.hotspots.find((item) => item.id === selectedHotspotId);
-    if (!hotspot?.cameraPosition || !hotspot.cameraTarget) {
-      return;
-    }
-
-    const [px, py, pz] = hotspot.cameraPosition;
-    const [tx, ty, tz] = hotspot.cameraTarget;
-    cameraRef.current.setLookAt(px, py, pz, tx, ty, tz, true);
-  }, [config, selectedHotspotId]);
-
-  if (parsedConfig.error) {
-    return (
-      <main className="grid h-dvh w-full place-items-center bg-black p-6 text-white">
-        <div className="max-w-xl rounded-2xl border border-rose-300/45 bg-rose-500/10 p-5">
-          <h1 className="text-lg font-semibold">Invalid Exhibit Config</h1>
-          <pre className="mt-3 overflow-auto text-xs leading-relaxed text-rose-100/85">{parsedConfig.error}</pre>
-        </div>
-      </main>
-    );
-  }
-
-  if (!config) {
-    return (
-      <main className="grid h-dvh w-full place-items-center bg-slate-950 text-white">
-        Loading viewer...
-      </main>
-    );
-  }
-
+export default function LandingPage() {
   return (
-    <main className="relative h-dvh w-full overflow-hidden bg-slate-950 text-white">
-      <ViewerCanvas
-        environment={config.environment}
-        contactShadows={config.contactShadows}
-        bgColor={config.bgColor}
-        cameraPosition={config.cameraPosition}
-        cameraControlsRef={cameraRef}
-        className="h-full w-full"
-      >
-        <ambientLight intensity={0.45} />
-        <ModelViewer
-          config={config.model}
-          activeVariantId={activeVariantId}
-          onHotspotClick={selectHotspot}
-        />
-      </ViewerCanvas>
+    <div className="min-h-screen bg-[#0a0a0f] text-white selection:bg-[#00aaff]/30">
+      <Navbar />
 
-      <div className="pointer-events-none absolute inset-0 p-4 md:p-6">
-        <div className="pointer-events-auto inline-flex rounded-full border border-white/20 bg-black/35 px-4 py-2 text-xs font-medium tracking-[0.18em] text-white/90 backdrop-blur-md">
-          EXHIBITXR DEMO
-        </div>
+      {/* HERO SECTION */}
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        {/* Abstract Background Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-20 pointer-events-none blur-[120px] bg-gradient-to-b from-[#00aaff] to-transparent rounded-full" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-4xl mx-auto mb-16">
+            <FadeIn>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-gray-300 mb-8 backdrop-blur-sm">
+                <span className="flex h-2 w-2 rounded-full bg-[#00aaff] shadow-[0_0_8px_#00aaff]"></span>
+                ExhibitXR 2.0 ist live
+              </div>
+            </FadeIn>
+            
+            <FadeIn delay={100}>
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70">
+                3D-Ausstellungen <br className="hidden md:block" />
+                für das Web
+              </h1>
+            </FadeIn>
+            
+            <FadeIn delay={200}>
+              <p className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Erstellen Sie interaktive Produkt-Showrooms – ohne Coding.
+                Perfekt für Hersteller, Agenturen und E-Commerce.
+              </p>
+            </FadeIn>
+            
+            <FadeIn delay={300}>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link
+                  href="/register"
+                  className="w-full sm:w-auto px-8 py-4 bg-[#00aaff] hover:bg-[#0088cc] text-white rounded-full font-medium transition-all shadow-[0_0_20px_rgba(0,170,255,0.4)] hover:shadow-[0_0_30px_rgba(0,170,255,0.6)] flex items-center justify-center gap-2 group"
+                >
+                  Kostenlos starten
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  href="#features"
+                  className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-full font-medium transition-all backdrop-blur-sm"
+                >
+                  Features entdecken
+                </Link>
+              </div>
+            </FadeIn>
+          </div>
 
-        <div className="pointer-events-auto mt-4 max-w-sm">
-          <ConfiguratorPanel />
+          {/* 3D Viewer Container */}
+          <FadeIn delay={500} className="relative mx-auto w-full max-w-6xl rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-black/50 aspect-[4/3] md:aspect-[16/9] lg:h-[70vh] bg-black">
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-transparent to-transparent pointer-events-none z-10 opacity-60" />
+            <EmbedViewer config={demoConfig} enableChat={false} />
+            
+            {/* Viewer overlay label */}
+            <div className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-full bg-black/50 border border-white/10 backdrop-blur-md text-xs font-medium text-white/80 flex items-center gap-2 pointer-events-none">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              Live Demo
+            </div>
+          </FadeIn>
         </div>
+      </section>
 
-        <div className="pointer-events-auto mt-4 ml-auto max-w-sm">
-          <HotspotPanel />
+      {/* FEATURES SECTION */}
+      <section id="features" className="py-24 relative z-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <FadeIn>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">Mächtige Werkzeuge. <br />Kinderleichte Bedienung.</h2>
+              <p className="text-gray-400 text-lg">
+                Alles was Sie brauchen, um aus 3D-Modellen beeindruckende Erlebnisse zu machen.
+              </p>
+            </FadeIn>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: <Palette className="w-6 h-6 text-[#00aaff]" />,
+                title: "Konfigurator",
+                desc: "Materialien und Farben live wechseln. Zeigen Sie alle Varianten in einem Modell."
+              },
+              {
+                icon: <MapPin className="w-6 h-6 text-rose-400" />,
+                title: "Hotspots",
+                desc: "Platzieren Sie interaktive Info-Punkte im 3D-Raum, um Details hervorzuheben."
+              },
+              {
+                icon: <Bot className="w-6 h-6 text-purple-400" />,
+                title: "KI-Chat",
+                desc: "Ein intelligenter Produktberater beantwortet Fragen direkt im Viewer."
+              },
+              {
+                icon: <Link2 className="w-6 h-6 text-emerald-400" />,
+                title: "Einfach Einbinden",
+                desc: "Per iFrame-Code auf jeder Website integrieren – wie ein YouTube-Video."
+              },
+              {
+                icon: <Smartphone className="w-6 h-6 text-amber-400" />,
+                title: "Voll Responsive",
+                desc: "Optimiert für Desktop, Tablet und Smartphone mit Touch-Gesten."
+              },
+              {
+                icon: <Zap className="w-6 h-6 text-cyan-400" />,
+                title: "Echtzeit-Editor",
+                desc: "Änderungen im Dashboard sind sofort in der Live-Ansicht sichtbar."
+              }
+            ].map((feature, idx) => (
+              <FadeIn key={idx} delay={idx * 100} className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-2xl hover:bg-white/10 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 border border-white/10">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
+              </FadeIn>
+            ))}
+          </div>
         </div>
-      </div>
-    </main>
+      </section>
+
+      {/* USECASES SECTION */}
+      <section id="usecases" className="py-24 bg-black/50 border-y border-white/5">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <FadeIn>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">Für Hersteller, Museen und Showrooms</h2>
+              <p className="text-gray-400 text-lg">
+                Unsere Technologie passt sich an Ihre Anforderungen an.
+              </p>
+            </FadeIn>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "E-Commerce",
+                desc: "Steigern Sie Konversionsraten, indem Kunden Produkte vor dem Kauf virtuell konfigurieren können.",
+                img: "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=800&auto=format&fit=crop"
+              },
+              {
+                title: "Industrie & B2B",
+                desc: "Erklären Sie komplexe Maschinen durch interaktive Hotspots und Animationen, ohne Transportkosten.",
+                img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop"
+              },
+              {
+                title: "Kunst & Museen",
+                desc: "Machen Sie Exponate weltweit zugänglich. Schaffen Sie virtuelle Rundgänge durch Ihre Ausstellungen.",
+                img: "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=800&auto=format&fit=crop"
+              }
+            ].map((item, idx) => (
+              <FadeIn key={idx} delay={idx * 150} className="group relative rounded-2xl overflow-hidden border border-white/10">
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent flex flex-col justify-end p-8">
+                  <h3 className="text-2xl font-bold mb-2">{item.title}</h3>
+                  <p className="text-gray-300 text-sm leading-relaxed">{item.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING SECTION */}
+      <section id="pricing" className="py-32 relative">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <FadeIn>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">Transparente Preise</h2>
+              <p className="text-gray-400 text-lg">
+                Wählen Sie den Plan, der am besten zu Ihrem Unternehmen passt.
+              </p>
+            </FadeIn>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
+            {/* Free */}
+            <FadeIn delay={0} className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-sm">
+              <h3 className="text-xl font-medium text-gray-400 mb-2">Free</h3>
+              <div className="text-4xl font-bold mb-6">0€ <span className="text-lg font-normal text-gray-500">/ Monat</span></div>
+              <ul className="space-y-4 mb-8">
+                {["1 Ausstellung", "Basis-Editor", "Community-Support", "Wasserzeichen"].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-300">
+                    <Check className="w-5 h-5 text-gray-500" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/register" className="block w-full py-3 px-6 text-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-medium">
+                Starten
+              </Link>
+            </FadeIn>
+
+            {/* Starter */}
+            <FadeIn delay={150} className="bg-gradient-to-b from-white/10 to-white/5 border border-[#00aaff]/50 rounded-3xl p-8 backdrop-blur-sm relative shadow-[0_0_40px_rgba(0,170,255,0.15)] md:-mt-8 md:mb-8">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#00aaff] text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                Empfohlen
+              </div>
+              <h3 className="text-xl font-medium text-[#00aaff] mb-2">Starter</h3>
+              <div className="text-4xl font-bold mb-6">29€ <span className="text-lg font-normal text-gray-400">/ Monat</span></div>
+              <ul className="space-y-4 mb-8">
+                {["10 Ausstellungen", "Hotspots & Konfigurator", "Kein Wasserzeichen", "E-Mail Support", "Analytics Dashboard"].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-200">
+                    <Check className="w-5 h-5 text-[#00aaff]" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/register" className="block w-full py-3 px-6 text-center rounded-xl bg-[#00aaff] hover:bg-[#0088cc] shadow-[0_0_15px_rgba(0,170,255,0.4)] transition-all font-medium">
+                7 Tage kostenlos testen
+              </Link>
+            </FadeIn>
+
+            {/* Pro */}
+            <FadeIn delay={300} className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-sm">
+              <h3 className="text-xl font-medium text-gray-400 mb-2">Pro</h3>
+              <div className="text-4xl font-bold mb-6">99€ <span className="text-lg font-normal text-gray-500">/ Monat</span></div>
+              <ul className="space-y-4 mb-8">
+                {["Unbegrenzte Ausstellungen", "KI-Chat Integration", "Custom Domain", "Priority Support", "API Zugriff", "Team-Management"].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-300">
+                    <Check className="w-5 h-5 text-gray-400" /> {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/contact" className="block w-full py-3 px-6 text-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-medium">
+                Kontakt aufnehmen
+              </Link>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 bg-black pt-16 pb-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-12">
+            <Link href="/" className="text-2xl font-bold tracking-tighter text-white mb-6 md:mb-0">
+              Exhibit<span className="text-[#00aaff]">XR</span>
+            </Link>
+            
+            <div className="flex flex-wrap justify-center gap-8">
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">Impressum</Link>
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">Datenschutz</Link>
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">AGB</Link>
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">Kontakt</Link>
+            </div>
+          </div>
+          
+          <div className="text-center text-gray-500 text-sm flex items-center justify-center gap-2">
+            Made with <span className="text-red-500">❤️</span> in Mannheim
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }

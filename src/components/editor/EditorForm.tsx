@@ -1,39 +1,62 @@
 "use client";
 
-import { useCallback } from "react";
-import { useEditorStore, type SaveStatus } from "@/store/editorStore";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import type { EditorConfigUpdate } from "@/hooks/useFirestoreExhibit";
+import {
+    AMBIENT_INTENSITY_MAX,
+    AMBIENT_INTENSITY_MIN,
+    AMBIENT_INTENSITY_STEP,
+} from "@/lib/lighting";
 import type { ExhibitConfig, ExhibitModel } from "@/types/schema";
+
+const ENVIRONMENT_PRESETS = [
+    "studio",
+    "city",
+    "sunset",
+    "dawn",
+    "night",
+    "warehouse",
+    "forest",
+    "apartment",
+    "park",
+    "lobby",
+] as const;
+
+type EnvironmentPreset = (typeof ENVIRONMENT_PRESETS)[number];
+type SectionKey = "general" | "lighting" | "model" | "variants" | "hotspots";
+
+const ENVIRONMENT_THUMBNAILS: Record<EnvironmentPreset, string> = {
+    studio: "from-slate-100/70 via-slate-300/35 to-slate-700/40",
+    city: "from-sky-300/60 via-slate-400/25 to-slate-900/55",
+    sunset: "from-amber-200/70 via-orange-400/45 to-rose-600/60",
+    dawn: "from-rose-200/65 via-orange-200/40 to-sky-400/45",
+    night: "from-indigo-300/45 via-slate-900/70 to-black/90",
+    warehouse: "from-zinc-200/55 via-zinc-500/40 to-zinc-900/65",
+    forest: "from-emerald-200/60 via-emerald-500/35 to-emerald-900/70",
+    apartment: "from-stone-100/65 via-stone-300/30 to-stone-600/50",
+    park: "from-lime-200/60 via-green-400/40 to-emerald-700/65",
+    lobby: "from-amber-100/60 via-amber-300/40 to-slate-700/55",
+};
 
 interface EditorFormProps {
     config: ExhibitConfig;
-    onChange: (partial: Partial<ExhibitConfig>) => void;
+    ambientIntensity: number;
+    onChange: (partial: EditorConfigUpdate) => void;
 }
 
-function SaveIndicator({ status, error }: { status: SaveStatus; error: string | null }) {
-    const styles: Record<SaveStatus, { label: string; color: string }> = {
-        idle: { label: "", color: "" },
-        saving: { label: "💾 Saving…", color: "text-yellow-400" },
-        saved: { label: "✓ Saved", color: "text-emerald-400" },
-        error: { label: "⚠ Error", color: "text-red-400" },
-    };
-    const s = styles[status];
-    if (!s.label) return null;
-
-    return (
-        <div className={`flex items-center gap-2 text-xs ${s.color}`}>
-            <span>{s.label}</span>
-            {error && status === "error" && (
-                <span className="max-w-[200px] truncate text-red-300/70" title={error}>
-                    {error}
-                </span>
-            )}
-        </div>
-    );
+interface SectionProps {
+    section: SectionKey;
+    title: string;
+    description: string;
+    isOpen: boolean;
+    onToggle: (section: SectionKey) => void;
+    children: ReactNode;
 }
 
-function FieldLabel({ children }: { children: React.ReactNode }) {
+function FieldLabel({ children }: { children: ReactNode }) {
     return (
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-white/50">
+        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
             {children}
         </label>
     );
@@ -54,7 +77,7 @@ function TextInput({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 outline-none transition focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/25"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none transition focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30"
         />
     );
 }
@@ -80,17 +103,65 @@ function NumberInput({
             step={step}
             min={min}
             max={max}
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/25"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30"
         />
     );
 }
 
+function Section({
+    section,
+    title,
+    description,
+    isOpen,
+    onToggle,
+    children,
+}: SectionProps) {
+    return (
+        <section className="rounded-2xl border border-white/10 bg-slate-900/45">
+            <button
+                type="button"
+                onClick={() => onToggle(section)}
+                className="flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+                <div>
+                    <h3 className="text-sm font-semibold text-white">{title}</h3>
+                    <p className="mt-0.5 text-xs text-white/55">{description}</p>
+                </div>
+                {isOpen ? (
+                    <ChevronDown className="h-4 w-4 text-white/60" />
+                ) : (
+                    <ChevronRight className="h-4 w-4 text-white/60" />
+                )}
+            </button>
+            {isOpen && (
+                <div className="space-y-4 border-t border-white/10 px-4 py-4">
+                    {children}
+                </div>
+            )}
+        </section>
+    );
+}
+
 /**
- * Editor form panel — edits ExhibitConfig fields and calls onChange with partials.
+ * Editor form panel — edits ExhibitConfig + extended editor controls and
+ * calls onChange with strictly typed partial updates.
  */
-export default function EditorForm({ config, onChange }: EditorFormProps) {
-    const saveStatus = useEditorStore((s) => s.saveStatus);
-    const saveError = useEditorStore((s) => s.saveError);
+export default function EditorForm({
+    config,
+    ambientIntensity,
+    onChange,
+}: EditorFormProps) {
+    const [openSections, setOpenSections] = useState<Record<SectionKey, boolean>>({
+        general: true,
+        lighting: true,
+        model: true,
+        variants: true,
+        hotspots: true,
+    });
+
+    const toggleSection = useCallback((section: SectionKey) => {
+        setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+    }, []);
 
     const updateModel = useCallback(
         (partial: Partial<ExhibitModel>) => {
@@ -99,123 +170,312 @@ export default function EditorForm({ config, onChange }: EditorFormProps) {
         [config.model, onChange]
     );
 
-    return (
-        <div className="flex flex-col gap-6 p-5">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <h2 className="text-base font-semibold text-white">Editor</h2>
-                <SaveIndicator status={saveStatus} error={saveError} />
-            </div>
+    const ambientLabel = useMemo(() => ambientIntensity.toFixed(1), [ambientIntensity]);
 
-            {/* General */}
-            <section className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">General</h3>
-                <div>
-                    <FieldLabel>Title</FieldLabel>
-                    <TextInput value={config.title} onChange={(v) => onChange({ title: v })} />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
+    return (
+        <div className="flex h-full flex-col">
+            <div className="space-y-4 p-4 sm:p-5">
+                <Section
+                    section="general"
+                    title="Allgemein"
+                    description="Titel und Szenenumgebung verwalten."
+                    isOpen={openSections.general}
+                    onToggle={toggleSection}
+                >
                     <div>
-                        <FieldLabel>Environment</FieldLabel>
-                        <select
-                            value={config.environment}
-                            onChange={(e) => onChange({ environment: e.target.value })}
-                            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-500/50"
-                        >
-                            {["studio", "city", "sunset", "dawn", "night", "warehouse", "forest", "apartment", "park", "lobby"].map((p) => (
-                                <option key={p} value={p} className="bg-slate-900">{p}</option>
-                            ))}
-                        </select>
+                        <FieldLabel>Titel</FieldLabel>
+                        <TextInput value={config.title} onChange={(v) => onChange({ title: v })} />
                     </div>
+
+                    <div className="border-t border-white/10 pt-4">
+                        <div className="mb-2 flex items-center justify-between">
+                            <FieldLabel>HDRI Environment</FieldLabel>
+                            <span className="text-xs text-cyan-300/80">{config.environment}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            {ENVIRONMENT_PRESETS.map((preset) => {
+                                const isActive = config.environment === preset;
+                                return (
+                                    <button
+                                        key={preset}
+                                        type="button"
+                                        onClick={() => onChange({ environment: preset })}
+                                        className={`group rounded-xl border p-2 text-left transition ${isActive
+                                            ? "border-cyan-400 bg-cyan-500/10 shadow-[0_0_0_1px_rgba(34,211,238,0.25)]"
+                                            : "border-white/15 bg-black/25 hover:border-white/35"
+                                            }`}
+                                    >
+                                        <div
+                                            className={`h-10 rounded-lg bg-gradient-to-br ${ENVIRONMENT_THUMBNAILS[preset]}`}
+                                        />
+                                        <p
+                                            className={`mt-1.5 text-xs font-medium capitalize ${isActive ? "text-cyan-200" : "text-white/80 group-hover:text-white"
+                                                }`}
+                                        >
+                                            {preset}
+                                        </p>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </Section>
+
+                <Section
+                    section="lighting"
+                    title="Beleuchtung"
+                    description="Lichtstimmung und Schatten live steuern."
+                    isOpen={openSections.lighting}
+                    onToggle={toggleSection}
+                >
                     <div>
-                        <FieldLabel>BG Color</FieldLabel>
-                        <div className="flex gap-2">
+                        <div className="mb-2 flex items-center justify-between">
+                            <FieldLabel>Ambient Intensity</FieldLabel>
+                            <span className="text-xs font-semibold text-cyan-200">{ambientLabel}</span>
+                        </div>
+                        <input
+                            type="range"
+                            min={AMBIENT_INTENSITY_MIN}
+                            max={AMBIENT_INTENSITY_MAX}
+                            step={AMBIENT_INTENSITY_STEP}
+                            value={ambientIntensity}
+                            onChange={(e) =>
+                                onChange({ ambientIntensity: parseFloat(e.target.value) || 0 })
+                            }
+                            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/15 accent-cyan-400"
+                        />
+                        <div className="mt-1 flex items-center justify-between text-[11px] text-white/45">
+                            <span>{AMBIENT_INTENSITY_MIN}</span>
+                            <span>{AMBIENT_INTENSITY_MAX}</span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+                        <div>
+                            <FieldLabel>Background Color</FieldLabel>
+                            <TextInput value={config.bgColor} onChange={(v) => onChange({ bgColor: v })} />
+                        </div>
+                        <div className="sm:pt-6">
                             <input
                                 type="color"
                                 value={config.bgColor}
                                 onChange={(e) => onChange({ bgColor: e.target.value })}
-                                className="h-9 w-9 cursor-pointer rounded border border-white/10 bg-transparent"
+                                className="h-10 w-14 cursor-pointer rounded-xl border border-white/15 bg-transparent"
                             />
-                            <TextInput value={config.bgColor} onChange={(v) => onChange({ bgColor: v })} />
                         </div>
                     </div>
-                </div>
-            </section>
 
-            {/* Model */}
-            <section className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">Model</h3>
-                <div>
-                    <FieldLabel>GLB URL</FieldLabel>
-                    <TextInput value={config.model.glbUrl} onChange={(v) => updateModel({ glbUrl: v })} placeholder="https://…/model.glb" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                    <div>
-                        <FieldLabel>Label</FieldLabel>
-                        <TextInput value={config.model.label} onChange={(v) => updateModel({ label: v })} />
+                    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
+                        <div>
+                            <p className="text-sm font-medium text-white">Contact Shadows</p>
+                            <p className="text-xs text-white/55">
+                                Weiche Kontaktschatten unter dem Modell.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={config.contactShadows}
+                            onClick={() => onChange({ contactShadows: !config.contactShadows })}
+                            className={`relative h-7 w-12 rounded-full border transition ${config.contactShadows
+                                ? "border-cyan-400/60 bg-cyan-500/25"
+                                : "border-white/20 bg-white/10"
+                                }`}
+                        >
+                            <span
+                                className={`absolute top-0.5 h-[22px] w-[22px] rounded-full bg-white shadow transition ${config.contactShadows ? "left-6" : "left-0.5"
+                                    }`}
+                            />
+                        </button>
                     </div>
-                    <div>
-                        <FieldLabel>Scale</FieldLabel>
-                        <NumberInput value={config.model.scale} onChange={(v) => updateModel({ scale: v })} step={0.1} min={0.01} />
-                    </div>
-                </div>
-            </section>
+                </Section>
 
-            {/* Variants */}
-            <section className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">Variants ({config.model.variants.length})</h3>
-                {config.model.variants.map((variant, vi) => (
-                    <div key={variant.id} className="space-y-2 rounded-lg border border-white/10 bg-white/[0.02] p-3">
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <FieldLabel>Label</FieldLabel>
-                                <TextInput value={variant.label} onChange={(v) => { const variants = [...config.model.variants]; variants[vi] = { ...variant, label: v }; updateModel({ variants }); }} />
+                <Section
+                    section="model"
+                    title="Model"
+                    description="Datei, Label und Skalierung."
+                    isOpen={openSections.model}
+                    onToggle={toggleSection}
+                >
+                    <div>
+                        <FieldLabel>GLB URL</FieldLabel>
+                        <TextInput
+                            value={config.model.glbUrl}
+                            onChange={(v) => updateModel({ glbUrl: v })}
+                            placeholder="https://…/model.glb"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <FieldLabel>Label</FieldLabel>
+                            <TextInput value={config.model.label} onChange={(v) => updateModel({ label: v })} />
+                        </div>
+                        <div>
+                            <FieldLabel>Scale</FieldLabel>
+                            <NumberInput
+                                value={config.model.scale}
+                                onChange={(v) => updateModel({ scale: v })}
+                                step={0.1}
+                                min={0.01}
+                            />
+                        </div>
+                    </div>
+                </Section>
+
+                <Section
+                    section="variants"
+                    title={`Variants (${config.model.variants.length})`}
+                    description="Materialparameter für Varianten."
+                    isOpen={openSections.variants}
+                    onToggle={toggleSection}
+                >
+                    {config.model.variants.length === 0 && (
+                        <p className="rounded-xl border border-dashed border-white/15 bg-black/20 px-3 py-2 text-xs text-white/60">
+                            Keine Varianten vorhanden.
+                        </p>
+                    )}
+
+                    {config.model.variants.map((variant, vi) => (
+                        <div key={variant.id} className="space-y-3 rounded-xl border border-white/10 bg-black/20 p-3">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <div>
+                                    <FieldLabel>Label</FieldLabel>
+                                    <TextInput
+                                        value={variant.label}
+                                        onChange={(v) => {
+                                            const variants = [...config.model.variants];
+                                            variants[vi] = { ...variant, label: v };
+                                            updateModel({ variants });
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <FieldLabel>Color</FieldLabel>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="color"
+                                            value={variant.color ?? "#ffffff"}
+                                            onChange={(e) => {
+                                                const variants = [...config.model.variants];
+                                                variants[vi] = { ...variant, color: e.target.value };
+                                                updateModel({ variants });
+                                            }}
+                                            className="h-10 w-12 cursor-pointer rounded-xl border border-white/10 bg-transparent"
+                                        />
+                                        <TextInput
+                                            value={variant.color ?? ""}
+                                            onChange={(v) => {
+                                                const variants = [...config.model.variants];
+                                                variants[vi] = { ...variant, color: v || undefined };
+                                                updateModel({ variants });
+                                            }}
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <FieldLabel>Color</FieldLabel>
-                                <div className="flex gap-2">
-                                    <input type="color" value={variant.color ?? "#ffffff"} onChange={(e) => { const variants = [...config.model.variants]; variants[vi] = { ...variant, color: e.target.value }; updateModel({ variants }); }} className="h-9 w-9 cursor-pointer rounded border border-white/10 bg-transparent" />
-                                    <TextInput value={variant.color ?? ""} onChange={(v) => { const variants = [...config.model.variants]; variants[vi] = { ...variant, color: v || undefined }; updateModel({ variants }); }} />
+
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <div>
+                                    <FieldLabel>Roughness</FieldLabel>
+                                    <NumberInput
+                                        value={variant.roughness ?? 0.5}
+                                        onChange={(v) => {
+                                            const variants = [...config.model.variants];
+                                            variants[vi] = { ...variant, roughness: v };
+                                            updateModel({ variants });
+                                        }}
+                                        min={0}
+                                        max={1}
+                                        step={0.05}
+                                    />
+                                </div>
+                                <div>
+                                    <FieldLabel>Metalness</FieldLabel>
+                                    <NumberInput
+                                        value={variant.metalness ?? 0}
+                                        onChange={(v) => {
+                                            const variants = [...config.model.variants];
+                                            variants[vi] = { ...variant, metalness: v };
+                                            updateModel({ variants });
+                                        }}
+                                        min={0}
+                                        max={1}
+                                        step={0.05}
+                                    />
                                 </div>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <FieldLabel>Roughness</FieldLabel>
-                                <NumberInput value={variant.roughness ?? 0.5} onChange={(v) => { const variants = [...config.model.variants]; variants[vi] = { ...variant, roughness: v }; updateModel({ variants }); }} min={0} max={1} step={0.05} />
-                            </div>
-                            <div>
-                                <FieldLabel>Metalness</FieldLabel>
-                                <NumberInput value={variant.metalness ?? 0} onChange={(v) => { const variants = [...config.model.variants]; variants[vi] = { ...variant, metalness: v }; updateModel({ variants }); }} min={0} max={1} step={0.05} />
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </section>
+                    ))}
+                </Section>
 
-            {/* Hotspots */}
-            <section className="space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">Hotspots ({config.model.hotspots.length})</h3>
-                {config.model.hotspots.map((hotspot, hi) => (
-                    <div key={hotspot.id} className="space-y-2 rounded-lg border border-white/10 bg-white/[0.02] p-3">
-                        <div>
-                            <FieldLabel>Label</FieldLabel>
-                            <TextInput value={hotspot.label} onChange={(v) => { const hotspots = [...config.model.hotspots]; hotspots[hi] = { ...hotspot, label: v }; updateModel({ hotspots }); }} />
-                        </div>
-                        <div>
-                            <FieldLabel>Description</FieldLabel>
-                            <textarea value={hotspot.description ?? ""} onChange={(e) => { const hotspots = [...config.model.hotspots]; hotspots[hi] = { ...hotspot, description: e.target.value || undefined }; updateModel({ hotspots }); }} rows={2} className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 outline-none transition focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/25" />
-                        </div>
-                        <div>
-                            <FieldLabel>Position [x, y, z]</FieldLabel>
-                            <div className="grid grid-cols-3 gap-2">
-                                {([0, 1, 2] as const).map((axis) => (
-                                    <NumberInput key={axis} value={hotspot.position[axis]} onChange={(v) => { const hotspots = [...config.model.hotspots]; const pos: [number, number, number] = [...hotspot.position]; pos[axis] = v; hotspots[hi] = { ...hotspot, position: pos }; updateModel({ hotspots }); }} step={0.05} />
-                                ))}
+                <Section
+                    section="hotspots"
+                    title={`Hotspots (${config.model.hotspots.length})`}
+                    description="Texte und Positionen interaktiver Marker."
+                    isOpen={openSections.hotspots}
+                    onToggle={toggleSection}
+                >
+                    {config.model.hotspots.length === 0 && (
+                        <p className="rounded-xl border border-dashed border-white/15 bg-black/20 px-3 py-2 text-xs text-white/60">
+                            Keine Hotspots vorhanden.
+                        </p>
+                    )}
+
+                    {config.model.hotspots.map((hotspot, hi) => (
+                        <div key={hotspot.id} className="space-y-3 rounded-xl border border-white/10 bg-black/20 p-3">
+                            <div>
+                                <FieldLabel>Label</FieldLabel>
+                                <TextInput
+                                    value={hotspot.label}
+                                    onChange={(v) => {
+                                        const hotspots = [...config.model.hotspots];
+                                        hotspots[hi] = { ...hotspot, label: v };
+                                        updateModel({ hotspots });
+                                    }}
+                                />
+                            </div>
+
+                            <div>
+                                <FieldLabel>Description</FieldLabel>
+                                <textarea
+                                    value={hotspot.description ?? ""}
+                                    onChange={(e) => {
+                                        const hotspots = [...config.model.hotspots];
+                                        hotspots[hi] = {
+                                            ...hotspot,
+                                            description: e.target.value || undefined,
+                                        };
+                                        updateModel({ hotspots });
+                                    }}
+                                    rows={2}
+                                    className="w-full resize-none rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none transition focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30"
+                                />
+                            </div>
+
+                            <div>
+                                <FieldLabel>Position [x, y, z]</FieldLabel>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {([0, 1, 2] as const).map((axis) => (
+                                        <NumberInput
+                                            key={axis}
+                                            value={hotspot.position[axis]}
+                                            onChange={(v) => {
+                                                const hotspots = [...config.model.hotspots];
+                                                const pos: [number, number, number] = [...hotspot.position];
+                                                pos[axis] = v;
+                                                hotspots[hi] = { ...hotspot, position: pos };
+                                                updateModel({ hotspots });
+                                            }}
+                                            step={0.05}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </section>
+                    ))}
+                </Section>
+            </div>
         </div>
     );
 }

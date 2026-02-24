@@ -7,6 +7,10 @@ type GlassFormPanelProps = {
   footer?: ReactNode;
 };
 
+/**
+ * Solid enterprise-grade form panel.
+ * Vercel/Linear-inspired: clean borders, no glass, minimal shadow.
+ */
 export function GlassFormPanel({
   title,
   subtitle,
@@ -14,13 +18,13 @@ export function GlassFormPanel({
   footer,
 }: GlassFormPanelProps) {
   return (
-    <section className="rounded-2xl border border-white/20 bg-white/70 p-5 shadow-xl backdrop-blur-md dark:bg-black/50 sm:p-6">
+    <section className="rounded-lg border border-zinc-200 bg-white/95 p-5 shadow-sm backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950 sm:p-6">
       <header className="mb-5">
-        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+        <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">
           {title}
         </h2>
         {subtitle ? (
-          <p className="mt-1 text-sm text-slate-700/80 dark:text-slate-200/80">
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             {subtitle}
           </p>
         ) : null}
@@ -32,4 +36,3 @@ export function GlassFormPanel({
     </section>
   );
 }
-
