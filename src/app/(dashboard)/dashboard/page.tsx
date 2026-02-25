@@ -151,7 +151,7 @@ export default async function DashboardPage() {
               key={item.id}
               className="rounded-xl border border-white/12 bg-black/20 px-4 py-3 transition hover:border-white/25 hover:bg-white/[0.04]"
             >
-              <Link href={`/dashboard/exhibitions/${item.id}`} className="block">
+              <Link href={`/dashboard/editor/${item.id}`} className="block">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="font-medium text-white">{item.title}</p>
