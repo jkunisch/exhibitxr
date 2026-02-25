@@ -12,9 +12,37 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Ein Bild in ein 3D-Modell umwandeln",
+  "description": "Erfahre, wie du mit KI-Tools ein einzelnes Bild in ein interaktives 3D-Modell verwandelst.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Schritt 1: Das perfekte Bild wählen",
+      "text": "Nimm ein hochauflösendes Bild deines Produktes. Das Objekt sollte zentral im Bild liegen und gut ausgeleuchtet sein."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Schritt 2: KI-Upload",
+      "text": "Lade dein Bild in einen KI-Generator wie 3D-Snap hoch. Die KI erzeugt automatisch Polygone und die Textur."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Schritt 3: 3D-Modell einbinden",
+      "text": "Exportiere das generierte Modell als .glb oder bette es über einen iframe Viewer direkt auf deiner Website ein."
+    }
+  ]
+};
+
 export default function BildZu3DPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white selection:bg-[#00aaff]/30">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       {/* HERO SECTION */}
@@ -58,7 +86,7 @@ export default function BildZu3DPage() {
               
               <h2 className="text-3xl font-bold text-white mb-6">Warum Bilder in 3D umwandeln?</h2>
               <p className="text-gray-300 mb-8">
-                Online-Shopper können Produkte nicht anfassen. Ein flaches Bild (JPG, PNG) liefert nur eine Perspektive. Ein 3D-Modell hingegen lässt sich drehen, zoomen und von allen Seiten betrachten. Das steigert das Vertrauen und reduziert Retouren signifikant.
+                Online-Shopper können Produkte nicht anfassen. Ein flaches Bild (JPG, PNG) liefert nur eine Perspektive. Ein 3D-Modell hingegen lässt sich drehen, zoomen und von allen Seiten betrachten. Das steigert das Vertrauen und reduziert Retouren signifikant. Wenn du mehr über die grundsätzlichen Technologien (wie Photogrammetrie) erfahren willst, schau dir unseren Artikel über <Link href="/foto-zu-3d-modell" className="text-[#00aaff] hover:underline">Tools und Workflows für Foto zu 3D Modelle</Link> an.
               </p>
 
               <h2 className="text-3xl font-bold text-white mb-6">So funktioniert der Workflow</h2>

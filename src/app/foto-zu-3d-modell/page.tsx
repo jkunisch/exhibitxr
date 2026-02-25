@@ -12,9 +12,34 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "3D-Snap",
+  "operatingSystem": "Web Browser",
+  "applicationCategory": "MultimediaApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+  },
+  "description": "Ein KI-gestützter Foto zu 3D Modell Generator. Konvertiert einfache JPG und PNG Bilder in interaktive GLB und STL 3D-Modelle für E-Commerce und Creator.",
+  "url": "https://3d-snap.com",
+  "featureList": [
+    "KI-gestützte 3D-Generierung aus Einzelfotos",
+    "GLB und STL Export",
+    "Web-basierter interaktiver 3D-Viewer",
+    "Material- und Farbkonfigurator"
+  ]
+};
+
 export default function FotoZu3DModellPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white selection:bg-[#00aaff]/30">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       {/* HERO SECTION */}
@@ -84,9 +109,43 @@ export default function FotoZu3DModellPage() {
                 </div>
               </div>
 
+              <h2 className="text-3xl font-bold text-white mb-6">Vergleich: Photogrammetrie vs. LiDAR vs. KI-Generierung</h2>
+              <div className="overflow-x-auto mb-12">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/20 text-gray-300">
+                      <th className="p-4 font-semibold">Methode</th>
+                      <th className="p-4 font-semibold">Benötigte Hardware</th>
+                      <th className="p-4 font-semibold">Dauer</th>
+                      <th className="p-4 font-semibold">Bester Einsatzzweck</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-gray-400">
+                    <tr className="border-b border-white/10 bg-white/5">
+                      <td className="p-4 text-white font-medium">KI-Generator (z.B. 3D-Snap)</td>
+                      <td className="p-4">Smartphone oder PC</td>
+                      <td className="p-4">2 - 5 Minuten</td>
+                      <td className="p-4">E-Commerce, Web-Modelle, schnelle Assets</td>
+                    </tr>
+                    <tr className="border-b border-white/10">
+                      <td className="p-4 text-white font-medium">Photogrammetrie</td>
+                      <td className="p-4">DSLR-Kamera, starker PC</td>
+                      <td className="p-4">Stunden bis Tage</td>
+                      <td className="p-4">Museen, High-End Game Assets, Archivierung</td>
+                    </tr>
+                    <tr className="border-b border-white/10">
+                      <td className="p-4 text-white font-medium">LiDAR Scan (iPhone)</td>
+                      <td className="p-4">iPhone Pro / iPad Pro</td>
+                      <td className="p-4">10 - 20 Minuten</td>
+                      <td className="p-4">Räume, Möbel, große unbewegliche Objekte</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
               <h2 className="text-3xl font-bold text-white mb-6">Der schnellste Weg: KI-Generierung</h2>
               <p className="text-gray-300 mb-6">
-                Für E-Commerce, Creator und Web-Projekte ist die KI-gestützte Methode aktuell der beste Kompromiss aus Geschwindigkeit und Qualität. Du lädst einfach ein Produktfoto (am besten mit gutem Licht und wenig Schatten) hoch, und die Software erledigt den Rest.
+                Für E-Commerce, Creator und Web-Projekte ist die KI-gestützte Methode aktuell der beste Kompromiss aus Geschwindigkeit und Qualität. Du lädst einfach ein Produktfoto (am besten mit gutem Licht und wenig Schatten) hoch, und die Software erledigt den Rest. Falls du wissen willst, wie du das perfekte Bild vorbereitest, lies unseren <Link href="/bild-zu-3d" className="text-[#00aaff] hover:underline">Guide zum Umwandeln von Bildern in 3D-Modelle</Link>.
               </p>
               
               <div className="bg-white/5 border border-white/10 p-8 rounded-2xl mb-12">
