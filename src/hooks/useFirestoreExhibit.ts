@@ -51,11 +51,29 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
 
                 const raw = snapshot.data();
                 const ambientIntensity = sanitizeAmbientIntensity(raw.ambientIntensity);
-                const result = ExhibitConfigSchema.safeParse({
+
+                // Build a normalized input — Firestore may store model fields
+                // flat (glbUrl, title at root) instead of nested under `model`.
+                const input: Record<string, unknown> = {
                     ...raw,
                     id: snapshot.id,
                     tenantId,
-                });
+                };
+
+                // If no `model` object exists, attempt to construct one from flat fields
+                if (!raw.model && typeof raw.glbUrl === "string") {
+                    input.model = {
+                        id: snapshot.id,
+                        label: raw.title ?? "Model",
+                        glbUrl: raw.glbUrl,
+                        scale: raw.scale ?? 1,
+                        position: raw.position ?? [0, 0, 0],
+                        variants: raw.variants ?? [],
+                        hotspots: raw.hotspots ?? [],
+                    };
+                }
+
+                const result = ExhibitConfigSchema.safeParse(input);
 
                 if (result.success) {
                     setConfig(result.data, ambientIntensity);
@@ -65,8 +83,11 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
                         setSaveStatus("idle");
                     }
                 } else {
-                    console.error("[useFirestoreExhibit] Invalid snapshot data:", result.error.issues);
-                    setSaveStatus("error", "Invalid exhibition data in Firestore.");
+                    console.warn(
+                        "[useFirestoreExhibit] Schema validation failed:",
+                        result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`),
+                    );
+                    setSaveStatus("error", "Ausstellungsdaten sind unvollständig. Bitte im Editor ergänzen.");
                 }
             },
             (error) => {
