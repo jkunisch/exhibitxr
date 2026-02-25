@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
     Environment,
@@ -130,10 +130,12 @@ export default function ViewerCanvas({
                 />
 
                 {/* ── HDRI Environment for PBR Reflections ─────────────── */}
-                <Environment
-                    preset={environment as "studio"}
-                    blur={0.8}
-                />
+                <Suspense fallback={null}>
+                    <Environment
+                        preset={environment as "studio"}
+                        blur={0.8}
+                    />
+                </Suspense>
 
                 {/* ── Ground Contact Shadows (Apple / Spline style) ────── */}
                 {contactShadows && !degraded && (
