@@ -70,10 +70,10 @@ function SaveStatusBadge({
  * - Tablet: stacked (viewer top, form bottom)
  * - Mobile: viewer only + bottom drawer form
  */
-export default function EditorShell({ 
-    tenantId, 
+export default function EditorShell({
+    tenantId,
     exhibitId,
-    initialConciergeStatus = "none" 
+    initialConciergeStatus = "none"
 }: EditorShellProps) {
 
     const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -147,18 +147,39 @@ export default function EditorShell({
         [config, handleConfigChange]
     );
 
-    if (!config) {
+    // Build an effective config: use the real one from Firestore, or a fallback
+    // for exhibitions whose data is incomplete/invalid.
+    const effectiveConfig = config ?? (saveStatus === "error" ? {
+        id: exhibitId,
+        tenantId,
+        title: "",
+        model: {
+            id: exhibitId,
+            label: "Model",
+            glbUrl: "",
+            scale: 1,
+            position: [0, 0, 0] as [number, number, number],
+            variants: [],
+            hotspots: [],
+        },
+        environment: "studio",
+        contactShadows: true,
+        cameraPosition: [0, 1.5, 4] as [number, number, number],
+        bgColor: "#111111",
+    } : null);
+
+    if (!effectiveConfig) {
         return (
             <div className="flex h-[calc(100dvh-10rem)] items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-white/60">
                 <div className="text-center">
                     <div className="mb-3 text-2xl">⏳</div>
-                    <p className="text-sm">Loading exhibition…</p>
+                    <p className="text-sm">Ausstellung wird geladen…</p>
                 </div>
             </div>
         );
     }
 
-    const restrictOrbitToHalfTurn = isWallProduct(config);
+    const restrictOrbitToHalfTurn = isWallProduct(effectiveConfig);
 
     return (
         <div className="flex h-[calc(100dvh-10rem)] min-h-[560px] flex-col gap-3">
@@ -169,7 +190,7 @@ export default function EditorShell({
                             Lighting Studio
                         </p>
                         <h2 className="mt-1 text-lg font-semibold text-white sm:text-xl">
-                            {config.title || "Unbenannte Ausstellung"}
+                            {effectiveConfig.title || "Unbenannte Ausstellung"}
                         </h2>
                     </div>
                     <div className="flex items-center gap-2">
@@ -191,29 +212,29 @@ export default function EditorShell({
                 <div className="grid h-full grid-cols-1 grid-rows-1 md:grid-rows-[50vh_minmax(0,1fr)] lg:grid-cols-[400px_minmax(0,1fr)] lg:grid-rows-1">
                     <div className="relative min-h-0 md:row-start-1 md:row-end-2 lg:col-start-2 lg:row-start-1">
                         <ViewerCanvas
-                            environment={config.environment}
-                            contactShadows={config.contactShadows}
-                            bgColor={config.bgColor}
+                            environment={effectiveConfig.environment}
+                            contactShadows={effectiveConfig.contactShadows}
+                            bgColor={effectiveConfig.bgColor}
                             ambientIntensity={ambientIntensity}
-                            cameraPosition={config.cameraPosition}
+                            cameraPosition={effectiveConfig.cameraPosition}
                             className="h-full w-full"
                             disableBounds={selectedModelId !== null}
                             restrictOrbitToHalfTurn={restrictOrbitToHalfTurn}
                         >
                             <ModelViewer
-                                config={config.model}
+                                config={effectiveConfig.model}
                                 activeVariantId={activeVariantId}
                                 onHotspotClick={handleHotspotClick}
                                 isEditor
-                                isSelected={selectedModelId === config.model.id}
+                                isSelected={selectedModelId === effectiveConfig.model.id}
                                 onSelect={handleModelSelect}
                                 onTransformEnd={handleTransformEnd}
                             />
                         </ViewerCanvas>
 
-                        {config.model.variants.length > 0 && (
+                        {effectiveConfig.model.variants.length > 0 && (
                             <div className="absolute bottom-4 left-4 flex flex-wrap gap-2 pr-20">
-                                {config.model.variants.map((variant) => (
+                                {effectiveConfig.model.variants.map((variant) => (
                                     <button
                                         key={variant.id}
                                         onClick={() => setActiveVariant(variant.id)}
@@ -229,7 +250,7 @@ export default function EditorShell({
                         )}
 
                         {activeHotspotId && (() => {
-                            const hotspot = config.model.hotspots.find((h) => h.id === activeHotspotId);
+                            const hotspot = effectiveConfig.model.hotspots.find((h) => h.id === activeHotspotId);
                             if (!hotspot) return null;
                             return (
                                 <div className="absolute bottom-4 right-4 max-w-[280px] rounded-xl border border-white/10 bg-black/60 p-4 text-white backdrop-blur-xl">
@@ -311,7 +332,7 @@ export default function EditorShell({
                         <div className="min-h-0 flex-1 overflow-y-auto">
                             {sidebarTab === "settings" && (
                                 <EditorForm
-                                    config={config}
+                                    config={effectiveConfig}
                                     ambientIntensity={ambientIntensity}
                                     onChange={handleConfigChange}
                                 />
@@ -327,8 +348,8 @@ export default function EditorShell({
                             )}
                             {sidebarTab === "concierge" && (
                                 <div className="p-4">
-                                    <ConciergePanel 
-                                        exhibitId={exhibitId} 
+                                    <ConciergePanel
+                                        exhibitId={exhibitId}
                                         initialStatus={initialConciergeStatus}
                                     />
                                 </div>
