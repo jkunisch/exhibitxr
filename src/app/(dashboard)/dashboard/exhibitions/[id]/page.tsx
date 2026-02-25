@@ -172,12 +172,20 @@ export default async function ExhibitionDetailPage({
 
   return (
     <section className="space-y-4">
-      <Link
-        href="/dashboard/exhibitions"
-        className="inline-flex rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
-      >
-        Back to Exhibitions
-      </Link>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          href="/dashboard/exhibitions"
+          className="inline-flex rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
+        >
+          Back to Exhibitions
+        </Link>
+        <Link
+          href={`/dashboard/exhibitions/${exhibition.id}/branding`}
+          className="inline-flex rounded-lg border border-cyan-300/40 bg-cyan-300/10 px-3 py-2 text-xs font-medium text-cyan-100 transition hover:bg-cyan-300/20"
+        >
+          Branding
+        </Link>
+      </div>
 
       {created ? (
         <p className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">

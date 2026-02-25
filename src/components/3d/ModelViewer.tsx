@@ -12,6 +12,10 @@ interface ModelViewerProps {
     activeVariantId?: string;
     /** Callback when a hotspot is clicked. */
     onHotspotClick?: (hotspotId: string) => void;
+    /** Accent color for hotspot glow and labels. */
+    hotspotColor?: string;
+    /** Font family for hotspot labels. */
+    hotspotFontFamily?: string;
 }
 
 /**
@@ -21,6 +25,8 @@ export default function ModelViewer({
     config,
     activeVariantId,
     onHotspotClick,
+    hotspotColor = "#00aaff",
+    hotspotFontFamily = "system-ui, sans-serif",
 }: ModelViewerProps) {
     const groupRef = useRef<THREE.Group>(null);
     const { scene } = useGLTF(config.glbUrl);
@@ -77,7 +83,7 @@ export default function ModelViewer({
                         <sphereGeometry args={[0.04, 16, 16]} />
                         <meshStandardMaterial
                             color="#ffffff"
-                            emissive="#00aaff"
+                            emissive={hotspotColor}
                             emissiveIntensity={2}
                             toneMapped={false}
                         />
@@ -99,9 +105,10 @@ export default function ModelViewer({
                                 padding: "4px 10px",
                                 borderRadius: "6px",
                                 fontSize: "12px",
-                                fontFamily: "system-ui, sans-serif",
                                 backdropFilter: "blur(8px)",
                                 border: "1px solid rgba(255,255,255,0.1)",
+                                boxShadow: `0 0 0 1px ${hotspotColor}66`,
+                                fontFamily: hotspotFontFamily,
                             }}
                         >
                             {hotspot.label}
