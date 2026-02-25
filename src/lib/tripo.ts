@@ -176,14 +176,29 @@ export async function pollTripoTaskStatus(
         const status = mapTripoStatus(data.status);
         const progress = parseTripoProgress(data.status, data.progress);
 
-        // Extract GLB URL from output
+        // Extract GLB URL from output — Tripo returns either direct strings
+        // or objects like {type: "glb", url: "..."} for model/pbr_model
         let glbUrl: string | undefined;
-        if (isRecord(data.output) && typeof (data.output as Record<string, unknown>).model === "string") {
-            glbUrl = (data.output as Record<string, unknown>).model as string;
-        }
-        // Sometimes the rendered_image/pbr_model is used
-        if (!glbUrl && isRecord(data.output) && typeof (data.output as Record<string, unknown>).pbr_model === "string") {
-            glbUrl = (data.output as Record<string, unknown>).pbr_model as string;
+        if (isRecord(data.output)) {
+            const output = data.output as Record<string, unknown>;
+
+            // Try pbr_model first (higher quality PBR output)
+            const pbr = output.pbr_model;
+            if (typeof pbr === "string" && pbr.length > 0) {
+                glbUrl = pbr;
+            } else if (isRecord(pbr) && typeof (pbr as Record<string, unknown>).url === "string") {
+                glbUrl = (pbr as Record<string, unknown>).url as string;
+            }
+
+            // Fallback to model
+            if (!glbUrl) {
+                const model = output.model;
+                if (typeof model === "string" && model.length > 0) {
+                    glbUrl = model;
+                } else if (isRecord(model) && typeof (model as Record<string, unknown>).url === "string") {
+                    glbUrl = (model as Record<string, unknown>).url as string;
+                }
+            }
         }
 
         const error = typeof data.error === "string" && data.error.length > 0
