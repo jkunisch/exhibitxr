@@ -7,6 +7,12 @@ export const TenantSchema = z.object({
   id: z.string(), // Generierte ID (NICHT die uid des Users!)
   name: z.string(),
   plan: z.enum(["free", "starter", "pro", "enterprise"]),
+  /** Remaining 3D generation credits (pay-per-use or plan-included). */
+  generationCredits: z.number().int().min(0).default(1),
+  /** Lifetime count of all generations used. */
+  totalGenerationsUsed: z.number().int().min(0).default(0),
+  /** Stripe customer ID (set after first checkout). */
+  stripeCustomerId: z.string().optional(),
 });
 
 export const UserSchema = z.object({

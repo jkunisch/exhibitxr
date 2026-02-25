@@ -31,19 +31,39 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function getMeshyApiKey(): string {
+// ─── API Key Rotation ──────────────────────────────────────────────────────
+// Supports comma-separated keys in MESHY_API_KEY env var.
+// Rotates round-robin to distribute rate limits across keys.
+
+let meshyKeyIndex = 0;
+let meshyKeys: string[] | null = null;
+
+function loadMeshyKeys(): string[] {
+  if (meshyKeys !== null) return meshyKeys;
+
   const raw = process.env.MESHY_API_KEY?.trim();
   if (!raw) {
     throw new Error("Missing MESHY_API_KEY environment variable.");
   }
 
-  // Support comma-separated keys — use the first valid one
-  const apiKey = raw.split(",")[0].trim();
-  if (apiKey.length === 0) {
-    throw new Error("MESHY_API_KEY is empty after parsing.");
+  const keys = raw
+    .split(",")
+    .map((k) => k.trim())
+    .filter((k) => k.length > 0);
+
+  if (keys.length === 0) {
+    throw new Error("MESHY_API_KEY contains no valid keys.");
   }
 
-  return apiKey;
+  meshyKeys = keys;
+  return keys;
+}
+
+function getMeshyApiKey(): string {
+  const keys = loadMeshyKeys();
+  const key = keys[meshyKeyIndex % keys.length];
+  meshyKeyIndex = (meshyKeyIndex + 1) % keys.length;
+  return key;
 }
 
 function parseMeshyStatus(value: unknown): MeshyTask["status"] {

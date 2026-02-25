@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { getAdminDb } from "@/lib/firebaseAdmin";
 import { getStripe } from "@/lib/stripe";
+import { grantMonthlyCredits } from "@/lib/credits";
 
 export const runtime = "nodejs";
 
@@ -115,6 +116,9 @@ async function handleCheckoutCompleted(event: Stripe.Event): Promise<void> {
   }
 
   await updateTenantPlanToPaid(tenantId, planResult.data, session);
+
+  // Grant initial credits for the new plan
+  await grantMonthlyCredits(tenantId, planResult.data);
 }
 
 async function handleSubscriptionDeleted(event: Stripe.Event): Promise<void> {
@@ -159,6 +163,26 @@ export async function POST(request: Request): Promise<Response> {
       case "customer.subscription.deleted":
         await handleSubscriptionDeleted(event);
         break;
+      case "invoice.paid": {
+        // Grant monthly credits on subscription renewal
+        const invoice = event.data.object as {
+          subscription?: string | null;
+          metadata?: Record<string, string> | null;
+        };
+        const subId = typeof invoice.subscription === "string" ? invoice.subscription : null;
+        if (subId) {
+          const sub = await resolveTenantIdForSubscription({ id: subId, metadata: invoice.metadata });
+          if (sub) {
+            const tenantDoc = await getAdminDb().collection("tenants").doc(sub).get();
+            const tenantData = tenantDoc.data() as Record<string, unknown> | undefined;
+            const plan = tenantData?.plan;
+            if (plan === "starter" || plan === "pro") {
+              await grantMonthlyCredits(sub, plan);
+            }
+          }
+        }
+        break;
+      }
       default:
         break;
     }

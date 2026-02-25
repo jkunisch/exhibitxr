@@ -6,6 +6,8 @@ import * as firebaseAdmin from "@/lib/firebaseAdmin";
 import { type GenerateResult, pollTaskStatus as pollMeshy, type PollResult, submitImageTo3D as submitMeshy } from "@/lib/meshy";
 import { submitImageToTripo, pollTripoTaskStatus } from "@/lib/tripo";
 import { optimizeGlb } from "@/lib/glbOptimizer";
+import { getSessionUser } from "@/lib/session";
+import { deductCredits, getGenerationCost, getCreditBalance } from "@/lib/credits";
 
 export type Provider = "basic" | "premium";
 
@@ -57,13 +59,36 @@ export async function submitImage(formData: FormData): Promise<GenerateResult> {
       throw new Error("Image is too large. Maximum size is 10MB.");
     }
 
+    // ── Credit check ────────────────────────────────────────────────────
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) {
+      throw new Error("Nicht angemeldet. Bitte zuerst einloggen.");
+    }
+
+    const cost = getGenerationCost(provider);
+    const balance = await getCreditBalance(sessionUser.tenantId);
+    if (balance.credits < cost) {
+      throw new Error(
+        `Nicht genügend Credits (${balance.credits}/${cost}). ` +
+        `Bitte upgraden oder Credits zukaufen.`
+      );
+    }
+
+    // ── Submit to provider ──────────────────────────────────────────────
     const imageBuffer = Buffer.from(await rawImage.arrayBuffer());
     const filename = rawImage.name.trim().length > 0 ? rawImage.name : "upload-image";
 
+    let result: GenerateResult;
     if (provider === "basic") {
-      return await submitImageToTripo(imageBuffer, filename);
+      result = await submitImageToTripo(imageBuffer, filename);
+    } else {
+      result = await submitMeshy(imageBuffer, filename);
     }
-    return await submitMeshy(imageBuffer, filename);
+
+    // ── Deduct credits on successful submission ─────────────────────────
+    await deductCredits(sessionUser.tenantId, provider);
+
+    return result;
   } catch (error: unknown) {
     throw new Error(`Failed to submit image for 3D generation: ${toErrorMessage(error)}`);
   }
