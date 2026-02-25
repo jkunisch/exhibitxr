@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { getAdminDb } from "@/lib/firebaseAdmin";
 import { getSessionUser } from "@/lib/session";
+import { getTenantEntitlementSnapshot } from "@/lib/tenantEntitlements";
 
 const environmentPresetSchema = z.enum([
   "studio",
@@ -91,6 +92,14 @@ export async function createExhibitionAction(
   const parsedInput = exhibitionInputSchema.safeParse(formDataToPayload(formData));
   if (!parsedInput.success) {
     return { ok: false, error: extractZodError(parsedInput) };
+  }
+
+  const entitlements = await getTenantEntitlementSnapshot(sessionUser.tenantId);
+  if (!entitlements.canCreateExhibition) {
+    return {
+      ok: false,
+      error: `Plan limit reached (${entitlements.currentExhibitions}/${entitlements.maxExhibitions} exhibitions on ${entitlements.plan}). Upgrade required.`,
+    };
   }
 
   const adminDb = getAdminDb();

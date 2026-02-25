@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { GlassFormPanel } from "@/components/ui/GlassFormPanel";
 import { getSessionUser } from "@/lib/session";
+import { getTenantEntitlementSnapshot } from "@/lib/tenantEntitlements";
 import NewExhibitionForm from "./NewExhibitionForm";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +35,7 @@ export default async function NewExhibitionPage({
 
   const resolvedSearchParams = await searchParams;
   const errorMessage = normalizeError(resolvedSearchParams.error);
+  const entitlements = await getTenantEntitlementSnapshot(sessionUser.tenantId);
 
   return (
     <section className="space-y-4">
@@ -48,11 +50,20 @@ export default async function NewExhibitionPage({
         title="Create Exhibition"
         subtitle="Create a tenant-scoped exhibition document."
       >
-        <NewExhibitionForm
-          tenantId={sessionUser.tenantId}
-          environmentOptions={ENVIRONMENT_OPTIONS}
-          initialErrorMessage={errorMessage}
-        />
+        {entitlements.canCreateExhibition ? (
+          <NewExhibitionForm
+            tenantId={sessionUser.tenantId}
+            environmentOptions={ENVIRONMENT_OPTIONS}
+            initialErrorMessage={errorMessage}
+          />
+        ) : (
+          <div className="rounded-xl border border-amber-200/35 bg-amber-500/10 px-4 py-4 text-sm text-amber-100">
+            <p className="font-medium">Plan limit reached.</p>
+            <p className="mt-1 text-amber-100/85">
+              You already use {entitlements.currentExhibitions}/{entitlements.maxExhibitions} exhibitions.
+            </p>
+          </div>
+        )}
       </GlassFormPanel>
     </section>
   );
