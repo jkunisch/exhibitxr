@@ -9,14 +9,14 @@ export function useOnboardingStatus(exhibitionCount: number): {
     const [shouldShowOnboarding, setShouldShowOnboarding] = useState<boolean>(false);
 
     useEffect(() => {
-        const isDismissed = localStorage.getItem('exhibitxr_onboarding_dismissed');
+        const isDismissed = localStorage.getItem('3dsnap_onboarding_dismissed');
         if (exhibitionCount === 0 && isDismissed !== 'true') {
             setShouldShowOnboarding(true);
         }
     }, [exhibitionCount]);
 
     const dismissOnboarding = useCallback(() => {
-        localStorage.setItem('exhibitxr_onboarding_dismissed', 'true');
+        localStorage.setItem('3dsnap_onboarding_dismissed', 'true');
         setShouldShowOnboarding(false);
     }, []);
 

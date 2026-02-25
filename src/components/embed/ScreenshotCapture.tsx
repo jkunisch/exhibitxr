@@ -49,8 +49,8 @@ export function ScreenshotCapture({ title }: { title: string }) {
     }, [captureFrame]);
 
     useEffect(() => {
-        window.addEventListener("exhibitxr:screenshot", handleCapture);
-        return () => window.removeEventListener("exhibitxr:screenshot", handleCapture);
+        window.addEventListener("3dsnap:screenshot", handleCapture);
+        return () => window.removeEventListener("3dsnap:screenshot", handleCapture);
     }, [handleCapture]);
 
     const handleClose = () => {
@@ -59,7 +59,7 @@ export function ScreenshotCapture({ title }: { title: string }) {
         setBlob(null);
     };
 
-    const downloadName = `exhibitxr-${title.toLowerCase().replace(/\s+/g, "-")}-screenshot.png`;
+    const downloadName = `3dsnap-${title.toLowerCase().replace(/\s+/g, "-")}-screenshot.png`;
 
     const handleDownload = () => {
         if (!previewUrl) return;

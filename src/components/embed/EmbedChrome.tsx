@@ -82,7 +82,7 @@ export function EmbedChrome({
     };
 
     const handleScreenshot = () => {
-        window.dispatchEvent(new CustomEvent("exhibitxr:screenshot"));
+        window.dispatchEvent(new CustomEvent("3dsnap:screenshot"));
     };
 
     const handleArClick = () => {

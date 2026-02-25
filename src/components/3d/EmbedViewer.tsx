@@ -108,14 +108,14 @@ export default function EmbedViewer({
             {googleFontImportRule ? <style>{googleFontImportRule}</style> : null}
             {customCss ? <style>{customCss}</style> : null}
             <style>{`
-                [data-exhibitxr-watermark] {
+                [data-3dsnap-watermark] {
                     position: fixed !important;
                     left: 12px !important;
                     bottom: 10px !important;
                     z-index: 2147483647 !important;
                     pointer-events: auto !important;
                 }
-                [data-exhibitxr-watermark] a {
+                [data-3dsnap-watermark] a {
                     pointer-events: auto !important;
                     text-decoration: none !important;
                 }
@@ -263,7 +263,7 @@ export default function EmbedViewer({
 
             {showWatermark ? (
                 <div
-                    data-exhibitxr-watermark
+                    data-3dsnap-watermark
                     style={{
                         fontSize: 10,
                         opacity: 0.4,
