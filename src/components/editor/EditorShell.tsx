@@ -2,22 +2,24 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, ExternalLink, Settings, SlidersHorizontal, X } from "lucide-react";
+import { Camera, ExternalLink, Settings, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import ViewerCanvas from "@/components/3d/ViewerCanvas";
 import ModelViewer from "@/components/3d/ModelViewer";
 import EditorForm from "@/components/editor/EditorForm";
 import { ModelGeneratorPanel } from "@/components/ui/ModelGeneratorPanel";
+import { ConciergePanel } from "@/components/ui/ConciergePanel";
 import { useEditorStore, type SaveStatus } from "@/store/editorStore";
 import {
     useFirestoreExhibit,
     type EditorConfigUpdate,
 } from "@/hooks/useFirestoreExhibit";
 
-type SidebarTab = "settings" | "generate";
+type SidebarTab = "settings" | "generate" | "concierge";
 
 interface EditorShellProps {
     tenantId: string;
     exhibitId: string;
+    initialConciergeStatus?: string;
 }
 
 const SAVE_STATUS_STYLES: Record<SaveStatus, { label: string; className: string }> = {
@@ -67,7 +69,11 @@ function SaveStatusBadge({
  * - Tablet: stacked (viewer top, form bottom)
  * - Mobile: viewer only + bottom drawer form
  */
-export default function EditorShell({ tenantId, exhibitId }: EditorShellProps) {
+export default function EditorShell({ 
+    tenantId, 
+    exhibitId,
+    initialConciergeStatus = "none" 
+}: EditorShellProps) {
 
     const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
     const [sidebarTab, setSidebarTab] = useState<SidebarTab>("settings");
@@ -284,22 +290,42 @@ export default function EditorShell({ tenantId, exhibitId }: EditorShellProps) {
                                 <Camera className="h-3.5 w-3.5" />
                                 Foto → 3D
                             </button>
+                            <button
+                                type="button"
+                                onClick={() => setSidebarTab("concierge")}
+                                className={`flex flex-1 items-center justify-center gap-2 px-4 py-3 text-xs font-semibold transition-colors ${sidebarTab === "concierge"
+                                    ? "border-b-2 border-purple-400 bg-white/5 text-purple-100"
+                                    : "text-white/50 hover:bg-white/5 hover:text-white/80"
+                                    }`}
+                            >
+                                <Sparkles className="h-3.5 w-3.5 text-purple-400" />
+                                Concierge
+                            </button>
                         </div>
 
                         {/* ── Tab Content ──────────────────────────── */}
                         <div className="min-h-0 flex-1 overflow-y-auto">
-                            {sidebarTab === "settings" ? (
+                            {sidebarTab === "settings" && (
                                 <EditorForm
                                     config={config}
                                     ambientIntensity={ambientIntensity}
                                     onChange={handleConfigChange}
                                 />
-                            ) : (
+                            )}
+                            {sidebarTab === "generate" && (
                                 <div className="p-4">
                                     <ModelGeneratorPanel
                                         tenantId={tenantId}
                                         exhibitId={exhibitId}
                                         onModelGenerated={handleModelGenerated}
+                                    />
+                                </div>
+                            )}
+                            {sidebarTab === "concierge" && (
+                                <div className="p-4">
+                                    <ConciergePanel 
+                                        exhibitId={exhibitId} 
+                                        initialStatus={initialConciergeStatus}
                                     />
                                 </div>
                             )}

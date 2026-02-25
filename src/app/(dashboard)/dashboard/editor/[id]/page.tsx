@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import EditorShell from "@/components/editor/EditorShell";
 import { getSessionUser } from "@/lib/session";
+import { getConciergeStatus } from "@/app/actions/upsell";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,13 @@ export default async function DashboardEditorPage({
   }
 
   const { id: exhibitId } = await params;
+  const conciergeStatus = await getConciergeStatus(exhibitId, sessionUser.tenantId);
 
-  return <EditorShell tenantId={sessionUser.tenantId} exhibitId={exhibitId} />;
+  return (
+    <EditorShell 
+      tenantId={sessionUser.tenantId} 
+      exhibitId={exhibitId} 
+      initialConciergeStatus={conciergeStatus}
+    />
+  );
 }
