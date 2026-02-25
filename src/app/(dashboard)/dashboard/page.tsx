@@ -174,7 +174,6 @@ export default async function DashboardPage() {
                 <Link
                   href={`/dashboard/exhibitions/${item.id}`}
                   className="text-[11px] text-white/45 transition hover:text-white/80"
-                  onClick={(e) => e.stopPropagation()}
                 >
                   Einstellungen
                 </Link>
