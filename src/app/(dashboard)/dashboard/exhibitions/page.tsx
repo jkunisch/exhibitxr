@@ -1,5 +1,5 @@
 import { Timestamp } from "firebase-admin/firestore";
-import { Pencil } from "lucide-react";
+import { Download, Pencil } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -27,6 +27,7 @@ type ExhibitionListItem = {
   environment: string;
   updatedAtMs: number;
   updatedAtLabel: string;
+  glbUrl: string | null;
 };
 
 function formatDate(value: unknown): string {
@@ -96,6 +97,9 @@ async function listTenantExhibitions(
         environment: asNonEmptyString(data.environment, "studio"),
         updatedAtMs: getDateMillis(data.updatedAt),
         updatedAtLabel: formatDate(data.updatedAt),
+        glbUrl: typeof data.model?.glbUrl === "string" ? data.model.glbUrl
+          : typeof data.glbUrl === "string" ? data.glbUrl
+            : null,
       };
     })
     .sort((left, right) => right.updatedAtMs - left.updatedAtMs);
@@ -267,6 +271,16 @@ export default async function ExhibitionsPage({
                   <Pencil className="h-3.5 w-3.5" />
                   Bearbeiten
                 </Link>
+                {item.glbUrl ? (
+                  <a
+                    href={item.glbUrl}
+                    download={`${item.title.replace(/\s+/g, "_")}.glb`}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300/35 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-200 transition hover:bg-emerald-500/20"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    GLB
+                  </a>
+                ) : null}
                 <DeleteExhibitionButton
                   exhibitionId={item.id}
                   tenantId={sessionUser.tenantId}
