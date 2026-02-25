@@ -1,17 +1,37 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Loader2, CheckCircle2, AlertCircle, Camera } from 'lucide-react';
+import { Upload, Loader2, CheckCircle2, AlertCircle, Camera, Zap, Sparkles } from 'lucide-react';
 import EmbedViewer from '@/components/3d/EmbedViewer';
 
-export default function HomeSnapModule() {
-  const [status, setStatus] = useState<'IDLE' | 'UPLOADING' | 'PROCESSING' | 'SUCCESS' | 'ERROR'>('IDLE');
-  const [progress, setProgress] = useState(0);
-  const [modelUrl, setModelUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+type SnapProvider = 'basic' | 'premium';
 
-  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+export default function HomeSnapModule() {
+  const [status, setStatus] = useState<'IDLE' | 'UPLOADING' | 'PROCESSING' | 'SUCCESS' | 'ERROR'>('SUCCESS');
+  const [progress, setProgress] = useState(0);
+  const [modelUrl, setModelUrl] = useState<string | null>('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb');
+  const [error, setError] = useState<string | null>(null);
+  const [provider, setProvider] = useState<SnapProvider>('premium');
+  const providerRef = useRef<SnapProvider>('premium');
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
+  const resetState = useCallback(() => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    setStatus('IDLE');
+    setProgress(0);
+    setModelUrl(null);
+    setError(null);
+  }, []);
+
+  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -22,14 +42,28 @@ export default function HomeSnapModule() {
       return;
     }
 
+    // CRITICAL: Defer state change so React doesn't unmount the <input>
+    // while the browser's onChange event is still active.
+    // AnimatePresence mode="wait" removes the IDLE block (including
+    // the <input>) the moment status changes — if that happens mid-event,
+    // React crashes and the page does a full reload.
+    setTimeout(() => {
+      startUpload(file);
+    }, 0);
+  }, []);
+
+  const startUpload = useCallback(async (file: File) => {
     setStatus('UPLOADING');
     setError(null);
 
     try {
+      // Capture provider at upload time so polling uses the same one
+      const activeProvider = providerRef.current;
+
       const formData = new FormData();
       formData.append('image', file);
+      formData.append('provider', activeProvider);
 
-      // Hier rufen wir unsere Server Action auf
       const response = await fetch('/api/snap-preview', {
         method: 'POST',
         body: formData,
@@ -44,25 +78,46 @@ export default function HomeSnapModule() {
 
       setStatus('PROCESSING');
 
-      // Polling Logic
-      const pollInterval = setInterval(async () => {
+      // Polling Logic with error tracking
+      let consecutiveErrors = 0;
+      const MAX_POLL_ERRORS = 5;
+
+      pollRef.current = setInterval(async () => {
         try {
-          const pollRes = await fetch(`/api/snap-preview/${taskId}`);
+          const pollRes = await fetch(`/api/snap-preview/${taskId}?provider=${activeProvider}`);
           const data = await pollRes.json();
 
+          if (!pollRes.ok) {
+            consecutiveErrors++;
+            console.error(`[snap-preview] Poll error ${consecutiveErrors}/${MAX_POLL_ERRORS}:`, data.error);
+            if (consecutiveErrors >= MAX_POLL_ERRORS) {
+              if (pollRef.current) clearInterval(pollRef.current);
+              setError(data.error || "Generierung fehlgeschlagen. Bitte erneut versuchen.");
+              setStatus('ERROR');
+            }
+            return;
+          }
+
+          consecutiveErrors = 0;
           setProgress((prev) => Math.max(prev, data.progress || 0));
 
           if (data.status === 'SUCCEEDED') {
-            clearInterval(pollInterval);
+            if (pollRef.current) clearInterval(pollRef.current);
             setModelUrl(data.glbUrl);
             setStatus('SUCCESS');
           } else if (data.status === 'FAILED') {
-            clearInterval(pollInterval);
-            setError("Die KI konnte kein Modell erstellen. Bitte anderes Foto probieren.");
+            if (pollRef.current) clearInterval(pollRef.current);
+            setError(data.error || "Die KI konnte kein Modell erstellen. Bitte anderes Foto probieren.");
             setStatus('ERROR');
           }
         } catch (err) {
-          console.error("Polling error:", err);
+          consecutiveErrors++;
+          console.error(`[snap-preview] Poll exception ${consecutiveErrors}/${MAX_POLL_ERRORS}:`, err);
+          if (consecutiveErrors >= MAX_POLL_ERRORS) {
+            if (pollRef.current) clearInterval(pollRef.current);
+            setError("Verbindungsfehler bei der 3D-Generierung. Bitte erneut versuchen.");
+            setStatus('ERROR');
+          }
         }
       }, 3000);
 
@@ -74,7 +129,7 @@ export default function HomeSnapModule() {
   }, []);
 
   return (
-    <div className="w-full h-full min-h-[500px] flex flex-col items-center justify-center p-6 relative">
+    <div className="relative z-20 flex h-full min-h-[500px] w-full flex-col items-center justify-center p-6">
       <AnimatePresence mode="wait">
 
         {/* IDLE: Initialer Upload-State */}
@@ -86,6 +141,27 @@ export default function HomeSnapModule() {
             exit={{ opacity: 0, scale: 1.1 }}
             className="text-center"
           >
+            {/* Provider Toggle */}
+            <div className="mb-6 inline-flex items-center gap-1 rounded-full bg-white/5 p-1 border border-white/10">
+              <button
+                onClick={() => { setProvider('basic'); providerRef.current = 'basic'; }}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${provider === 'basic'
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+              >
+                <Zap size={12} /> Basic
+              </button>
+              <button
+                onClick={() => { setProvider('premium'); providerRef.current = 'premium'; }}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${provider === 'premium'
+                  ? 'bg-[#00aaff]/20 text-[#00aaff] shadow-sm border border-[#00aaff]/30'
+                  : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+              >
+                <Sparkles size={12} /> Premium
+              </button>
+            </div>
             <div className="mb-8 relative inline-block">
               <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10 group cursor-pointer hover:bg-white/10 transition-all">
                 <Camera className="w-10 h-10 text-white group-hover:scale-110 transition-transform" />
@@ -99,10 +175,10 @@ export default function HomeSnapModule() {
             </div>
             <h2 className="text-3xl font-bold mb-4 tracking-tight">Einfach Foto hochladen.</h2>
             <p className="text-zinc-500 mb-8 max-w-sm mx-auto">Erleben Sie die 3D-Snap Pipeline live. Ziehen Sie ein Produktfoto hierher oder klicken Sie auf das Icon.</p>
-            <label className="px-8 py-4 bg-white text-black font-black rounded-full cursor-pointer hover:scale-105 transition-transform">
-              Snap starten
-              <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-            </label>
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-[#00aaff] shadow-[0_0_20px_rgba(0,170,255,0.15)] backdrop-blur-md">
+              <Zap size={14} className="animate-pulse" />
+              Snap it
+            </div>
           </motion.div>
         )}
 
@@ -138,23 +214,34 @@ export default function HomeSnapModule() {
           </motion.div>
         )}
 
-        {/* SUCCESS: Das fertige Modell */}
+        {/* SUCCESS: Das fertige Modell + Studio CTA */}
         {status === 'SUCCESS' && modelUrl && (
           <motion.div
             key="success"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="w-full h-full flex flex-col"
+            className="w-full max-w-4xl flex flex-col"
           >
-            <div className="flex-1 rounded-2xl overflow-hidden border border-white/10 mb-4 bg-zinc-950">
+            <div className="w-full rounded-2xl overflow-hidden border border-white/10 mb-4 bg-zinc-950" style={{ height: '400px' }}>
               <EmbedViewer modelUrl={modelUrl} title="Dein 3D-Snap" />
             </div>
+
+            <button
+              onClick={() => {
+                localStorage.setItem('pending_snap_url', modelUrl);
+                window.location.href = '/dashboard';
+              }}
+              className="w-full py-4 bg-[#00aaff] hover:bg-[#0090dd] text-white text-center font-black text-lg rounded-xl transition-all hover:scale-[1.02] shadow-lg shadow-[#00aaff]/30 mb-3"
+            >
+              Im Studio öffnen →
+            </button>
+
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2 text-green-500 text-sm font-bold">
                 <CheckCircle2 size={16} /> Fertig gesnappt
               </div>
               <button
-                onClick={() => setStatus('IDLE')}
+                onClick={resetState}
                 className="text-xs text-zinc-500 hover:text-white underline transition-colors"
               >
                 Anderes Foto probieren
@@ -175,7 +262,7 @@ export default function HomeSnapModule() {
             <h3 className="text-xl font-bold mb-2">Ups! Das hat nicht geklappt.</h3>
             <p className="text-red-500/60 text-sm mb-8">{error}</p>
             <button
-              onClick={() => setStatus('IDLE')}
+              onClick={resetState}
               className="px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-zinc-200 transition-colors"
             >
               Noch mal versuchen
