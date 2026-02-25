@@ -110,14 +110,14 @@ export default async function DashboardPage() {
             Exhibitions
           </p>
           <h2 className="mt-1 text-xl font-semibold text-white">
-            Current Tenant Collection
+            Meine Ausstellungen
           </h2>
         </div>
         <div className="flex items-center gap-3">
-          <p className="text-sm text-white/70">{exhibitions.length} entries</p>
+          <p className="text-sm text-white/70">{exhibitions.length} Einträge</p>
           <p className="text-xs text-white/65">
             Plan {formatPlanLabel(entitlements.plan)}: {entitlements.currentExhibitions}/
-            {entitlements.maxExhibitions}
+            {entitlements.maxExhibitions} genutzt
           </p>
           <Link
             href="/dashboard/billing"
@@ -135,40 +135,41 @@ export default async function DashboardPage() {
             href="/dashboard/exhibitions"
             className="rounded-lg border border-cyan-200/35 bg-cyan-300/15 px-3 py-2 text-xs font-medium text-cyan-100 transition hover:bg-cyan-300/25"
           >
-            Open CRUD
+            Verwalten
           </Link>
         </div>
       </div>
 
       {exhibitions.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-white/20 bg-black/20 px-4 py-6 text-sm text-white/70">
-          No exhibitions found for this tenant yet.
+          Noch keine Ausstellungen vorhanden.
         </div>
       ) : (
         <ul className="mt-6 space-y-3">
           {exhibitions.map((item) => (
             <li
               key={item.id}
-              className="rounded-xl border border-white/12 bg-black/20 px-4 py-3"
+              className="rounded-xl border border-white/12 bg-black/20 px-4 py-3 transition hover:border-white/25 hover:bg-white/[0.04]"
             >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <p className="font-medium text-white">{item.title}</p>
-                  <p className="text-xs text-white/65">ID: {item.id}</p>
-                </div>
-                <span
-                  className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                    item.isPublished
+              <Link href={`/dashboard/exhibitions/${item.id}`} className="block">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="font-medium text-white">{item.title}</p>
+                    <p className="text-xs text-white/65">ID: {item.id}</p>
+                  </div>
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${item.isPublished
                       ? "border border-emerald-200/40 bg-emerald-300/15 text-emerald-100"
                       : "border border-amber-200/35 bg-amber-300/15 text-amber-100"
-                  }`}
-                >
-                  {item.isPublished ? "Published" : "Draft"}
-                </span>
-              </div>
-              <p className="mt-2 text-xs text-white/60">
-                Updated: {item.updatedAtLabel}
-              </p>
+                      }`}
+                  >
+                    {item.isPublished ? "Published" : "Draft"}
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-white/60">
+                  Updated: {item.updatedAtLabel}
+                </p>
+              </Link>
             </li>
           ))}
         </ul>

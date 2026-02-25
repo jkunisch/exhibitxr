@@ -28,10 +28,10 @@ export default async function DashboardLayout({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/80">
-                Tenant Dashboard
+                Dashboard
               </p>
               <h1 className="mt-2 text-2xl font-semibold text-white">
-                ExhibitXR Control Room
+                ExhibitXR Kontrollraum
               </h1>
               <p className="mt-1 text-xs text-white/70 sm:text-sm">
                 Tenant: {sessionUser.tenantId}
@@ -45,19 +45,19 @@ export default async function DashboardLayout({
               href="/dashboard"
               className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
             >
-              Overview
+              Übersicht
             </Link>
             <Link
               href="/dashboard/exhibitions"
               className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
             >
-              Exhibitions
+              Ausstellungen
             </Link>
             <Link
               href="/dashboard/billing"
               className="rounded-lg border border-cyan-200/40 bg-cyan-300/20 px-3 py-2 text-xs font-medium text-cyan-50 transition hover:bg-cyan-300/30"
             >
-              Billing
+              Abrechnung
             </Link>
           </nav>
         </header>
