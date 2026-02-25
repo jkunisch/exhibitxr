@@ -164,36 +164,33 @@ export default async function ExhibitionsPage({
               Exhibitions
             </p>
             <h2 className="mt-1 text-xl font-semibold text-white">
-              Tenant Exhibition Manager
+              Ausstellungen verwalten
             </h2>
             <p className="mt-1 text-sm text-white/70">
-              Tenant-scoped CRUD for your organization.
+              Erstelle und bearbeite deine 3D-Ausstellungen.
             </p>
             {entitlements ? (
               <p className="mt-1 text-xs text-white/60">
                 Plan {formatPlanLabel(entitlements.plan)}: {entitlements.currentExhibitions}/
-                {entitlements.maxExhibitions} exhibitions used
+                {entitlements.maxExhibitions} genutzt
               </p>
             ) : null}
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href="/dashboard/billing"
-              className="rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15"
-            >
-              Billing
-            </Link>
             {entitlements?.canCreateExhibition ? (
               <Link
                 href="/dashboard/exhibitions/new"
                 className="rounded-xl border border-cyan-200/40 bg-cyan-300/15 px-4 py-2 text-sm font-medium text-cyan-50 transition hover:bg-cyan-300/25"
               >
-                New Exhibition
+                + Neue Ausstellung
               </Link>
             ) : (
-              <span className="rounded-xl border border-amber-200/35 bg-amber-300/15 px-4 py-2 text-sm font-medium text-amber-100">
-                Plan limit reached
-              </span>
+              <Link
+                href="/dashboard/billing"
+                className="rounded-xl border border-amber-200/35 bg-amber-300/15 px-4 py-2 text-sm font-medium text-amber-100 transition hover:bg-amber-300/25"
+              >
+                Upgrade
+              </Link>
             )}
           </div>
         </div>
@@ -201,19 +198,20 @@ export default async function ExhibitionsPage({
 
       {entitlements && !entitlements.canCreateExhibition ? (
         <div className="rounded-xl border border-amber-200/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-          You reached your exhibition limit for the {formatPlanLabel(entitlements.plan)} plan.
+          Plan-Limit für {formatPlanLabel(entitlements.plan)} erreicht.
+          {" "}<Link href="/dashboard/billing" className="underline hover:text-white">Upgrade</Link>
         </div>
       ) : null}
 
       {showDeletedBanner ? (
         <div className="rounded-xl border border-emerald-200/35 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-          Exhibition deleted.
+          Ausstellung gelöscht.
         </div>
       ) : null}
 
       {errorMessage ? (
         <div className="rounded-2xl border border-rose-200/35 bg-rose-500/10 p-5 text-sm text-rose-100 backdrop-blur-xl sm:p-6">
-          <p className="font-medium">Could not load exhibitions.</p>
+          <p className="font-medium">Ausstellungen konnten nicht geladen werden.</p>
           <p className="mt-1 text-rose-100/85">{errorMessage}</p>
           <Link
             href="/dashboard/exhibitions"
@@ -224,7 +222,7 @@ export default async function ExhibitionsPage({
         </div>
       ) : exhibitions.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/20 bg-black/20 p-6 text-sm text-white/75 backdrop-blur-xl">
-          No exhibitions found for this tenant yet.
+          Noch keine Ausstellungen vorhanden.
         </div>
       ) : (
         <ul className="space-y-3">
@@ -240,8 +238,8 @@ export default async function ExhibitionsPage({
                 </div>
                 <span
                   className={`rounded-full px-2.5 py-1 text-xs font-medium ${item.isPublished
-                      ? "border border-emerald-200/40 bg-emerald-300/15 text-emerald-100"
-                      : "border border-amber-200/35 bg-amber-300/15 text-amber-100"
+                    ? "border border-emerald-200/40 bg-emerald-300/15 text-emerald-100"
+                    : "border border-amber-200/35 bg-amber-300/15 text-amber-100"
                     }`}
                 >
                   {item.isPublished ? "Published" : "Draft"}

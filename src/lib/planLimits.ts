@@ -10,7 +10,7 @@ export type PlanLimits = {
 
 export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   free: {
-    exhibitions: 1,
+    exhibitions: 5,
     storageMb: 50,
     viewsPerMonth: 500,
   },

@@ -119,24 +119,22 @@ export default async function DashboardPage() {
             Plan {formatPlanLabel(entitlements.plan)}: {entitlements.currentExhibitions}/
             {entitlements.maxExhibitions} genutzt
           </p>
-          <Link
-            href="/dashboard/billing"
-            className="rounded-lg border border-cyan-200/35 bg-cyan-300/15 px-3 py-2 text-xs font-medium text-cyan-100 transition hover:bg-cyan-300/25"
-          >
-            Billing
-          </Link>
-          <Link
-            href="/dashboard/analytics"
-            className="rounded-lg border border-purple-200/35 bg-purple-300/15 px-3 py-2 text-xs font-medium text-purple-100 transition hover:bg-purple-300/25"
-          >
-            Analytics
-          </Link>
-          <Link
-            href="/dashboard/exhibitions"
-            className="rounded-lg border border-cyan-200/35 bg-cyan-300/15 px-3 py-2 text-xs font-medium text-cyan-100 transition hover:bg-cyan-300/25"
-          >
-            Verwalten
-          </Link>
+          {entitlements.canCreateExhibition ? (
+            <Link
+              href="/dashboard/exhibitions/new"
+              className="rounded-lg border border-cyan-200/40 bg-cyan-300/15 px-4 py-2 text-xs font-medium text-cyan-50 transition hover:bg-cyan-300/25"
+            >
+              + Neue Ausstellung
+            </Link>
+          ) : (
+            <Link
+              href="/dashboard/billing"
+              className="rounded-lg border border-amber-200/35 bg-amber-300/15 px-3 py-2 text-xs font-medium text-amber-100 transition hover:bg-amber-300/25"
+              title="Plan-Limit erreicht — Upgrade nötig"
+            >
+              Upgrade
+            </Link>
+          )}
         </div>
       </div>
 
