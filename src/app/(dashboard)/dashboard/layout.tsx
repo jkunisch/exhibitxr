@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { SignOutButton } from "@/components/ui/SignOutButton";
 import { getSessionUser } from "@/lib/session";
@@ -39,6 +40,26 @@ export default async function DashboardLayout({
             </div>
             <SignOutButton />
           </div>
+          <nav className="mt-4 flex flex-wrap gap-2">
+            <Link
+              href="/dashboard"
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
+            >
+              Overview
+            </Link>
+            <Link
+              href="/dashboard/exhibitions"
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
+            >
+              Exhibitions
+            </Link>
+            <Link
+              href="/dashboard/billing"
+              className="rounded-lg border border-cyan-200/40 bg-cyan-300/20 px-3 py-2 text-xs font-medium text-cyan-50 transition hover:bg-cyan-300/30"
+            >
+              Billing
+            </Link>
+          </nav>
         </header>
 
         {children}

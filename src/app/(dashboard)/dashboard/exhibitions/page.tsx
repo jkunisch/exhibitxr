@@ -146,12 +146,20 @@ export default async function ExhibitionsPage({
               Tenant-scoped CRUD for your organization.
             </p>
           </div>
-          <Link
-            href="/dashboard/exhibitions/new"
-            className="rounded-xl border border-cyan-200/40 bg-cyan-300/15 px-4 py-2 text-sm font-medium text-cyan-50 transition hover:bg-cyan-300/25"
-          >
-            New Exhibition
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard/billing"
+              className="rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15"
+            >
+              Billing
+            </Link>
+            <Link
+              href="/dashboard/exhibitions/new"
+              className="rounded-xl border border-cyan-200/40 bg-cyan-300/15 px-4 py-2 text-sm font-medium text-cyan-50 transition hover:bg-cyan-300/25"
+            >
+              New Exhibition
+            </Link>
+          </div>
         </div>
       </div>
 
