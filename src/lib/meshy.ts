@@ -32,9 +32,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function getMeshyApiKey(): string {
-  const apiKey = process.env.MESHY_API_KEY?.trim();
-  if (!apiKey) {
+  const raw = process.env.MESHY_API_KEY?.trim();
+  if (!raw) {
     throw new Error("Missing MESHY_API_KEY environment variable.");
+  }
+
+  // Support comma-separated keys — use the first valid one
+  const apiKey = raw.split(",")[0].trim();
+  if (apiKey.length === 0) {
+    throw new Error("MESHY_API_KEY is empty after parsing.");
   }
 
   return apiKey;

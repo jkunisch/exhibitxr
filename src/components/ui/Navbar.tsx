@@ -19,9 +19,8 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-black/80 backdrop-blur-md border-b border-white/10" : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-black/80 backdrop-blur-md border-b border-white/10" : "bg-transparent"
+        }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
@@ -37,7 +36,7 @@ export default function Navbar() {
                 Features
               </Link>
               <Link href="#usecases" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
-                Showcases
+                Anwendungen
               </Link>
               <Link href="#pricing" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 Preise
@@ -87,7 +86,7 @@ export default function Navbar() {
             className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
             onClick={() => setIsOpen(false)}
           >
-            Showcases
+            Anwendungen
           </Link>
           <Link
             href="#pricing"

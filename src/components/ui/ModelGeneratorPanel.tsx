@@ -300,7 +300,7 @@ export function ModelGeneratorPanel({
             setErrorMessage(msg);
             setStep("error");
         }
-    }, [selectedFile]);
+    }, [selectedFile, provider]);
 
     // ── Render: pipeline step list ─────────────────────────────────────────
 
