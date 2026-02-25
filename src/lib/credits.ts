@@ -17,7 +17,7 @@ import { normalizePlan, type PlanTier } from "@/lib/planLimits";
 
 /** Credits granted when a tenant upgrades to a plan (monthly). */
 const PLAN_MONTHLY_CREDITS: Record<PlanTier, number> = {
-    free: 1,       // 1 free generation (one-time welcome)
+    free: 3,       // 3 free generations to try the product
     starter: 10,   // 10 generations/month included
     pro: 50,       // 50 generations/month included
     enterprise: 200,
@@ -25,8 +25,8 @@ const PLAN_MONTHLY_CREDITS: Record<PlanTier, number> = {
 
 /** Credit cost per generation by provider. */
 const GENERATION_COST: Record<string, number> = {
-    basic: 1,    // Tripo — cheaper
-    premium: 2,  // Meshy — higher quality, costs 2 credits
+    basic: 1,    // Tripo
+    premium: 1,  // Meshy — TODO: set to 2 once credit purchase UI exists
 };
 
 // ─── Rate Limiting (anonymous) ──────────────────────────────────────────────
@@ -57,9 +57,12 @@ export async function getCreditBalance(tenantId: string): Promise<CreditBalance>
     const data = asRecord(doc.data());
 
     const plan = normalizePlan(data?.plan);
+
+    // If generationCredits field doesn't exist yet (existing tenants),
+    // grant plan-appropriate defaults so users aren't blocked.
     const credits = typeof data?.generationCredits === "number"
         ? Math.max(0, data.generationCredits)
-        : (plan === "free" ? 1 : 0);
+        : PLAN_MONTHLY_CREDITS[plan];
     const totalUsed = typeof data?.totalGenerationsUsed === "number"
         ? Math.max(0, data.totalGenerationsUsed)
         : 0;
