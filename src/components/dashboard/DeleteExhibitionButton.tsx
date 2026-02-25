@@ -39,26 +39,28 @@ export function DeleteExhibitionButton({
 
     if (showConfirm) {
         return (
-            <span className="inline-flex items-center gap-1.5 text-xs">
-                <span className="text-rose-300">
-                    &quot;{exhibitionTitle}&quot; löschen?
+            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/20 w-full animate-in fade-in zoom-in duration-200">
+                <span className="text-[10px] font-black uppercase tracking-widest text-red-500/70">
+                    Löschen?
                 </span>
-                <button
-                    type="button"
-                    onClick={handleDelete}
-                    disabled={isPending}
-                    className="rounded-lg border border-rose-400/40 bg-rose-500/20 px-2.5 py-1.5 text-xs font-medium text-rose-200 transition hover:bg-rose-500/30 disabled:opacity-50 cursor-pointer"
-                >
-                    {isPending ? "…" : "Ja"}
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setShowConfirm(false)}
-                    className="rounded-lg border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-medium text-white/70 transition hover:bg-white/15 cursor-pointer"
-                >
-                    Nein
-                </button>
-            </span>
+                <div className="flex gap-2">
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        disabled={isPending}
+                        className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-[10px] font-black uppercase tracking-widest transition-transform hover:scale-105 disabled:opacity-50"
+                    >
+                        {isPending ? "..." : "Ja"}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setShowConfirm(false)}
+                        className="px-4 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors"
+                    >
+                        Nein
+                    </button>
+                </div>
+            </div>
         );
     }
 
@@ -66,10 +68,10 @@ export function DeleteExhibitionButton({
         <button
             type="button"
             onClick={() => setShowConfirm(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-rose-400/25 bg-rose-500/10 px-3 py-2 text-xs font-medium text-rose-200 transition hover:bg-rose-500/20 cursor-pointer"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-red-500/5 border border-red-500/10 text-[10px] font-black uppercase tracking-widest text-red-500/40 hover:text-red-500 hover:bg-red-500/10 transition-all group"
         >
-            <Trash2 className="h-3.5 w-3.5" />
-            Löschen
+            <Trash2 size={12} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+            Projekt löschen
         </button>
     );
 }

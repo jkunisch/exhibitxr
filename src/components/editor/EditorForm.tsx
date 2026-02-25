@@ -150,6 +150,17 @@ function Section({
     );
 }
 
+function parseVariantTargets(input: string): string[] {
+    return input
+        .split(/[\n,]+/)
+        .map((target) => target.trim())
+        .filter((target) => target.length > 0);
+}
+
+function formatVariantTargets(targets: string[]): string {
+    return targets.join(", ");
+}
+
 /**
  * Editor form panel — edits ExhibitConfig + extended editor controls and
  * calls onChange with strictly typed partial updates.
@@ -179,6 +190,26 @@ export default function EditorForm({
     );
 
     const ambientLabel = useMemo(() => ambientIntensity.toFixed(1), [ambientIntensity]);
+
+    const addVariant = useCallback(() => {
+        const nextVariantIndex = config.model.variants.length + 1;
+        const nextVariant = {
+            id: `variant-${Date.now()}-${nextVariantIndex}`,
+            label: `Variante ${nextVariantIndex}`,
+            meshTargets: [],
+            color: "#ffffff",
+            roughness: 0.5,
+            metalness: 0,
+        };
+
+        updateModel({ variants: [...config.model.variants, nextVariant] });
+    }, [config.model.variants, updateModel]);
+
+    const removeVariant = useCallback((variantId: string) => {
+        updateModel({
+            variants: config.model.variants.filter((variant) => variant.id !== variantId),
+        });
+    }, [config.model.variants, updateModel]);
 
     return (
         <div className="flex h-full flex-col">
@@ -341,6 +372,16 @@ export default function EditorForm({
                     isOpen={openSections.variants}
                     onToggle={toggleSection}
                 >
+                    <div className="flex justify-end">
+                        <button
+                            type="button"
+                            onClick={addVariant}
+                            className="rounded-lg border border-cyan-400/50 bg-cyan-500/15 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
+                        >
+                            Variante hinzufügen
+                        </button>
+                    </div>
+
                     {config.model.variants.length === 0 && (
                         <p className="rounded-xl border border-dashed border-white/15 bg-black/20 px-3 py-2 text-xs text-white/60">
                             Keine Varianten vorhanden.
@@ -386,6 +427,25 @@ export default function EditorForm({
                                 </div>
                             </div>
 
+                            <div>
+                                <FieldLabel>Targets (mesh/group/material)</FieldLabel>
+                                <FieldHint>
+                                    Kommagetrennt: <code>mesh:Name</code>, <code>group:Name</code> oder <code>material:Name</code>.
+                                </FieldHint>
+                                <TextInput
+                                    value={formatVariantTargets(variant.meshTargets)}
+                                    onChange={(v) => {
+                                        const variants = [...config.model.variants];
+                                        variants[vi] = {
+                                            ...variant,
+                                            meshTargets: parseVariantTargets(v),
+                                        };
+                                        updateModel({ variants });
+                                    }}
+                                    placeholder="group:Body, material:Paint, mesh:Wheel_FL"
+                                />
+                            </div>
+
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div>
                                     <FieldLabel>Roughness</FieldLabel>
@@ -415,6 +475,16 @@ export default function EditorForm({
                                         step={0.05}
                                     />
                                 </div>
+                            </div>
+
+                            <div className="flex justify-end border-t border-white/10 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => removeVariant(variant.id)}
+                                    className="rounded-lg border border-rose-400/50 bg-rose-500/15 px-3 py-1.5 text-xs font-semibold text-rose-100 transition hover:bg-rose-500/25"
+                                >
+                                    Variante entfernen
+                                </button>
                             </div>
                         </div>
                     ))}

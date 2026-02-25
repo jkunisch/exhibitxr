@@ -1,0 +1,5 @@
+# Trage hier untereinander die Shop-URLs ein (z.B. Shopify oder WooCommerce).
+# Das Skript arbeitet die ersten 10 URLs automatisch ab.
+# Beispiel:
+# https://www.allbirds.com/products/mens-tree-runners
+# https://www.snocks.com/products/snocks-sneaker-socken-damen-herren

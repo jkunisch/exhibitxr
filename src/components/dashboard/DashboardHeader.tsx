@@ -18,12 +18,15 @@ export function DashboardHeader({ userName, stats }: DashboardHeaderProps) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
-        const hour = new Date().getHours();
-        if (hour >= 6 && hour < 12) setGreeting('Guten Morgen');
-        else if (hour >= 12 && hour < 18) setGreeting('Guten Tag');
-        else if (hour >= 18 && hour < 22) setGreeting('Guten Abend');
-        else setGreeting('Gute Nacht');
+        const timer = setTimeout(() => {
+            setMounted(true);
+            const hour = new Date().getHours();
+            if (hour >= 6 && hour < 12) setGreeting('Guten Morgen');
+            else if (hour >= 12 && hour < 18) setGreeting('Guten Tag');
+            else if (hour >= 18 && hour < 22) setGreeting('Guten Abend');
+            else setGreeting('Gute Nacht');
+        }, 0);
+        return () => clearTimeout(timer);
     }, []);
 
     return (

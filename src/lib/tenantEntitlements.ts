@@ -53,6 +53,7 @@ async function getTenantExhibitionCount(tenantId: string): Promise<number> {
 
 export async function getTenantEntitlementSnapshot(
   tenantId: string,
+  email?: string | null,
 ): Promise<TenantEntitlementSnapshot> {
   const [plan, currentExhibitions] = await Promise.all([
     getTenantPlan(tenantId),
@@ -65,6 +66,6 @@ export async function getTenantEntitlementSnapshot(
     plan,
     currentExhibitions,
     maxExhibitions: limits.exhibitions,
-    canCreateExhibition: canCreateExhibition(plan, currentExhibitions),
+    canCreateExhibition: canCreateExhibition(plan, currentExhibitions, email),
   };
 }

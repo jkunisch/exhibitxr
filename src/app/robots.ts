@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/dashboard/', '/api/'],
     },
-    sitemap: 'https://3d-snap.com/sitemap.xml',
+    sitemap: 'https://3dsnap.de/sitemap.xml',
   }
 }

@@ -171,7 +171,7 @@ export default async function ExhibitionDetailPage({
   const editorUrl = `/dashboard/editor/${exhibition.id}`;
   const origin = await getRequestOrigin();
   const embedUrl = `${origin}/embed/${exhibition.id}`;
-  const embedIframeCode = `<iframe src="${embedUrl}" width="100%" height="600" frameborder="0"></iframe>`;
+  const embedIframeCode = `<div style="position:relative;width:100%;"><iframe src="${embedUrl}" width="100%" height="600" frameborder="0" loading="lazy" title="Interaktives 3D Modell gesnappt mit 3D-Snap" allow="xr-spatial-tracking; fullscreen; autoplay"></iframe><div style="text-align:right;font-size:10px;font-family:sans-serif;margin-top:4px;"><a href="https://3dsnap.de" target="_blank" rel="ugc noopener" style="color:#888;text-decoration:none;">Interaktives 3D-Modell von <span style="font-weight:bold;color:#555;">3D-Snap</span></a></div></div>`;
 
   async function handleUpdate(formData: FormData) {
     "use server";

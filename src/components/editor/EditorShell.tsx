@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, ExternalLink, Settings, SlidersHorizontal, Sparkles, X } from "lucide-react";
+import { Camera, ExternalLink, Settings, SlidersHorizontal, Sparkles, X, Download, Loader2 } from "lucide-react";
 import ViewerCanvas from "@/components/3d/ViewerCanvas";
 import ModelViewer from "@/components/3d/ModelViewer";
 import EditorForm from "@/components/editor/EditorForm";
@@ -14,6 +14,8 @@ import {
     type EditorConfigUpdate,
 } from "@/hooks/useFirestoreExhibit";
 import { isWallProduct } from "@/lib/viewerOrbit";
+import { signInWithCustomToken } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 type SidebarTab = "settings" | "generate" | "concierge";
 
@@ -21,6 +23,7 @@ interface EditorShellProps {
     tenantId: string;
     exhibitId: string;
     initialConciergeStatus?: string;
+    firebaseCustomToken?: string;
 }
 
 const SAVE_STATUS_STYLES: Record<SaveStatus, { label: string; className: string }> = {
@@ -73,12 +76,31 @@ function SaveStatusBadge({
 export default function EditorShell({
     tenantId,
     exhibitId,
-    initialConciergeStatus = "none"
+    initialConciergeStatus = "none",
+    firebaseCustomToken,
 }: EditorShellProps) {
 
     const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
     const [sidebarTab, setSidebarTab] = useState<SidebarTab>("settings");
-    const { saveToFirestore } = useFirestoreExhibit(tenantId, exhibitId);
+    const [authReady, setAuthReady] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const { saveToFirestore } = useFirestoreExhibit(tenantId, exhibitId, authReady);
+
+    // Sign in with custom token to establish client-side Firebase Auth
+    useEffect(() => {
+        if (!firebaseCustomToken) {
+            const timer = setTimeout(() => setAuthReady(true), 0); // No token, proceed anyway (maybe already signed in)
+            return () => clearTimeout(timer);
+        }
+        let cancelled = false;
+        signInWithCustomToken(auth, firebaseCustomToken)
+            .then(() => { if (!cancelled) setAuthReady(true); })
+            .catch((err) => {
+                console.error("[EditorShell] Custom token sign-in failed:", err);
+                if (!cancelled) setAuthReady(true); // Proceed anyway, Firestore will show error
+            });
+        return () => { cancelled = true; };
+    }, [firebaseCustomToken]);
 
     const config = useEditorStore((s) => s.config);
     const ambientIntensity = useEditorStore((s) => s.ambientIntensity);
@@ -179,6 +201,38 @@ export default function EditorShell({
         );
     }
 
+    const handleDownload = async () => {
+        if (!effectiveConfig.model.glbUrl || isDownloading) return;
+        
+        setIsDownloading(true);
+        try {
+            const response = await fetch(effectiveConfig.model.glbUrl);
+            if (!response.ok) throw new Error("Download failed");
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = url;
+            
+            const rawTitle = effectiveConfig.title || "Mein_3D_Snap";
+            const safeTitle = rawTitle.replace(/[^a-zA-Z0-9_-]/g, "_");
+            a.download = `${safeTitle}.glb`;
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error("Failed to download model:", error);
+            alert("Download fehlgeschlagen. Bitte versuche es später erneut.");
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
     const restrictOrbitToHalfTurn = isWallProduct(effectiveConfig);
 
     return (
@@ -195,6 +249,24 @@ export default function EditorShell({
                     </div>
                     <div className="flex items-center gap-2">
                         <SaveStatusBadge status={saveStatus} error={saveError} />
+                        <button
+                            onClick={handleDownload}
+                            disabled={!effectiveConfig.model.glbUrl || isDownloading}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/90 transition hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                            title={!effectiveConfig.model.glbUrl ? "Noch kein Modell vorhanden" : "3D-Modell herunterladen (.glb)"}
+                        >
+                            {isDownloading ? (
+                                <>
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    <span>Lädt...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Download className="h-3.5 w-3.5" />
+                                    <span className="hidden sm:inline">Download</span>
+                                </>
+                            )}
+                        </button>
                         <Link
                             href={`/embed/${exhibitId}`}
                             target="_blank"

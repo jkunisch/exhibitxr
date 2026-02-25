@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getAdminDb } from "@/lib/firebaseAdmin";
-import { type PlanTier } from "@/lib/planLimits";
+import { getExhibitionCreationLimitError } from "@/lib/exhibitionPlanGate";
 import { getSessionUser } from "@/lib/session";
 import { getTenantEntitlementSnapshot } from "@/lib/tenantEntitlements";
 
@@ -81,19 +81,6 @@ function extractZodError(result: { success: false; error: z.ZodError }): string 
   return result.error.issues[0]?.message ?? "Invalid form input.";
 }
 
-function normalizeTenantPlan(value: unknown): PlanTier {
-  if (
-    value === "free" ||
-    value === "starter" ||
-    value === "pro" ||
-    value === "enterprise"
-  ) {
-    return value;
-  }
-
-  return "free";
-}
-
 export async function createExhibitionAction(
   formData: FormData,
 ): Promise<ExhibitionMutationResult> {
@@ -108,11 +95,12 @@ export async function createExhibitionAction(
     return { ok: false, error: extractZodError(parsedInput) };
   }
 
-  const entitlements = await getTenantEntitlementSnapshot(sessionUser.tenantId);
-  if (!entitlements.canCreateExhibition) {
+  const entitlements = await getTenantEntitlementSnapshot(sessionUser.tenantId, sessionUser.email);
+  const planLimitError = getExhibitionCreationLimitError(entitlements);
+  if (planLimitError) {
     return {
       ok: false,
-      error: `Plan limit reached (${entitlements.currentExhibitions}/${entitlements.maxExhibitions} exhibitions on ${entitlements.plan}). Upgrade required.`,
+      error: planLimitError,
     };
   }
 

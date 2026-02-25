@@ -3,6 +3,7 @@
 import { useRef, useMemo, useEffect, useCallback } from "react";
 import { useGLTF, PivotControls } from "@react-three/drei";
 import * as THREE from "three";
+import { resolveVariantTargetMeshNames, type VariantMeshDescriptor } from "@/lib/variantTargets";
 import type { ExhibitModel as ExhibitModelType } from "@/types/schema";
 import HotspotMarker from "./HotspotMarker";
 
@@ -33,6 +34,48 @@ interface ModelViewerProps {
     onTransformEnd?: (position: [number, number, number]) => void;
 }
 
+type MeshWithUserData = THREE.Mesh & {
+    userData: THREE.Object3D["userData"] & {
+        baseMaterials?: THREE.Material[];
+    };
+};
+
+function toMaterialArray(material: THREE.Material | THREE.Material[]): THREE.Material[] {
+    return Array.isArray(material) ? material : [material];
+}
+
+function withEnvironmentBoost(material: THREE.Material): THREE.Material {
+    const cloned = material.clone();
+    if ("envMapIntensity" in cloned) {
+        (cloned as THREE.MeshStandardMaterial).envMapIntensity = 1.2;
+    }
+    cloned.needsUpdate = true;
+    return cloned;
+}
+
+function applyVariantToMaterial(
+    material: THREE.Material,
+    variant: ExhibitModelType["variants"][number],
+): THREE.Material {
+    const nextMaterial = material.clone();
+
+    if (variant.color && "color" in nextMaterial) {
+        (nextMaterial as THREE.MeshStandardMaterial).color.set(variant.color);
+    }
+    if (variant.roughness !== undefined && "roughness" in nextMaterial) {
+        (nextMaterial as THREE.MeshStandardMaterial).roughness = variant.roughness;
+    }
+    if (variant.metalness !== undefined && "metalness" in nextMaterial) {
+        (nextMaterial as THREE.MeshStandardMaterial).metalness = variant.metalness;
+    }
+    if ("envMapIntensity" in nextMaterial) {
+        (nextMaterial as THREE.MeshStandardMaterial).envMapIntensity = 1.2;
+    }
+    nextMaterial.needsUpdate = true;
+
+    return nextMaterial;
+}
+
 /**
  * Enterprise-grade GLB model loader.
  *
@@ -56,8 +99,6 @@ export default function ModelViewer({
     onSelect,
     onTransformEnd,
 }: ModelViewerProps) {
-    const groupRef = useRef<THREE.Group>(null);
-
     // If no GLB URL, render an empty placeholder instead of crashing
     if (!config.glbUrl) {
         return (
@@ -95,40 +136,82 @@ function ModelViewerInner({
     onTransformEnd,
 }: ModelViewerProps) {
     const groupRef = useRef<THREE.Group>(null);
-    const { scene } = useGLTF(config.glbUrl, DRACO_DECODER_PATH);
+    
+    // Sicherung gegen ungültige URLs
+    const isValidUrl = typeof config.glbUrl === 'string' && config.glbUrl.startsWith('http');
+    
+    // Wir rufen useGLTF nur auf, wenn wir eine valide URL haben.
+    // Falls nicht, nutzen wir null.
+    const { scene } = useGLTF(isValidUrl ? config.glbUrl : '/fallback.glb', DRACO_DECODER_PATH);
 
     // Clone scene to avoid polluting the GLTF cache
-    // Enable shadows + boost PBR reflection quality on every mesh
     const clonedScene = useMemo(() => {
+        if (!isValidUrl || !scene) return null;
         const clone = scene.clone(true);
         clone.traverse((node) => {
             if (node instanceof THREE.Mesh) {
+                const mesh = node as MeshWithUserData;
                 // Shadows: every mesh casts and receives
-                node.castShadow = true;
-                node.receiveShadow = true;
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
 
                 // Boost PBR reflections from the HDRI environment
-                if (node.material) {
-                    const mat = node.material as THREE.MeshStandardMaterial;
-                    if ("envMapIntensity" in mat) {
-                        mat.envMapIntensity = 1.2;
-                    }
-                    mat.needsUpdate = true;
-                }
+                const boostedMaterials = toMaterialArray(mesh.material).map((material) =>
+                    withEnvironmentBoost(material),
+                );
+
+                mesh.material = boostedMaterials.length === 1
+                    ? boostedMaterials[0]
+                    : boostedMaterials;
+                mesh.userData.baseMaterials = boostedMaterials.map((material) => material.clone());
             }
         });
         return clone;
-    }, [scene]);
+    }, [isValidUrl, scene]);
 
     // Discover meshes with VAR__ prefix for automatic variant targeting
     const configurableMeshNames = useMemo(() => {
         const names: string[] = [];
+        if (!clonedScene) return names;
+        
         clonedScene.traverse((child) => {
             if (child instanceof THREE.Mesh && child.name.startsWith(VAR_PREFIX)) {
                 names.push(child.name);
             }
         });
         return names;
+    }, [clonedScene]);
+
+    const meshDescriptors = useMemo(() => {
+        const descriptors: VariantMeshDescriptor[] = [];
+        if (!clonedScene) return descriptors;
+
+        clonedScene.traverse((child) => {
+            if (!(child instanceof THREE.Mesh)) {
+                return;
+            }
+
+            const groupNames: string[] = [];
+            let parent: THREE.Object3D | null = child.parent;
+            while (parent) {
+                if (typeof parent.name === "string" && parent.name.trim().length > 0) {
+                    groupNames.push(parent.name);
+                }
+                parent = parent.parent;
+            }
+
+            const materialNames = toMaterialArray(child.material)
+                .map((material) => material.name?.trim() ?? "")
+                .filter((materialName) => materialName.length > 0);
+
+            descriptors.push({
+                meshName: child.name,
+                groupNames,
+                materialNames,
+            });
+        });
+
+        return descriptors;
     }, [clonedScene]);
 
     useEffect(() => {
@@ -141,33 +224,47 @@ function ModelViewerInner({
     }, [configurableMeshNames]);
 
     // Apply active variant materials
-    useMemo(() => {
+    useEffect(() => {
+        if (!clonedScene) return;
+
+        clonedScene.traverse((child) => {
+            if (!(child instanceof THREE.Mesh)) {
+                return;
+            }
+
+            const mesh = child as MeshWithUserData;
+            const baseMaterials = mesh.userData.baseMaterials;
+            if (!baseMaterials || baseMaterials.length === 0) {
+                return;
+            }
+
+            const resetMaterials = baseMaterials.map((material) => material.clone());
+            mesh.material = resetMaterials.length === 1 ? resetMaterials[0] : resetMaterials;
+        });
+
         if (!activeVariantId) return;
 
         const variant = config.variants.find((v) => v.id === activeVariantId);
         if (!variant) return;
 
-        // Merge explicit meshTargets with auto-discovered VAR__ meshes
-        const allTargets = new Set([
-            ...variant.meshTargets,
-            ...configurableMeshNames,
-        ]);
+        const allTargets = resolveVariantTargetMeshNames(
+            meshDescriptors,
+            variant.meshTargets,
+            configurableMeshNames,
+        );
 
         clonedScene.traverse((child) => {
-            if (
-                child instanceof THREE.Mesh &&
-                allTargets.has(child.name)
-            ) {
-                const mat = (child.material as THREE.MeshStandardMaterial).clone();
-                if (variant.color) mat.color.set(variant.color);
-                if (variant.roughness !== undefined) mat.roughness = variant.roughness;
-                if (variant.metalness !== undefined) mat.metalness = variant.metalness;
-                // Preserve the boosted reflection
-                mat.envMapIntensity = 1.2;
-                child.material = mat;
+            if (!(child instanceof THREE.Mesh) || !allTargets.has(child.name)) {
+                return;
             }
+
+            const nextMaterials = toMaterialArray(child.material).map((material) =>
+                applyVariantToMaterial(material, variant),
+            );
+
+            child.material = nextMaterials.length === 1 ? nextMaterials[0] : nextMaterials;
         });
-    }, [clonedScene, activeVariantId, config.variants, configurableMeshNames]);
+    }, [activeVariantId, clonedScene, config.variants, configurableMeshNames, meshDescriptors]);
 
     // NOTE: No idle rotation — it conflicts with CameraControls (user can't
     // rotate freely) and causes Bounds to re-fit every frame (flickering).
@@ -199,7 +296,14 @@ function ModelViewerInner({
             scale={config.scale}
             onClick={handleClick}
         >
-            <primitive object={clonedScene} />
+            {clonedScene ? (
+                <primitive object={clonedScene} />
+            ) : (
+                <mesh position={[0, 0.5, 0]}>
+                    <boxGeometry args={[1, 1, 1]} />
+                    <meshStandardMaterial color="#1a1a1a" wireframe />
+                </mesh>
+            )}
 
             {/* Hotspot markers (3D, not 2D overlay) */}
             {config.hotspots.map((hotspot) => (

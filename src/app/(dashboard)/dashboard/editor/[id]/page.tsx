@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import EditorShell from "@/components/editor/EditorShell";
 import { getSessionUser } from "@/lib/session";
 import { getConciergeStatus } from "@/app/actions/upsell";
+import { getAdminAuth } from "@/lib/firebaseAdmin";
 
 export const dynamic = "force-dynamic";
 
@@ -20,13 +21,20 @@ export default async function DashboardEditorPage({
   }
 
   const { id: exhibitId } = await params;
-  const conciergeStatus = await getConciergeStatus(exhibitId, sessionUser.tenantId);
+  const [conciergeStatus, customToken] = await Promise.all([
+    getConciergeStatus(exhibitId, sessionUser.tenantId),
+    getAdminAuth().createCustomToken(sessionUser.uid, {
+      tenantId: sessionUser.tenantId,
+      role: sessionUser.role ?? "owner",
+    }),
+  ]);
 
   return (
-    <EditorShell 
-      tenantId={sessionUser.tenantId} 
-      exhibitId={exhibitId} 
+    <EditorShell
+      tenantId={sessionUser.tenantId}
+      exhibitId={exhibitId}
       initialConciergeStatus={conciergeStatus}
+      firebaseCustomToken={customToken}
     />
   );
 }

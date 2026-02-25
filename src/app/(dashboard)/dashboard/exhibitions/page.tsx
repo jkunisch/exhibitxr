@@ -1,10 +1,9 @@
 import { Timestamp } from "firebase-admin/firestore";
-import { Download, Pencil } from "lucide-react";
+import { Download, Pencil, ChevronLeft, Plus, Box, ExternalLink, Settings, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { DeleteExhibitionButton } from "@/components/dashboard/DeleteExhibitionButton";
-
 import { getAdminDb } from "@/lib/firebaseAdmin";
 import type { PlanTier } from "@/lib/planLimits";
 import { getSessionUser } from "@/lib/session";
@@ -12,6 +11,7 @@ import {
   type TenantEntitlementSnapshot,
   getTenantEntitlementSnapshot,
 } from "@/lib/tenantEntitlements";
+import StudioCard from "@/components/ui/StudioCard";
 
 export const dynamic = "force-dynamic";
 
@@ -91,8 +91,8 @@ async function listTenantExhibitions(
 
       return {
         id: document.id,
-        title: asNonEmptyString(data.title, "Untitled exhibition"),
-        description: asNonEmptyString(data.description, "No description"),
+        title: asNonEmptyString(data.title, "Unbenanntes Projekt"),
+        description: asNonEmptyString(data.description, "Keine Beschreibung"),
         isPublished: data.isPublished === true,
         environment: asNonEmptyString(data.environment, "studio"),
         updatedAtMs: getDateMillis(data.updatedAt),
@@ -116,21 +116,16 @@ function getErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  return "Unknown error while loading exhibitions.";
+  return "Unbekannter Fehler beim Laden der Ausstellungen.";
 }
 
 function formatPlanLabel(plan: PlanTier): string {
   switch (plan) {
-    case "free":
-      return "Free";
-    case "starter":
-      return "Starter";
-    case "pro":
-      return "Pro";
-    case "enterprise":
-      return "Enterprise";
-    default:
-      return "Free";
+    case "free": return "Free";
+    case "starter": return "Starter";
+    case "pro": return "Pro";
+    case "enterprise": return "Enterprise";
+    default: return "Free";
   }
 }
 
@@ -162,136 +157,127 @@ export default async function ExhibitionsPage({
   }
 
   return (
-    <section className="space-y-5">
-      <div className="rounded-2xl border border-white/15 bg-white/8 p-5 backdrop-blur-xl sm:p-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-cyan-200/75">
-              Exhibitions
-            </p>
-            <h2 className="mt-1 text-xl font-semibold text-white">
-              Ausstellungen verwalten
-            </h2>
-            <p className="mt-1 text-sm text-white/70">
-              Erstelle und bearbeite deine 3D-Ausstellungen.
-            </p>
-            {entitlements ? (
-              <p className="mt-1 text-xs text-white/60">
-                Plan {formatPlanLabel(entitlements.plan)}: {entitlements.currentExhibitions}/
-                {entitlements.maxExhibitions} genutzt
-              </p>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-2">
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <h2 className="text-4xl font-black tracking-tight text-white">Modelle</h2>
+          <p className="mt-2 text-zinc-500 font-medium">Verwalten Sie Ihre gesamte 3D-Bibliothek.</p>
+        </div>
+        <div className="flex items-center gap-3">
+            <Link
+                href="/dashboard"
+                className="group flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-6 py-3 text-xs font-bold uppercase tracking-widest text-zinc-400 transition-all hover:bg-white/10 hover:text-white"
+            >
+                <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                Zurück
+            </Link>
+            
             {entitlements?.canCreateExhibition ? (
               <Link
                 href="/dashboard/exhibitions/new"
-                className="rounded-xl border border-cyan-200/40 bg-cyan-300/15 px-4 py-2 text-sm font-medium text-cyan-50 transition hover:bg-cyan-300/25"
+                className="flex items-center gap-2 rounded-full bg-white px-8 py-3 text-xs font-black text-black transition-transform hover:scale-105 active:scale-95"
               >
-                + Neue Ausstellung
+                <Plus size={16} />
+                Projekt
               </Link>
             ) : (
               <Link
                 href="/dashboard/billing"
-                className="rounded-xl border border-amber-200/35 bg-amber-300/15 px-4 py-2 text-sm font-medium text-amber-100 transition hover:bg-amber-300/25"
+                className="flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-8 py-3 text-xs font-black text-amber-500 transition-colors hover:bg-amber-500/20"
               >
                 Upgrade
               </Link>
             )}
-          </div>
         </div>
       </div>
 
-      {entitlements && !entitlements.canCreateExhibition ? (
-        <div className="rounded-xl border border-amber-200/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-          Plan-Limit für {formatPlanLabel(entitlements.plan)} erreicht.
-          {" "}<Link href="/dashboard/billing" className="underline hover:text-white">Upgrade</Link>
-        </div>
-      ) : null}
-
-      {showDeletedBanner ? (
-        <div className="rounded-xl border border-emerald-200/35 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-          Ausstellung gelöscht.
-        </div>
-      ) : null}
+      {showDeletedBanner && (
+        <StudioCard className="p-4 bg-green-500/5 border-green-500/20 text-green-500 text-sm font-bold text-center">
+           Projekt erfolgreich gelöscht.
+        </StudioCard>
+      )}
 
       {errorMessage ? (
-        <div className="rounded-2xl border border-rose-200/35 bg-rose-500/10 p-5 text-sm text-rose-100 backdrop-blur-xl sm:p-6">
-          <p className="font-medium">Ausstellungen konnten nicht geladen werden.</p>
-          <p className="mt-1 text-rose-100/85">{errorMessage}</p>
+        <StudioCard className="p-10 flex flex-col items-center justify-center text-center">
+          <p className="text-red-500 font-bold mb-4">{errorMessage}</p>
           <Link
             href="/dashboard/exhibitions"
-            className="mt-4 inline-flex rounded-lg border border-rose-100/30 bg-rose-400/20 px-3 py-2 text-xs font-medium text-rose-50 transition hover:bg-rose-400/30"
+            className="text-xs font-black uppercase tracking-widest underline text-zinc-500 hover:text-white"
           >
-            Retry
+            Erneut versuchen
           </Link>
-        </div>
+        </StudioCard>
       ) : exhibitions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/20 bg-black/20 p-6 text-sm text-white/75 backdrop-blur-xl">
-          Noch keine Ausstellungen vorhanden.
-        </div>
+        <StudioCard className="flex flex-col items-center justify-center py-20 text-center">
+          <Box size={48} className="text-zinc-800 mb-6" />
+          <p className="text-zinc-500 font-medium">Noch keine Ausstellungen vorhanden.</p>
+          <Link href="/dashboard/exhibitions/new" className="mt-4 text-xs font-bold text-white underline">Jetzt die erste erstellen</Link>
+        </StudioCard>
       ) : (
-        <ul className="space-y-3">
-          {exhibitions.map((item) => (
-            <li
-              key={item.id}
-              className="rounded-2xl border border-white/12 bg-black/20 p-4 backdrop-blur-xl"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <p className="font-medium text-white">{item.title}</p>
-                  <p className="text-xs text-white/60">{item.description}</p>
-                </div>
-                <span
-                  className={`rounded-full px-2.5 py-1 text-xs font-medium ${item.isPublished
-                    ? "border border-emerald-200/40 bg-emerald-300/15 text-emerald-100"
-                    : "border border-amber-200/35 bg-amber-300/15 text-amber-100"
-                    }`}
-                >
-                  {item.isPublished ? "Published" : "Draft"}
-                </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {exhibitions.map((item, idx) => (
+            <StudioCard key={item.id} delay={idx * 0.05} className="group p-0 overflow-hidden flex flex-col">
+              <div className="aspect-[16/9] bg-black/40 border-b border-white/5 flex items-center justify-center relative group-hover:bg-black/20 transition-colors">
+                 <Box size={48} className="text-zinc-800 group-hover:scale-110 group-hover:text-zinc-700 transition-all duration-500" />
+                 <div className="absolute top-4 right-4">
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                        item.isPublished 
+                            ? 'bg-green-500/10 text-green-500 border border-green-500/20' 
+                            : 'bg-zinc-800 text-zinc-500 border border-zinc-700'
+                    }`}>
+                        {item.isPublished ? 'Published' : 'Draft'}
+                    </span>
+                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-white/65">
-                <span>Environment: {item.environment}</span>
-                <span>Updated: {item.updatedAtLabel}</span>
-              </div>
+              <div className="p-8 flex-1 flex flex-col">
+                 <h4 className="text-2xl font-black tracking-tight text-white mb-2 truncate">{item.title}</h4>
+                 <p className="text-xs text-zinc-500 font-medium mb-8 line-clamp-2 leading-relaxed">{item.description}</p>
+                 
+                 <div className="mt-auto space-y-6">
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-zinc-700">
+                        <span>Env: {item.environment}</span>
+                        <span>{item.updatedAtLabel}</span>
+                    </div>
 
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Link
-                  href={`/dashboard/exhibitions/${item.id}`}
-                  className="inline-flex rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
-                >
-                  Details
-                </Link>
-                <Link
-                  href={`/dashboard/editor/${item.id}`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-300/35 bg-cyan-300/15 px-3 py-2 text-xs font-medium text-cyan-50 transition hover:bg-cyan-300/25"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  Bearbeiten
-                </Link>
-                {item.glbUrl ? (
-                  <a
-                    href={item.glbUrl}
-                    download={`${item.title.replace(/\s+/g, "_")}.glb`}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300/35 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-200 transition hover:bg-emerald-500/20"
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    GLB
-                  </a>
-                ) : null}
-                <DeleteExhibitionButton
-                  exhibitionId={item.id}
-                  tenantId={sessionUser.tenantId}
-                  exhibitionTitle={item.title}
-                />
+                    <div className="grid grid-cols-2 gap-3">
+                       <Link 
+                          href={`/dashboard/editor/${item.id}`}
+                          className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white text-black text-[10px] font-black uppercase tracking-widest transition-transform hover:scale-[1.02]"
+                       >
+                          <Pencil size={12} /> Edit
+                       </Link>
+                       <Link 
+                          href={`/dashboard/exhibitions/${item.id}`}
+                          className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
+                       >
+                          <Settings size={12} /> Settings
+                       </Link>
+                    </div>
+
+                    {item.glbUrl && (
+                        <a
+                           href={item.glbUrl}
+                           download={`${item.title.replace(/\s+/g, "_")}.glb`}
+                           className="flex items-center justify-center gap-2 py-3 rounded-xl bg-zinc-900 border border-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors w-full"
+                        >
+                           <Download size={12} /> Download GLB
+                        </a>
+                    )}
+                    
+                    <div className="pt-2">
+                        <DeleteExhibitionButton
+                            exhibitionId={item.id}
+                            tenantId={sessionUser.tenantId}
+                            exhibitionTitle={item.title}
+                        />
+                    </div>
+                 </div>
               </div>
-            </li>
+            </StudioCard>
           ))}
-        </ul>
+        </div>
       )}
-    </section>
+    </div>
   );
 }
-

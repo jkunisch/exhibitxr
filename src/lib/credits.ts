@@ -10,8 +10,14 @@ import "server-only";
 
 import { FieldValue } from "firebase-admin/firestore";
 
+import { isAdminEmail as isConfiguredAdminEmail } from "@/lib/adminEmails";
 import { getAdminDb } from "@/lib/firebaseAdmin";
 import { normalizePlan, type PlanTier } from "@/lib/planLimits";
+
+// ─── Admin Bypass ───────────────────────────────────────────────────────────
+export function isAdminEmail(email: string | undefined | null): boolean {
+    return isConfiguredAdminEmail(email);
+}
 
 // ─── Plan Credit Grants ─────────────────────────────────────────────────────
 
@@ -57,6 +63,11 @@ export async function getCreditBalance(tenantId: string): Promise<CreditBalance>
     const data = asRecord(doc.data());
 
     const plan = normalizePlan(data?.plan);
+
+    // Enterprise = unlimited
+    if (plan === "enterprise") {
+        return { credits: 999999, totalUsed: 0, plan };
+    }
 
     // If generationCredits field doesn't exist yet (existing tenants),
     // grant plan-appropriate defaults so users aren't blocked.
@@ -106,6 +117,37 @@ export async function deductCredits(
         totalUsed: balance.totalUsed + 1,
         plan: balance.plan,
     };
+}
+
+/**
+ * Refund credits after a failed generation.
+ * Logged for audit trail to prevent abuse.
+ */
+export async function refundCredits(
+    tenantId: string,
+    provider: string,
+    reason: string,
+): Promise<void> {
+    const cost = getGenerationCost(provider);
+
+    await getAdminDb().collection("tenants").doc(tenantId).update({
+        generationCredits: FieldValue.increment(cost),
+        totalGenerationsUsed: FieldValue.increment(-1),
+    });
+
+    // Audit log
+    await getAdminDb()
+        .collection("tenants")
+        .doc(tenantId)
+        .collection("credit_log")
+        .add({
+            amount: cost,
+            reason: `REFUND: ${reason}`,
+            provider,
+            createdAt: new Date().toISOString(),
+        });
+
+    console.log(`[credits] Refunded ${cost} credit(s) to tenant ${tenantId}: ${reason}`);
 }
 
 /**

@@ -1,0 +1,8 @@
+{
+  "name": "snap-e2e",
+  "version": "1.59.0-alpha-1771104257000",
+  "timestamp": 1772054926411,
+  "socketPath": "\\\\.\\pipe\\5984f16a899705a3-snap-e2e.sock",
+  "cli": {},
+  "userDataDirPrefix": "C:\\Users\\jonat\\Showrooms\\exhibitxr\\.localappdata\\ms-playwright\\daemon\\5984f16a899705a3\\ud-snap-e2e"
+}

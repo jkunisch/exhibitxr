@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pollTaskStatus } from '@/lib/meshy';
+import { pollTripoTaskStatus } from '@/lib/tripo';
 import { finalizePublicSnap } from '@/lib/snapFinalize';
 
 export async function GET(
@@ -8,7 +9,12 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const result = await pollTaskStatus(id);
+    const provider = request.nextUrl.searchParams.get('provider') || 'premium';
+
+    // Use the correct poll function based on provider
+    const pollFn = provider === 'basic' ? pollTripoTaskStatus : pollTaskStatus;
+    const result = await pollFn(id);
+
     const shouldFinalize = result.status === 'SUCCEEDED' && Boolean(result.glbUrl);
 
     if (shouldFinalize && result.glbUrl) {
@@ -29,6 +35,8 @@ export async function GET(
       error: result.error
     });
   } catch (error) {
-    return NextResponse.json({ error: 'Polling fehlgeschlagen' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Polling fehlgeschlagen';
+    console.error('[snap-preview] poll error:', message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

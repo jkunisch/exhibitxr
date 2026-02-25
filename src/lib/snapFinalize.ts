@@ -38,7 +38,11 @@ export async function finalizePublicSnap(taskId: string, meshyGlbUrl: string): P
 
   const storagePath = `public/snap-previews/${normalizedTaskId}.glb`;
   const storage = getStorage(getAdminApp());
-  const bucket = storage.bucket();
+  const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+  if (!bucketName) {
+    throw new Error("Missing NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET env var.");
+  }
+  const bucket = storage.bucket(bucketName);
   const storageFile = bucket.file(storagePath);
   const downloadToken = crypto.randomUUID();
 

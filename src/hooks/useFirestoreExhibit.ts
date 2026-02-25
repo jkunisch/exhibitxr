@@ -23,7 +23,7 @@ type FirestoreExhibitWrite = Partial<Omit<ExhibitConfig, "id" | "tenantId">> & {
  * - Pushes valid snapshots into `editorStore.setConfig`
  * - Returns `saveToFirestore(partial)` which debounces writes to Firestore
  */
-export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
+export function useFirestoreExhibit(tenantId: string, exhibitId: string, authReady: boolean = true) {
     const setConfig = useEditorStore((s) => s.setConfig);
     const setAmbientIntensity = useEditorStore((s) => s.setAmbientIntensity);
     const setSaveStatus = useEditorStore((s) => s.setSaveStatus);
@@ -33,8 +33,12 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
     const isMounted = useRef(true);
 
     // ─── Firestore Listener ──────────────────────────────────────────────────
+    // Wait for authReady signal from EditorShell (custom token sign-in)
+    // before attaching the Firestore listener.
 
     useEffect(() => {
+        if (!authReady) return;
+
         isMounted.current = true;
 
         const docRef = doc(db, "tenants", tenantId, "exhibitions", exhibitId);
@@ -134,7 +138,7 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
             }
             reset();
         };
-    }, [tenantId, exhibitId, setConfig, setSaveStatus, reset]);
+    }, [authReady, tenantId, exhibitId, setConfig, setSaveStatus, reset, setAmbientIntensity]);
 
     // ─── Debounced Write ─────────────────────────────────────────────────────
 

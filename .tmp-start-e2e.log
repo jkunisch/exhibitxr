@@ -1,0 +1,12 @@
+
+> exhibitxr@0.1.0 start
+> next start
+
+▲ Next.js 16.1.6
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.188:3000
+
+✓ Starting...
+✓ Ready in 634ms
+(node:32904) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)

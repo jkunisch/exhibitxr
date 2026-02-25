@@ -83,14 +83,14 @@ export default function BildZu3DPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <FadeIn>
             <div className="prose prose-invert prose-lg max-w-none">
-              
+
               <h2 className="text-3xl font-bold text-white mb-6">Warum Bilder in 3D umwandeln?</h2>
               <p className="text-gray-300 mb-8">
                 Online-Shopper können Produkte nicht anfassen. Ein flaches Bild (JPG, PNG) liefert nur eine Perspektive. Ein 3D-Modell hingegen lässt sich drehen, zoomen und von allen Seiten betrachten. Das steigert das Vertrauen und reduziert Retouren signifikant. Wenn du mehr über die grundsätzlichen Technologien (wie Photogrammetrie) erfahren willst, schau dir unseren Artikel über <Link href="/foto-zu-3d-modell" className="text-[#00aaff] hover:underline">Tools und Workflows für Foto zu 3D Modelle</Link> an.
               </p>
 
               <h2 className="text-3xl font-bold text-white mb-6">So funktioniert der Workflow</h2>
-              
+
               <div className="space-y-6 mb-12">
                 <div className="flex gap-4 items-start bg-white/5 border border-white/10 p-6 rounded-2xl">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#00aaff]/20 text-[#00aaff]">
@@ -103,7 +103,7 @@ export default function BildZu3DPage() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex gap-4 items-start bg-white/5 border border-white/10 p-6 rounded-2xl">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#00aaff]/20 text-[#00aaff]">
                     <UploadCloud size={24} />
@@ -134,7 +134,7 @@ export default function BildZu3DPage() {
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
                     <span className="text-rose-400 font-bold mt-0.5">✗</span>
-                    <span className="text-gray-300"><strong>Transparente Objekte:</strong> Glas oder durchsichtiges Plastik kann von KIs oft nicht richtig interpretiert werden. Die Modelle sehen oft "geschmolzen" aus.</span>
+                    <span className="text-gray-300"><strong>Transparente Objekte:</strong> Glas oder durchsichtiges Plastik kann von KIs oft nicht richtig interpretiert werden. Die Modelle sehen oft &quot;geschmolzen&quot; aus.</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-rose-400 font-bold mt-0.5">✗</span>
@@ -161,7 +161,7 @@ export default function BildZu3DPage() {
           </FadeIn>
         </div>
       </section>
-      
+
       {/* FOOTER */}
       <footer className="border-t border-white/10 bg-black pt-16 pb-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -170,8 +170,8 @@ export default function BildZu3DPage() {
               3D-<span className="text-[#00aaff]">Snap</span>
             </Link>
             <div className="flex flex-wrap justify-center gap-8">
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">Impressum</Link>
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">Datenschutz</Link>
+              <Link href="/impressum" className="text-gray-400 hover:text-white transition-colors">Impressum</Link>
+              <Link href="/datenschutz" className="text-gray-400 hover:text-white transition-colors">Datenschutz</Link>
             </div>
           </div>
         </div>

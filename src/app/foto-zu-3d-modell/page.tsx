@@ -23,7 +23,7 @@ const jsonLd = {
     "price": "0",
     "priceCurrency": "EUR"
   },
-  "description": "Ein KI-gestützter Foto zu 3D Modell Generator. Konvertiert einfache JPG und PNG Bilder in interaktive GLB und STL 3D-Modelle für E-Commerce und Creator.",
+  "description": "Ein KI-gestützter Foto zu 3D Modell Generator. Konvertiert einfache JPG und PNG Bilder in interaktive GLB und STL 3D-Modelle für Produktpräsentationen und Maker.",
   "url": "https://3d-snap.com",
   "featureList": [
     "KI-gestützte 3D-Generierung aus Einzelfotos",
@@ -56,7 +56,7 @@ export default function FotoZu3DModellPage() {
 
             <FadeIn delay={100}>
               <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed font-medium">
-                Erfahre, wie du mit modernen Tools ein einfaches Foto in ein interaktives 3D-Modell verwandelst – ideal für E-Commerce, Maker und Web-Entwicklung.
+                Erfahre, wie du mit modernen Tools ein einfaches Foto in ein interaktives 3D-Modell verwandelst – ideal für Produktpräsentationen, Maker und Web-Entwicklung.
               </p>
             </FadeIn>
 
@@ -80,7 +80,7 @@ export default function FotoZu3DModellPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <FadeIn>
             <div className="prose prose-invert prose-lg max-w-none">
-              <h2 className="text-3xl font-bold text-white mb-6">Wie funktioniert "Foto zu 3D"?</h2>
+              <h2 className="text-3xl font-bold text-white mb-6">Wie funktioniert &quot;Foto zu 3D&quot;?</h2>
               <p className="text-gray-300 mb-8">
                 Früher brauchte man teure Scanner oder komplexes Wissen in Programmen wie Blender, um Objekte in 3D darzustellen. Heute gibt es im Wesentlichen drei zugängliche Methoden, um aus Fotos ein 3D-Modell zu erstellen:
               </p>
@@ -125,7 +125,7 @@ export default function FotoZu3DModellPage() {
                       <td className="p-4 text-white font-medium">KI-Generator (z.B. 3D-Snap)</td>
                       <td className="p-4">Smartphone oder PC</td>
                       <td className="p-4">2 - 5 Minuten</td>
-                      <td className="p-4">E-Commerce, Web-Modelle, schnelle Assets</td>
+                      <td className="p-4">Digitalisierung, Web-Modelle, schnelle Assets</td>
                     </tr>
                     <tr className="border-b border-white/10">
                       <td className="p-4 text-white font-medium">Photogrammetrie</td>
@@ -145,9 +145,9 @@ export default function FotoZu3DModellPage() {
 
               <h2 className="text-3xl font-bold text-white mb-6">Der schnellste Weg: KI-Generierung</h2>
               <p className="text-gray-300 mb-6">
-                Für E-Commerce, Creator und Web-Projekte ist die KI-gestützte Methode aktuell der beste Kompromiss aus Geschwindigkeit und Qualität. Du lädst einfach ein Produktfoto (am besten mit gutem Licht und wenig Schatten) hoch, und die Software erledigt den Rest. Falls du wissen willst, wie du das perfekte Bild vorbereitest, lies unseren <Link href="/bild-zu-3d" className="text-[#00aaff] hover:underline">Guide zum Umwandeln von Bildern in 3D-Modelle</Link>.
+                Für Maker und Web-Projekte ist die KI-gestützte Methode aktuell der beste Kompromiss aus Geschwindigkeit und Qualität. Du lädst einfach ein Produktfoto (am besten mit gutem Licht und wenig Schatten) hoch, und die Software erledigt den Rest. Falls du wissen willst, wie du das perfekte Bild vorbereitest, lies unseren <Link href="/bild-zu-3d" className="text-[#00aaff] hover:underline">Guide zum Umwandeln von Bildern in 3D-Modelle</Link>.
               </p>
-              
+
               <div className="bg-white/5 border border-white/10 p-8 rounded-2xl mb-12">
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <Zap className="w-6 h-6 text-amber-400" /> Best Practices für dein Foto
@@ -188,7 +188,7 @@ export default function FotoZu3DModellPage() {
           </FadeIn>
         </div>
       </section>
-      
+
       {/* FOOTER */}
       <footer className="border-t border-white/10 bg-black pt-16 pb-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -197,8 +197,8 @@ export default function FotoZu3DModellPage() {
               3D-<span className="text-[#00aaff]">Snap</span>
             </Link>
             <div className="flex flex-wrap justify-center gap-8">
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">Impressum</Link>
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">Datenschutz</Link>
+              <Link href="/impressum" className="text-gray-400 hover:text-white transition-colors">Impressum</Link>
+              <Link href="/datenschutz" className="text-gray-400 hover:text-white transition-colors">Datenschutz</Link>
             </div>
           </div>
         </div>

@@ -64,9 +64,10 @@ export default function LandingPage() {
           >
             <Link
               href="/register"
-              className="group relative px-14 py-7 bg-white text-black text-sm font-black uppercase tracking-widest rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_60px_rgba(255,255,255,0.1)] overflow-hidden"
+              className="group relative px-14 py-7 bg-white text-black text-sm font-black uppercase tracking-widest rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_60px_rgba(255,255,255,0.1)] overflow-hidden flex items-center gap-3"
             >
-              <span className="relative z-10">Studio kostenlos testen</span>
+              <span className="relative z-10">ZUM 3D-STUDIO</span>
+              <ArrowUpRight size={18} className="relative z-10" />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             </Link>
           </motion.div>
@@ -76,25 +77,23 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="relative mx-auto w-full max-w-5xl rounded-[3.5rem] p-[2px] overflow-hidden group shadow-[0_0_100px_rgba(0,170,255,0.15)]"
+            className="relative mx-auto w-full max-w-5xl rounded-[3.5rem] p-[2px] overflow-hidden group shadow-[0_0_100px_rgba(255,255,255,0.1)]"
           >
-            {/* Fluid Magic Border (Animated Conic Gradient) */}
-            <div 
+            {/* Fluid Magic Border (Animated Conic Gradient with Rainbow Hue Shift) */}
+            <motion.div 
               className="absolute inset-[-500%] animate-[spin_6s_linear_infinite]"
+              animate={{ filter: ["hue-rotate(0deg)", "hue-rotate(360deg)"] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
               style={{
                 background: 'conic-gradient(from 0deg, transparent 0%, transparent 40%, #00aaff 50%, transparent 60%, transparent 100%)',
               }}
             />
-            {/* Secondary Color Layer for Hue Shift */}
-            <motion.div 
-              animate={{ filter: ["hue-rotate(0deg)", "hue-rotate(360deg)"] }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 opacity-50"
-            />
             
             <div className="relative rounded-[3.4rem] overflow-hidden border border-white/5 bg-[#050507] backdrop-blur-3xl min-h-[550px]">
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none z-10" />
-              <HomeSnapModule />
+              <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+              <div className="relative z-10">
+                <HomeSnapModule />
+              </div>
 
               <div className="absolute top-8 right-8 z-20 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-md text-[9px] font-black uppercase tracking-widest text-white flex items-center gap-3">
                 <div className="w-2.5 h-2.5 bg-[#00aaff] rounded-full animate-pulse shadow-[0_0_10px_#00aaff]" />

@@ -1,298 +1,151 @@
-"use client";
+'use client';
 
-import { useCallback, useState } from "react";
+import React, { useState, Suspense, useMemo } from 'react';
+import dynamic from 'next/dynamic';
+import { Share2, Maximize2 } from 'lucide-react';
+import ViewerCanvas from './ViewerCanvas';
 
-import ViewerCanvas from "@/components/3d/ViewerCanvas";
-import ModelViewer from "@/components/3d/ModelViewer";
-import ChatWidget from "@/components/ui/ChatWidget";
-import {
-    buildEmbedFontFamily,
-    buildGoogleFontImportRule,
-    resolveEmbedPrimaryColor,
-} from "@/lib/branding";
-import { DEFAULT_AMBIENT_INTENSITY } from "@/lib/lighting";
-import { useAnalytics } from "@/hooks/useAnalytics";
-import { isWallProduct } from "@/lib/viewerOrbit";
-import type { EmbedBranding } from "@/types/branding";
-import type { ExhibitConfig } from "@/types/schema";
+// Wir laden den schweren ModelViewer nur client-seitig und bei Bedarf
+const ModelViewer = dynamic(() => import('./ModelViewer'), {
+  ssr: false,
+  loading: () => null
+});
 
 interface EmbedViewerProps {
-    config: ExhibitConfig;
-    branding?: EmbedBranding;
-    ambientIntensity?: number;
-    enableChat?: boolean;
+  modelUrl: string;
+  posterUrl?: string;
+  title?: string;
+  tenantId?: string;
 }
 
-function hexToRgba(color: string, alpha: number): string {
-    const normalized = color.replace("#", "").trim();
-    const clampedAlpha = Math.max(0, Math.min(1, alpha));
+export default function EmbedViewer({ modelUrl, posterUrl, title, tenantId }: EmbedViewerProps) {
+  const [isInteracted, setIsInteracted] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
-    if (normalized.length === 3) {
-        const r = Number.parseInt(normalized[0] + normalized[0], 16);
-        const g = Number.parseInt(normalized[1] + normalized[1], 16);
-        const b = Number.parseInt(normalized[2] + normalized[2], 16);
-        return `rgba(${r}, ${g}, ${b}, ${clampedAlpha})`;
-    }
+  // Wir bauen ein minimales ExhibitModel Objekt für den ModelViewer
+  const modelConfig = useMemo(() => ({
+    id: 'embed-preview',
+    label: title || 'Vorschau',
+    glbUrl: modelUrl,
+    scale: 1,
+    position: [0, 0, 0] as [number, number, number],
+    variants: [],
+    hotspots: []
+  }), [modelUrl, title]);
 
-    if (normalized.length === 6) {
-        const r = Number.parseInt(normalized.slice(0, 2), 16);
-        const g = Number.parseInt(normalized.slice(2, 4), 16);
-        const b = Number.parseInt(normalized.slice(4, 6), 16);
-        return `rgba(${r}, ${g}, ${b}, ${clampedAlpha})`;
-    }
+  const embedCodeHtml = `<div style="position:relative;width:100%;"><iframe src="https://3dsnap.de/embed/${tenantId || 'demo'}" width="100%" height="500px" frameborder="0" loading="lazy" title="Interaktives 3D Modell gesnappt mit 3D-Snap" allow="xr-spatial-tracking; fullscreen; autoplay"></iframe><div style="text-align:right;font-size:10px;font-family:sans-serif;margin-top:4px;"><a href="https://3dsnap.de?utm_source=embed&utm_medium=html" target="_blank" rel="ugc noopener" style="color:#888;text-decoration:none;">Interaktives 3D-Modell von <span style="font-weight:bold;color:#555;">3D-Snap</span></a></div></div>`;
 
-    return `rgba(0, 170, 255, ${clampedAlpha})`;
-}
+  const embedCodeMarkdown = `[![${title || '3D Modell Vorschau'}](${posterUrl || 'https://3dsnap.de/og-image.jpg'})](https://3dsnap.de/embed/${tenantId || 'demo'})\n\n*Interaktives 3D-Modell in 15 Sekunden gesnappt mit [3D-Snap](https://3dsnap.de?utm_source=embed&utm_medium=markdown).*`;
 
-/**
- * Embeddable 3D viewer — full viewport, no dashboard chrome.
- * Renders the model with variant switching and hotspot interaction.
- *
- * CRITICAL: The overlay container is pointer-events-none so the Canvas receives
- * camera input. Interactive controls opt-in with pointer-events-auto.
- */
-export default function EmbedViewer({
-    config,
-    branding,
-    ambientIntensity = DEFAULT_AMBIENT_INTENSITY,
-    enableChat,
-}: EmbedViewerProps) {
-    const restrictOrbitToHalfTurn = isWallProduct(config);
-    const { trackHotspotClick, trackVariantChange, trackChatMessage } = useAnalytics(
-        config.id,
-        config.tenantId
-    );
+  const copyHtml = () => {
+    navigator.clipboard.writeText(embedCodeHtml);
+    alert('HTML-Iframe kopiert!');
+  };
 
-    const [activeVariant, setActiveVariant] = useState<string | undefined>(
-        config.model.variants[0]?.id
-    );
-    const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
-    const primaryColor = resolveEmbedPrimaryColor(branding);
-    const fontFamily = buildEmbedFontFamily(branding?.fontFamily);
-    const googleFontImportRule = buildGoogleFontImportRule(branding?.fontFamily);
-    const customCss = branding?.customCss?.trim() || null;
-    const showWatermark = branding?.hideWatermark !== true;
+  const copyMarkdown = () => {
+    navigator.clipboard.writeText(embedCodeMarkdown);
+    alert('Markdown-Snippet kopiert!');
+  };
 
-    const handleHotspotClick = useCallback(
-        (hotspotId: string) => {
-            setActiveHotspot((prev) => {
-                const isNew = prev !== hotspotId;
-                if (isNew) trackHotspotClick(hotspotId);
-                return isNew ? hotspotId : null;
-            });
-        },
-        [trackHotspotClick]
-    );
-
-    const handleVariantChange = useCallback(
-        (variantId: string) => {
-            setActiveVariant(variantId);
-            trackVariantChange(variantId);
-        },
-        [trackVariantChange]
-    );
-
-    const hotspotInfo = activeHotspot
-        ? config.model.hotspots.find((h) => h.id === activeHotspot)
-        : null;
-
-    return (
-        <div
-            style={{
-                position: "relative",
-                width: "100%",
-                height: "100vh",
-                fontFamily,
-            }}
-        >
-            {googleFontImportRule ? <style>{googleFontImportRule}</style> : null}
-            {customCss ? <style>{customCss}</style> : null}
-            <style>{`
-                [data-3dsnap-watermark] {
-                    position: fixed !important;
-                    left: 12px !important;
-                    bottom: 10px !important;
-                    z-index: 2147483647 !important;
-                    pointer-events: auto !important;
-                }
-                [data-3dsnap-watermark] a {
-                    pointer-events: auto !important;
-                    text-decoration: none !important;
-                }
-            `}</style>
-
-            <ViewerCanvas
-                environment={config.environment}
-                contactShadows={config.contactShadows}
-                bgColor={config.bgColor}
-                ambientIntensity={ambientIntensity}
-                cameraPosition={config.cameraPosition}
-                restrictOrbitToHalfTurn={restrictOrbitToHalfTurn}
-            >
-                <ModelViewer
-                    config={config.model}
-                    activeVariantId={activeVariant}
-                    onHotspotClick={handleHotspotClick}
-                    hotspotColor={primaryColor}
-                    hotspotFontFamily={fontFamily}
-                />
-            </ViewerCanvas>
-
-            <div
-                style={{
-                    position: "absolute",
-                    inset: 0,
-                    pointerEvents: "none",
-                    zIndex: 10,
-                }}
-            >
-                <div
-                    style={{
-                        position: "absolute",
-                        top: 16,
-                        left: 24,
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 10,
-                    }}
-                >
-                    {branding?.logoUrl ? (
-                        <img
-                            src={branding.logoUrl}
-                            alt="Brand logo"
-                            style={{
-                                maxWidth: 120,
-                                maxHeight: 40,
-                                width: "auto",
-                                height: "auto",
-                                objectFit: "contain",
-                                opacity: 0.95,
-                            }}
-                        />
-                    ) : null}
-                    <div
-                        style={{
-                            fontSize: 18,
-                            fontWeight: 600,
-                            color: "#fff",
-                            opacity: 0.9,
-                            textShadow: "0 1px 6px rgba(0,0,0,0.35)",
-                        }}
-                    >
-                        {config.title}
-                    </div>
-                </div>
-
-                {config.model.variants.length > 0 && (
-                    <div
-                        style={{
-                            position: "absolute",
-                            bottom: 24,
-                            left: 24,
-                            display: "flex",
-                            gap: 8,
-                            pointerEvents: "auto",
-                        }}
-                    >
-                        {config.model.variants.map((variant) => (
-                            <button
-                                key={variant.id}
-                                onClick={() => handleVariantChange(variant.id)}
-                                style={{
-                                    padding: "8px 16px",
-                                    borderRadius: 8,
-                                    border:
-                                        activeVariant === variant.id
-                                            ? `2px solid ${primaryColor}`
-                                            : "1px solid rgba(255,255,255,0.2)",
-                                    background:
-                                        activeVariant === variant.id
-                                            ? hexToRgba(primaryColor, 0.16)
-                                            : "rgba(0,0,0,0.6)",
-                                    color: "#fff",
-                                    cursor: "pointer",
-                                    fontSize: 13,
-                                    fontFamily: "inherit",
-                                    backdropFilter: "blur(12px)",
-                                    transition: "all 0.2s ease",
-                                }}
-                            >
-                                {variant.label}
-                            </button>
-                        ))}
-                    </div>
-                )}
-
-                {hotspotInfo && (
-                    <div
-                        style={{
-                            position: "absolute",
-                            bottom: 24,
-                            right: 24,
-                            maxWidth: 280,
-                            padding: "16px 20px",
-                            borderRadius: 12,
-                            background: "rgba(0,0,0,0.7)",
-                            backdropFilter: "blur(16px)",
-                            border: `1px solid ${hexToRgba(primaryColor, 0.45)}`,
-                            borderLeft: `3px solid ${primaryColor}`,
-                            color: "#fff",
-                            boxShadow: `0 0 28px ${hexToRgba(primaryColor, 0.2)}`,
-                            fontFamily: "inherit",
-                            pointerEvents: "auto",
-                        }}
-                    >
-                        <h3
-                            style={{
-                                margin: "0 0 6px",
-                                fontSize: 15,
-                                fontWeight: 600,
-                                color: primaryColor,
-                            }}
-                        >
-                            {hotspotInfo.label}
-                        </h3>
-                        {hotspotInfo.description && (
-                            <p style={{ margin: 0, fontSize: 13, opacity: 0.8, lineHeight: 1.5 }}>
-                                {hotspotInfo.description}
-                            </p>
-                        )}
-                    </div>
-                )}
-            </div>
-
-            {showWatermark ? (
-                <div
-                    data-3dsnap-watermark
-                    style={{
-                        fontSize: 10,
-                        opacity: 0.4,
-                        lineHeight: 1.25,
-                        color: "#ffffff",
-                        zIndex: 2147483647,
-                        pointerEvents: "auto",
-                        fontFamily: "system-ui, sans-serif",
-                    }}
-                >
-                    <a
-                        href="https://3d-snap.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: "inherit" }}
-                    >
-                        Powered by 3D-Snap
-                    </a>
-                </div>
-            ) : null}
-
-            {/* AI Chat Widget */}
-            {enableChat && (
-                <ChatWidget
-                    context={JSON.stringify(config)}
-                    onMessageSent={trackChatMessage}
-                />
+  return (
+    <div className="relative group w-full h-full bg-zinc-950 rounded-xl overflow-hidden border border-zinc-800 flex flex-col">
+      {/* 3D Canvas / Poster Area */}
+      <div className="relative flex-1 cursor-pointer" onClick={() => setIsInteracted(true)}>
+        {!isInteracted ? (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all">
+            {posterUrl ? (
+              <img src={posterUrl} alt={title || '3D Modell Vorschau'} className="absolute inset-0 w-full h-full object-contain blur-sm opacity-50" />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-black" />
             )}
-        </div>
-    );
-}
+            <div className="relative z-20 flex flex-col items-center">
+              <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform">
+                <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[15px] border-l-white border-b-[10px] border-b-transparent ml-1" />
+              </div>
+              <p className="mt-4 text-xs font-medium tracking-widest text-white/60 uppercase">Klicken zum Interagieren</p>
+            </div>
+          </div>
+        ) : (
+          <div className="absolute inset-0 z-10 bg-zinc-900">
+            <ViewerCanvas bgColor="transparent">
+              <Suspense fallback={null}>
+                <ModelViewer config={modelConfig} />
+              </Suspense>
+            </ViewerCanvas>
+          </div>
+        )}
+      </div>
 
+      {/* Footer Branding & Controls */}
+      <div className="h-10 px-3 bg-black/80 border-t border-white/5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <a
+            href={`https://3dsnap.de?utm_source=embed&utm_medium=viewer&utm_campaign=${tenantId || 'demo'}`}
+            target="_blank"
+            rel="ugc noopener"
+            className="group/link flex items-center gap-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 px-2 py-1.5 transition-all duration-300 hover:bg-white/10 hover:border-white/20 shadow-lg"
+            title="3D-Snap by ExhibitXR - Foto zu 3D Technologie"
+          >
+            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00aaff] text-[10px] font-black text-white shadow-[0_0_10px_rgba(0,170,255,0.5)] group-hover/link:animate-pulse">
+              ⚡
+            </div>
+            <div className="flex flex-col justify-center overflow-hidden transition-all duration-300 max-w-[55px] group-hover/link:max-w-[120px]">
+              <span className="text-[10px] font-black text-white uppercase tracking-widest whitespace-nowrap leading-tight">
+                3D-SNAP
+              </span>
+              <span className="text-[8px] font-bold text-[#00aaff] whitespace-nowrap opacity-0 transition-opacity duration-300 group-hover/link:opacity-100">
+                In 15 Sek. gesnappt.
+              </span>
+            </div>
+          </a>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowShare(!showShare)}
+            className="text-zinc-500 hover:text-white transition-colors"
+            title="Teilen & Einbetten"
+          >
+            <Share2 size={14} />
+          </button>
+          <button className="text-zinc-500 hover:text-white transition-colors" title="Vollbild">
+            <Maximize2 size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* Share Overlay */}
+      {showShare && (
+        <div className="absolute inset-0 z-30 bg-black/95 p-6 flex flex-col items-center justify-center text-center">
+          <h3 className="text-xl font-bold mb-2">Dieses Modell teilen</h3>
+          <p className="text-sm text-zinc-400 mb-6">Möchten Sie dieses 3D-Erlebnis auch auf Ihrer Website nutzen?</p>
+
+          <div className="w-full space-y-3">
+            <button
+              onClick={copyHtml}
+              className="w-full py-3 bg-white text-black font-bold rounded-lg hover:bg-zinc-200 transition-colors"
+            >
+              HTML Iframe kopieren
+            </button>
+            <button
+              onClick={copyMarkdown}
+              className="w-full py-3 bg-[#00aaff] text-white font-bold rounded-lg hover:bg-[#0090dd] transition-colors"
+            >
+              Markdown Link kopieren
+            </button>
+            <button
+              onClick={() => setShowShare(false)}
+              className="w-full py-3 bg-zinc-900 text-white font-bold rounded-lg border border-zinc-800 hover:bg-zinc-800 transition-colors"
+            >
+              Schließen
+            </button>
+          </div>
+
+          <div className="mt-8 pt-8 border-t border-zinc-800 w-full text-xs text-zinc-500">
+            Technologie von <a href="https://3dsnap.de" className="text-white underline">3dsnap.de</a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

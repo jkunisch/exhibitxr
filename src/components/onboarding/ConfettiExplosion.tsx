@@ -28,10 +28,13 @@ export function ConfettiExplosion() {
             duration: 1 + Math.random() * 1.5,
         }));
 
-        setParticles(generated);
+        const initialTimer = setTimeout(() => setParticles(generated), 0);
         const timer = setTimeout(() => setParticles([]), 3000);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(initialTimer);
+            clearTimeout(timer);
+        };
     }, []);
 
     if (particles.length === 0) return null;

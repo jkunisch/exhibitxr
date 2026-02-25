@@ -1,4 +1,5 @@
 import type { Tenant } from "@/types/schema";
+import { isAdminEmail as isConfiguredAdminEmail } from "@/lib/adminEmails";
 
 export type PlanTier = Tenant["plan"];
 
@@ -10,7 +11,7 @@ export type PlanLimits = {
 
 export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   free: {
-    exhibitions: 5,
+    exhibitions: 3,
     storageMb: 50,
     viewsPerMonth: 500,
   },
@@ -48,7 +49,13 @@ export function getPlanLimits(plan: PlanTier): PlanLimits {
   return PLAN_LIMITS[plan];
 }
 
-export function canCreateExhibition(plan: PlanTier, currentCount: number): boolean {
+export function isAdminEmail(email: string | null | undefined): boolean {
+  return isConfiguredAdminEmail(email);
+}
+
+export function canCreateExhibition(plan: PlanTier, currentCount: number, email?: string | null): boolean {
+  if (isAdminEmail(email)) return true;
+
   if (!Number.isFinite(currentCount) || currentCount < 0) {
     return true;
   }

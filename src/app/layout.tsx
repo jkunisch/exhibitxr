@@ -9,7 +9,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
     title: "3D-Snap | Foto zu 3D Modell",
-    description: "Der einfachste Foto zu 3D Modell Generator für Creator, Maker und E-Commerce.",
+    description: "Der einfachste Foto zu 3D Modell Generator für Creator, Maker und Industrie.",
 };
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="de">
+        <html lang="de" data-scroll-behavior="smooth">
             <body className={`${inter.variable} antialiased`}>
                 {children}
             </body>

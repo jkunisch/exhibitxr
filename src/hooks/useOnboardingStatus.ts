@@ -11,7 +11,8 @@ export function useOnboardingStatus(exhibitionCount: number): {
     useEffect(() => {
         const isDismissed = localStorage.getItem('3dsnap_onboarding_dismissed');
         if (exhibitionCount === 0 && isDismissed !== 'true') {
-            setShouldShowOnboarding(true);
+            const timer = setTimeout(() => setShouldShowOnboarding(true), 0);
+            return () => clearTimeout(timer);
         }
     }, [exhibitionCount]);
 

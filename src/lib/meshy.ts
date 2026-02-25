@@ -31,12 +31,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-// ─── API Key Rotation ──────────────────────────────────────────────────────
+// ─── API Key Management ─────────────────────────────────────────────────────
 // Supports comma-separated keys in MESHY_API_KEY env var.
-// Rotates round-robin to distribute rate limits across keys.
+// Rotates round-robin for NEW tasks, but polls always use the same key
+// that created the task (Meshy tasks are scoped to their creator key).
 
 let meshyKeyIndex = 0;
 let meshyKeys: string[] | null = null;
+const taskKeyMap = new Map<string, string>();
 
 function loadMeshyKeys(): string[] {
   if (meshyKeys !== null) return meshyKeys;
@@ -59,11 +61,20 @@ function loadMeshyKeys(): string[] {
   return keys;
 }
 
-function getMeshyApiKey(): string {
+/** Get next key (round-robin) for NEW task submissions. */
+function getNextMeshyApiKey(): string {
   const keys = loadMeshyKeys();
   const key = keys[meshyKeyIndex % keys.length];
   meshyKeyIndex = (meshyKeyIndex + 1) % keys.length;
   return key;
+}
+
+/** Get the key that was used to create a specific task. Falls back to first key. */
+function getMeshyApiKeyForTask(taskId: string): string {
+  const saved = taskKeyMap.get(taskId);
+  if (saved) return saved;
+  // Fallback: if we don't know which key created it, use the first one
+  return loadMeshyKeys()[0];
 }
 
 function parseMeshyStatus(value: unknown): MeshyTask["status"] {
@@ -201,33 +212,72 @@ export async function submitImageTo3D(
   filename: string,
 ): Promise<GenerateResult> {
   try {
-    const formData = new FormData();
-    const safeFilename = filename.trim().length > 0 ? filename : "upload-image";
+    // Detect MIME type from filename extension, default to jpeg
+    const ext = filename.split(".").pop()?.toLowerCase() ?? "jpg";
+    const mimeMap: Record<string, string> = {
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      webp: "image/webp",
+      avif: "image/avif",
+    };
+    const mimeType = mimeMap[ext] ?? "image/jpeg";
 
-    const imageBytes = Uint8Array.from(imageBuffer);
-    formData.set("image", new Blob([imageBytes]), safeFilename);
-    formData.set("enable_pbr", "true");
-    formData.set("topology", "quad");
+    // Meshy v1 API expects JSON body with a base64 data URI
+    const base64 = imageBuffer.toString("base64");
+    const dataUri = `data:${mimeType};base64,${base64}`;
 
-    const response = await fetch(MESHY_IMAGE_TO_3D_ENDPOINT, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${getMeshyApiKey()}`,
-      },
-      body: formData,
+    const body = JSON.stringify({
+      image_url: dataUri,
+      enable_pbr: true,
+      topology: "quad",
     });
 
-    const payload = await parseResponsePayload(response);
+    const keys = loadMeshyKeys();
+    let lastError: Error | null = null;
+    let successfulTaskId = "";
+    let successfulApiKey = "";
 
-    if (!response.ok) {
-      throw formatMeshyError("Meshy image-to-3d submission failed", response.status, payload);
+    for (let i = 0; i < keys.length; i++) {
+      const apiKey = getNextMeshyApiKey();
+
+      const response = await fetch(MESHY_IMAGE_TO_3D_ENDPOINT, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      const payload = await parseResponsePayload(response);
+
+      if (!response.ok) {
+        lastError = formatMeshyError("Meshy image-to-3d submission failed", response.status, payload);
+        if (response.status === 401 || response.status === 402 || response.status === 429) {
+          console.warn(`[Meshy] Key failed with status ${response.status}. Rotating...`);
+          continue;
+        }
+        throw lastError;
+      }
+
+      if (!isRecord(payload) || typeof payload.result !== "string" || payload.result.length === 0) {
+        throw new Error("Meshy API did not return a valid task id.");
+      }
+
+      successfulTaskId = payload.result;
+      successfulApiKey = apiKey;
+      break;
     }
 
-    if (!isRecord(payload) || typeof payload.result !== "string" || payload.result.length === 0) {
-      throw new Error("Meshy API did not return a valid task id.");
+    if (!successfulTaskId) {
+      throw lastError || new Error("All Meshy API keys failed.");
     }
 
-    return { taskId: payload.result };
+    // Track which key created this task so polling uses the same one
+    taskKeyMap.set(successfulTaskId, successfulApiKey);
+
+    return { taskId: successfulTaskId };
   } catch (error: unknown) {
     if (error instanceof Error) {
       throw new Error(`Failed to submit image to Meshy: ${error.message}`);
@@ -247,7 +297,7 @@ export async function pollTaskStatus(taskId: string): Promise<PollResult> {
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${getMeshyApiKey()}`,
+          Authorization: `Bearer ${getMeshyApiKeyForTask(taskId)}`,
         },
       },
     );

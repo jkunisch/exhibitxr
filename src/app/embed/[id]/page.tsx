@@ -180,10 +180,10 @@ export default async function EmbedPage({ params }: EmbedPageProps) {
 
   return (
     <EmbedViewer
-      config={embedData.config}
-      branding={embedData.branding}
-      ambientIntensity={embedData.ambientIntensity}
-      enableChat
+      modelUrl={embedData.config.model.glbUrl}
+      title={embedData.config.title}
+      tenantId={embedData.tenantId}
     />
   );
 }
+
