@@ -87,7 +87,36 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string) {
                         "[useFirestoreExhibit] Schema validation failed:",
                         result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`),
                     );
-                    setSaveStatus("error", "Ausstellungsdaten sind unvollständig. Bitte im Editor ergänzen.");
+
+                    // Build a best-effort config from raw data so the editor
+                    // doesn't reset to loading screen on every Firestore round-trip.
+                    const existingConfig = useEditorStore.getState().config;
+                    const model = raw.model ?? {
+                        id: snapshot.id,
+                        label: raw.title ?? "Model",
+                        glbUrl: raw.glbUrl ?? existingConfig?.model?.glbUrl ?? "",
+                        scale: raw.scale ?? 1,
+                        position: raw.position ?? [0, 0, 0],
+                        variants: raw.variants ?? [],
+                        hotspots: raw.hotspots ?? [],
+                    };
+                    const fallback = {
+                        id: snapshot.id,
+                        tenantId,
+                        title: raw.title ?? "",
+                        model,
+                        environment: raw.environment ?? "studio",
+                        contactShadows: raw.contactShadows ?? true,
+                        cameraPosition: raw.cameraPosition ?? [0, 1.5, 4],
+                        bgColor: raw.bgColor ?? "#111111",
+                    } as ExhibitConfig;
+
+                    setConfig(fallback, ambientIntensity);
+
+                    const currentStatus = useEditorStore.getState().saveStatus;
+                    if (currentStatus !== "saving") {
+                        setSaveStatus("idle");
+                    }
                 }
             },
             (error) => {
