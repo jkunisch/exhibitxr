@@ -3,6 +3,8 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { DeleteExhibitionButton } from "@/components/dashboard/DeleteExhibitionButton";
+
 import { getAdminDb } from "@/lib/firebaseAdmin";
 import type { PlanTier } from "@/lib/planLimits";
 import { getSessionUser } from "@/lib/session";
@@ -251,7 +253,7 @@ export default async function ExhibitionsPage({
                 <span>Updated: {item.updatedAtLabel}</span>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Link
                   href={`/dashboard/exhibitions/${item.id}`}
                   className="inline-flex rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
@@ -265,6 +267,11 @@ export default async function ExhibitionsPage({
                   <Pencil className="h-3.5 w-3.5" />
                   Bearbeiten
                 </Link>
+                <DeleteExhibitionButton
+                  exhibitionId={item.id}
+                  tenantId={sessionUser.tenantId}
+                  exhibitionTitle={item.title}
+                />
               </div>
             </li>
           ))}

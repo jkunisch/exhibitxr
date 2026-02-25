@@ -54,6 +54,12 @@ export default async function DashboardLayout({
               Ausstellungen
             </Link>
             <Link
+              href="/dashboard/analytics"
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
+            >
+              Analytics
+            </Link>
+            <Link
               href="/dashboard/billing"
               className="rounded-lg border border-cyan-200/40 bg-cyan-300/20 px-3 py-2 text-xs font-medium text-cyan-50 transition hover:bg-cyan-300/30"
             >
