@@ -173,9 +173,9 @@ export default async function DashboardPage() {
               <div className="mt-2 flex justify-end">
                 <Link
                   href={`/dashboard/exhibitions/${item.id}`}
-                  className="text-[11px] text-white/45 transition hover:text-white/80"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/70 transition hover:bg-white/10 hover:text-white"
                 >
-                  Einstellungen
+                  ⚙ Einstellungen
                 </Link>
               </div>
             </li>
