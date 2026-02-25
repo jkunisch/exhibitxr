@@ -3,16 +3,18 @@ import { notFound } from "next/navigation";
 import { getAdminDb } from "@/lib/firebaseAdmin";
 import { parseExhibitConfig } from "@/lib/validateConfig";
 import EmbedViewer from "@/components/3d/EmbedViewer";
+import PaywallOverlay from "@/components/3d/PaywallOverlay";
 import {
   demoConfig,
   industrialDemoConfig,
   automotiveDemoConfig,
 } from "@/data/demo";
-import type { ExhibitConfig } from "@/types/schema";
+import type { ExhibitConfig, Tenant } from "@/types/schema";
 import {
   DEFAULT_AMBIENT_INTENSITY,
   sanitizeAmbientIntensity,
 } from "@/lib/lighting";
+import { isViewLimitReached, PlanType } from "@/lib/planLimits";
 
 interface EmbedPageProps {
   params: Promise<{ id: string }>;
@@ -65,6 +67,8 @@ export default async function EmbedPage({ params }: EmbedPageProps) {
 
     const doc = snapshot.docs[0];
     const data = doc.data();
+    const tenantId = data.tenantId;
+
     ambientIntensity = sanitizeAmbientIntensity(data.ambientIntensity);
 
     // Nur publizierte Ausstellungen anzeigen
@@ -75,6 +79,35 @@ export default async function EmbedPage({ params }: EmbedPageProps) {
 
     // Validierung gegen das Schema (src/types/schema.ts)
     config = parseExhibitConfig(data);
+
+    // ─── Plan Enforcement ──────────────────────────────────────────
+    // 1. Tenant Plan lesen
+    const tenantDoc = await adminDb.collection("tenants").doc(tenantId).get();
+    if (!tenantDoc.exists) {
+      console.error(`Tenant "${tenantId}" not found for exhibition "${id}".`);
+      return notFound();
+    }
+    const tenantData = tenantDoc.data() as Tenant;
+    const plan = tenantData.plan as PlanType;
+
+    // 2. Aktuelle Views fuer diesen Monat lesen
+    const monthKey = new Date().toISOString().substring(0, 7); // YYYY-MM
+    const statsDoc = await adminDb
+      .collection("tenants")
+      .doc(tenantId)
+      .collection("stats")
+      .doc("views")
+      .get();
+    
+    const statsData = statsDoc.data();
+    const monthlyViews = statsData?.monthly?.[monthKey] || 0;
+
+    // 3. Limit pruefen
+    if (isViewLimitReached(plan, monthlyViews)) {
+      console.warn(`View limit reached for tenant "${tenantId}". Plan: ${plan}, Views: ${monthlyViews}`);
+      return <PaywallOverlay />;
+    }
+
   } catch (error) {
     console.error("Error loading exhibition from Firestore:", error);
     return notFound();
@@ -82,3 +115,4 @@ export default async function EmbedPage({ params }: EmbedPageProps) {
 
   return <EmbedViewer config={config} ambientIntensity={ambientIntensity} enableChat />;
 }
+

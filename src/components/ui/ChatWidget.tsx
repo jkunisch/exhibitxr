@@ -12,12 +12,13 @@ interface Message {
 
 interface ChatWidgetProps {
     context: string;
+    onMessageSent?: () => void;
 }
 
 const MAX_MESSAGES = 20;
 const SESSION_LIMIT = 10;
 
-export default function ChatWidget({ context }: ChatWidgetProps) {
+export default function ChatWidget({ context, onMessageSent }: ChatWidgetProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
@@ -49,6 +50,9 @@ export default function ChatWidget({ context }: ChatWidgetProps) {
         setInput("");
         setIsStreaming(true);
         setMessageCount((prev) => prev + 1);
+
+        // Track message event
+        onMessageSent?.();
 
         // Initial bot message placeholder
         const botMsgId = crypto.randomUUID();

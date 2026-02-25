@@ -6,6 +6,8 @@ import { z } from "zod";
 
 import { getAdminDb } from "@/lib/firebaseAdmin";
 import { getSessionUser } from "@/lib/session";
+import { canCreateExhibition, PlanType } from "@/lib/planLimits";
+import { Tenant } from "@/types/schema";
 
 const environmentPresetSchema = z.enum([
   "studio",
@@ -94,6 +96,31 @@ export async function createExhibitionAction(
   }
 
   const adminDb = getAdminDb();
+
+  // ─── Plan Guard ───────────────────────────────────────────────
+  const tenantDoc = await adminDb.collection("tenants").doc(sessionUser.tenantId).get();
+  if (!tenantDoc.exists) {
+    return { ok: false, error: "Tenant not found." };
+  }
+  const tenantData = tenantDoc.data() as Tenant;
+
+  const exhibitionsSnapshot = await adminDb
+    .collection("tenants")
+    .doc(sessionUser.tenantId)
+    .collection("exhibitions")
+    .count()
+    .get();
+
+  const currentCount = exhibitionsSnapshot.data().count;
+
+  if (!canCreateExhibition(tenantData.plan as PlanType, currentCount)) {
+    return {
+      ok: false,
+      error: `Exhibition-Limit erreicht (${currentCount}). Bitte upgrade deinen Plan.`,
+    };
+  }
+  // ──────────────────────────────────────────────────────────────
+
   const exhibitionId = crypto.randomUUID();
   const now = FieldValue.serverTimestamp();
 
