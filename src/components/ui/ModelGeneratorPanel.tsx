@@ -22,6 +22,8 @@ type Step =
     | "done"
     | "error";
 
+type Provider = "basic" | "premium";
+
 interface ModelGeneratorPanelProps {
     tenantId: string;
     exhibitId: string;
@@ -138,6 +140,7 @@ export function ModelGeneratorPanel({
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isDragActive, setIsDragActive] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [provider, setProvider] = useState<Provider>("premium");
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const taskIdRef = useRef<string | null>(null);
@@ -311,10 +314,10 @@ export function ModelGeneratorPanel({
                         {/* Step indicator */}
                         <span
                             className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-colors ${isComplete
-                                    ? "border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
-                                    : isCurrent
-                                        ? "border-blue-300 bg-blue-50 text-blue-600 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-400"
-                                        : "border-zinc-200 bg-zinc-50 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-500"
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
+                                : isCurrent
+                                    ? "border-blue-300 bg-blue-50 text-blue-600 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-400"
+                                    : "border-zinc-200 bg-zinc-50 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-500"
                                 }`}
                         >
                             {isComplete ? (
@@ -329,10 +332,10 @@ export function ModelGeneratorPanel({
                         {/* Label */}
                         <span
                             className={`text-sm transition-colors ${isComplete
-                                    ? "text-emerald-700 dark:text-emerald-300"
-                                    : isCurrent
-                                        ? "font-medium text-zinc-800 dark:text-zinc-100"
-                                        : "text-zinc-400 dark:text-zinc-500"
+                                ? "text-emerald-700 dark:text-emerald-300"
+                                : isCurrent
+                                    ? "font-medium text-zinc-800 dark:text-zinc-100"
+                                    : "text-zinc-400 dark:text-zinc-500"
                                 }`}
                         >
                             {entry.label}
@@ -368,6 +371,34 @@ export function ModelGeneratorPanel({
                 </p>
             </header>
 
+            {/* ── Provider Toggle ──────────────────────────────────── */}
+            <div className="mb-4 grid grid-cols-2 gap-2">
+                <button
+                    type="button"
+                    onClick={() => setProvider("basic")}
+                    disabled
+                    className={`rounded-lg border px-3 py-2.5 text-left transition ${provider === "basic"
+                        ? "border-cyan-400 bg-cyan-500/10"
+                        : "border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900"
+                        } opacity-50 cursor-not-allowed`}
+                >
+                    <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Basic</p>
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Tripo · Schnell</p>
+                    <p className="mt-1 text-[10px] text-amber-500">Bald verfügbar</p>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setProvider("premium")}
+                    className={`rounded-lg border px-3 py-2.5 text-left transition ${provider === "premium"
+                        ? "border-cyan-400 bg-cyan-500/10 shadow-[0_0_0_1px_rgba(34,211,238,0.2)]"
+                        : "border-zinc-200 bg-zinc-50 hover:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600"
+                        }`}
+                >
+                    <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Premium ✨</p>
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Meshy · Hochwertig</p>
+                </button>
+            </div>
+
             {/* ── IDLE: Drop zone ────────────────────────────────────────────── */}
             {step === "idle" && (
                 <>
@@ -382,8 +413,8 @@ export function ModelGeneratorPanel({
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
                         className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 text-center transition-colors ${isDragActive
-                                ? "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/30"
-                                : "border-zinc-300 bg-zinc-50/50 hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/50 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
+                            ? "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/30"
+                            : "border-zinc-300 bg-zinc-50/50 hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/50 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
                             }`}
                     >
                         {previewUrl ? (
@@ -419,8 +450,8 @@ export function ModelGeneratorPanel({
                         disabled={!selectedFile}
                         onClick={handleGenerate}
                         className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${selectedFile
-                                ? "bg-zinc-900 text-white hover:bg-zinc-800 active:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-                                : "cursor-not-allowed bg-zinc-200 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
+                            ? "bg-zinc-900 text-white hover:bg-zinc-800 active:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                            : "cursor-not-allowed bg-zinc-200 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
                             }`}
                     >
                         3D-Modell generieren

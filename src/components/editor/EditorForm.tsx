@@ -62,6 +62,14 @@ function FieldLabel({ children }: { children: ReactNode }) {
     );
 }
 
+function FieldHint({ children }: { children: ReactNode }) {
+    return (
+        <p className="mb-2.5 text-[11px] leading-relaxed text-white/35">
+            {children}
+        </p>
+    );
+}
+
 function TextInput({
     value,
     onChange,
@@ -184,12 +192,13 @@ export default function EditorForm({
                 >
                     <div>
                         <FieldLabel>Titel</FieldLabel>
+                        <FieldHint>Name der Ausstellung — wird im Dashboard und Embed angezeigt.</FieldHint>
                         <TextInput value={config.title} onChange={(v) => onChange({ title: v })} />
                     </div>
 
                     <div className="border-t border-white/10 pt-4">
                         <div className="mb-2 flex items-center justify-between">
-                            <FieldLabel>HDRI Environment</FieldLabel>
+                            <FieldLabel>HDRI Umgebung</FieldLabel>
                             <span className="text-xs text-cyan-300/80">{config.environment}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
@@ -230,7 +239,7 @@ export default function EditorForm({
                 >
                     <div>
                         <div className="mb-2 flex items-center justify-between">
-                            <FieldLabel>Ambient Intensity</FieldLabel>
+                            <FieldLabel>Umgebungslicht</FieldLabel>
                             <span className="text-xs font-semibold text-cyan-200">{ambientLabel}</span>
                         </div>
                         <input
@@ -252,7 +261,8 @@ export default function EditorForm({
 
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
                         <div>
-                            <FieldLabel>Background Color</FieldLabel>
+                            <FieldLabel>Hintergrundfarbe</FieldLabel>
+                            <FieldHint>Hex-Farbcode für den Szenenhintergrund.</FieldHint>
                             <TextInput value={config.bgColor} onChange={(v) => onChange({ bgColor: v })} />
                         </div>
                         <div className="sm:pt-6">
@@ -267,7 +277,7 @@ export default function EditorForm({
 
                     <div className="flex items-center justify-between rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
                         <div>
-                            <p className="text-sm font-medium text-white">Contact Shadows</p>
+                            <p className="text-sm font-medium text-white">Kontaktschatten</p>
                             <p className="text-xs text-white/55">
                                 Weiche Kontaktschatten unter dem Modell.
                             </p>
@@ -292,13 +302,14 @@ export default function EditorForm({
 
                 <Section
                     section="model"
-                    title="Model"
-                    description="Datei, Label und Skalierung."
+                    title="Modell"
+                    description="3D-Datei, Bezeichnung und Skalierung."
                     isOpen={openSections.model}
                     onToggle={toggleSection}
                 >
                     <div>
-                        <FieldLabel>GLB URL</FieldLabel>
+                        <FieldLabel>Modell-URL (GLB)</FieldLabel>
+                        <FieldHint>URL zur .glb Datei — wird automatisch gesetzt wenn du ein Foto generierst.</FieldHint>
                         <TextInput
                             value={config.model.glbUrl}
                             onChange={(v) => updateModel({ glbUrl: v })}
@@ -308,11 +319,11 @@ export default function EditorForm({
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <FieldLabel>Label</FieldLabel>
+                            <FieldLabel>Bezeichnung</FieldLabel>
                             <TextInput value={config.model.label} onChange={(v) => updateModel({ label: v })} />
                         </div>
                         <div>
-                            <FieldLabel>Scale</FieldLabel>
+                            <FieldLabel>Skalierung</FieldLabel>
                             <NumberInput
                                 value={config.model.scale}
                                 onChange={(v) => updateModel({ scale: v })}
@@ -325,8 +336,8 @@ export default function EditorForm({
 
                 <Section
                     section="variants"
-                    title={`Variants (${config.model.variants.length})`}
-                    description="Materialparameter für Varianten."
+                    title={`Varianten (${config.model.variants.length})`}
+                    description="Farbvarianten und Materialoptionen für das 3D-Modell."
                     isOpen={openSections.variants}
                     onToggle={toggleSection}
                 >
@@ -412,7 +423,7 @@ export default function EditorForm({
                 <Section
                     section="hotspots"
                     title={`Hotspots (${config.model.hotspots.length})`}
-                    description="Texte und Positionen interaktiver Marker."
+                    description="Interaktive Info-Punkte auf dem 3D-Modell."
                     isOpen={openSections.hotspots}
                     onToggle={toggleSection}
                 >
