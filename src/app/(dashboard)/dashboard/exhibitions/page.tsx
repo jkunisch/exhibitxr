@@ -4,7 +4,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getAdminDb } from "@/lib/firebaseAdmin";
+import type { PlanTier } from "@/lib/planLimits";
 import { getSessionUser } from "@/lib/session";
+import {
+  type TenantEntitlementSnapshot,
+  getTenantEntitlementSnapshot,
+} from "@/lib/tenantEntitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -108,6 +113,21 @@ function getErrorMessage(error: unknown): string {
   return "Unknown error while loading exhibitions.";
 }
 
+function formatPlanLabel(plan: PlanTier): string {
+  switch (plan) {
+    case "free":
+      return "Free";
+    case "starter":
+      return "Starter";
+    case "pro":
+      return "Pro";
+    case "enterprise":
+      return "Enterprise";
+    default:
+      return "Free";
+  }
+}
+
 export default async function ExhibitionsPage({
   searchParams,
 }: {
@@ -123,10 +143,14 @@ export default async function ExhibitionsPage({
   const showDeletedBanner = wasDeleted(resolvedSearchParams.deleted);
 
   let exhibitions: ExhibitionListItem[] = [];
+  let entitlements: TenantEntitlementSnapshot | null = null;
   let errorMessage: string | null = null;
 
   try {
-    exhibitions = await listTenantExhibitions(sessionUser.tenantId);
+    [exhibitions, entitlements] = await Promise.all([
+      listTenantExhibitions(sessionUser.tenantId),
+      getTenantEntitlementSnapshot(sessionUser.tenantId),
+    ]);
   } catch (error) {
     errorMessage = getErrorMessage(error);
   }
@@ -145,6 +169,12 @@ export default async function ExhibitionsPage({
             <p className="mt-1 text-sm text-white/70">
               Tenant-scoped CRUD for your organization.
             </p>
+            {entitlements ? (
+              <p className="mt-1 text-xs text-white/60">
+                Plan {formatPlanLabel(entitlements.plan)}: {entitlements.currentExhibitions}/
+                {entitlements.maxExhibitions} exhibitions used
+              </p>
+            ) : null}
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -153,15 +183,27 @@ export default async function ExhibitionsPage({
             >
               Billing
             </Link>
-            <Link
-              href="/dashboard/exhibitions/new"
-              className="rounded-xl border border-cyan-200/40 bg-cyan-300/15 px-4 py-2 text-sm font-medium text-cyan-50 transition hover:bg-cyan-300/25"
-            >
-              New Exhibition
-            </Link>
+            {entitlements?.canCreateExhibition ? (
+              <Link
+                href="/dashboard/exhibitions/new"
+                className="rounded-xl border border-cyan-200/40 bg-cyan-300/15 px-4 py-2 text-sm font-medium text-cyan-50 transition hover:bg-cyan-300/25"
+              >
+                New Exhibition
+              </Link>
+            ) : (
+              <span className="rounded-xl border border-amber-200/35 bg-amber-300/15 px-4 py-2 text-sm font-medium text-amber-100">
+                Plan limit reached
+              </span>
+            )}
           </div>
         </div>
       </div>
+
+      {entitlements && !entitlements.canCreateExhibition ? (
+        <div className="rounded-xl border border-amber-200/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+          You reached your exhibition limit for the {formatPlanLabel(entitlements.plan)} plan.
+        </div>
+      ) : null}
 
       {showDeletedBanner ? (
         <div className="rounded-xl border border-emerald-200/35 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
@@ -197,11 +239,10 @@ export default async function ExhibitionsPage({
                   <p className="text-xs text-white/60">{item.description}</p>
                 </div>
                 <span
-                  className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                    item.isPublished
+                  className={`rounded-full px-2.5 py-1 text-xs font-medium ${item.isPublished
                       ? "border border-emerald-200/40 bg-emerald-300/15 text-emerald-100"
                       : "border border-amber-200/35 bg-amber-300/15 text-amber-100"
-                  }`}
+                    }`}
                 >
                   {item.isPublished ? "Published" : "Draft"}
                 </span>

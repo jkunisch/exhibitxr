@@ -3,7 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getAdminDb } from "@/lib/firebaseAdmin";
+import type { PlanTier } from "@/lib/planLimits";
 import { getSessionUser } from "@/lib/session";
+import { getTenantEntitlementSnapshot } from "@/lib/tenantEntitlements";
 
 export const dynamic = "force-dynamic";
 
@@ -73,6 +75,21 @@ async function listTenantExhibitions(tenantId: string): Promise<ExhibitionListIt
   }));
 }
 
+function formatPlanLabel(plan: PlanTier): string {
+  switch (plan) {
+    case "free":
+      return "Free";
+    case "starter":
+      return "Starter";
+    case "pro":
+      return "Pro";
+    case "enterprise":
+      return "Enterprise";
+    default:
+      return "Free";
+  }
+}
+
 export default async function DashboardPage() {
   const sessionUser = await getSessionUser();
 
@@ -80,7 +97,10 @@ export default async function DashboardPage() {
     redirect("/login?next=/dashboard");
   }
 
-  const exhibitions = await listTenantExhibitions(sessionUser.tenantId);
+  const [exhibitions, entitlements] = await Promise.all([
+    listTenantExhibitions(sessionUser.tenantId),
+    getTenantEntitlementSnapshot(sessionUser.tenantId),
+  ]);
 
   return (
     <section className="rounded-2xl border border-white/15 bg-white/8 p-5 backdrop-blur-xl sm:p-6">
@@ -95,6 +115,10 @@ export default async function DashboardPage() {
         </div>
         <div className="flex items-center gap-3">
           <p className="text-sm text-white/70">{exhibitions.length} entries</p>
+          <p className="text-xs text-white/65">
+            Plan {formatPlanLabel(entitlements.plan)}: {entitlements.currentExhibitions}/
+            {entitlements.maxExhibitions}
+          </p>
           <Link
             href="/dashboard/billing"
             className="rounded-lg border border-cyan-200/35 bg-cyan-300/15 px-3 py-2 text-xs font-medium text-cyan-100 transition hover:bg-cyan-300/25"
