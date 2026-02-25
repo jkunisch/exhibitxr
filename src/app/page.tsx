@@ -1,280 +1,263 @@
+'use client';
+
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { Camera, Palette, MapPin, Link2, Smartphone, Zap, Check, ChevronRight } from "lucide-react";
-import EmbedViewer from "@/components/3d/EmbedViewer";
+import { motion } from "framer-motion";
+import { 
+  Camera, 
+  Palette, 
+  MapPin, 
+  Link2, 
+  ArrowUpRight,
+  ShieldCheck,
+  Globe,
+  Sparkles,
+  Check
+} from "lucide-react";
+import HomeSnapModule from "@/components/ui/HomeSnapModule";
 import Navbar from "@/components/ui/Navbar";
-import FadeIn from "@/components/ui/FadeIn";
-import { demoConfig } from "@/data/demo";
+import StudioCard from "@/components/ui/StudioCard";
+import BackgroundEffects from "@/components/ui/BackgroundEffects";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white selection:bg-[#00aaff]/30">
+    <div className="min-h-screen bg-[#010102] text-white selection:bg-[#00aaff]/30 overflow-x-hidden">
+      <BackgroundEffects />
       <Navbar />
 
       {/* HERO SECTION */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        {/* Abstract Background Elements */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-20 pointer-events-none blur-[120px] bg-gradient-to-b from-[#00aaff] to-transparent rounded-full" />
+      <section className="relative pt-40 pb-20 lg:pt-56 lg:pb-32 overflow-hidden">
+        <div className="container mx-auto px-6 relative z-10 text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-[0.3em] text-[#00aaff] uppercase mb-12 backdrop-blur-md"
+          >
+            <Sparkles size={12} className="animate-pulse" />
+            Die Zukunft der 3D-Präsentation
+          </motion.div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-4xl mx-auto mb-16">
-            <FadeIn>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-gray-300 mb-8 backdrop-blur-sm">
-                <span className="flex h-2 w-2 rounded-full bg-[#00aaff] shadow-[0_0_8px_#00aaff]"></span>
-                Foto → 3D in Minuten
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-6xl md:text-8xl lg:text-[9rem] font-black tracking-tighter mb-10 leading-[1.1] pt-4 bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40"
+          >
+            REALITÄT <br /> <span className="text-[#00aaff] drop-shadow-[0_0_40px_rgba(0,170,255,0.4)] uppercase tracking-tighter">SNAPPEN</span>
+          </motion.h1>
+
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-lg md:text-xl text-zinc-400 mb-16 max-w-2xl mx-auto leading-tight font-medium"
+          >
+            Vom Foto zum fertigen 3D-Asset in Sekunden. <br className="hidden md:block" />
+            Keine Agentur. Nur pure technologische Effizienz.
+          </motion.p>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-col items-center gap-8 mb-24"
+          >
+            <Link
+              href="/register"
+              className="group relative px-14 py-7 bg-white text-black text-sm font-black uppercase tracking-widest rounded-full transition-all hover:scale-105 active:scale-95 shadow-[0_0_60px_rgba(255,255,255,0.1)] overflow-hidden"
+            >
+              <span className="relative z-10">Studio kostenlos testen</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+            </Link>
+          </motion.div>
+
+          {/* 3D Snap Module - FLUID BORDER UPGRADE */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="relative mx-auto w-full max-w-5xl rounded-[3.5rem] p-[2px] overflow-hidden group shadow-[0_0_100px_rgba(0,170,255,0.15)]"
+          >
+            {/* Fluid Magic Border (Animated Conic Gradient) */}
+            <div 
+              className="absolute inset-[-500%] animate-[spin_6s_linear_infinite]"
+              style={{
+                background: 'conic-gradient(from 0deg, transparent 0%, transparent 40%, #00aaff 50%, transparent 60%, transparent 100%)',
+              }}
+            />
+            {/* Secondary Color Layer for Hue Shift */}
+            <motion.div 
+              animate={{ filter: ["hue-rotate(0deg)", "hue-rotate(360deg)"] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 opacity-50"
+            />
+            
+            <div className="relative rounded-[3.4rem] overflow-hidden border border-white/5 bg-[#050507] backdrop-blur-3xl min-h-[550px]">
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none z-10" />
+              <HomeSnapModule />
+
+              <div className="absolute top-8 right-8 z-20 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-md text-[9px] font-black uppercase tracking-widest text-white flex items-center gap-3">
+                <div className="w-2.5 h-2.5 bg-[#00aaff] rounded-full animate-pulse shadow-[0_0_10px_#00aaff]" />
+                3D-Snap Core Engine
               </div>
-            </FadeIn>
-
-            <FadeIn delay={100}>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/70">
-                Mächtige Werkzeuge. <br className="hidden md:block" />
-                Kinderleichte Bedienung.
-              </h1>
-            </FadeIn>
-
-            <FadeIn delay={200}>
-              <p className="text-lg md:text-xl text-gray-300 mb-4 max-w-2xl mx-auto leading-relaxed font-medium">
-                Foto hochladen → in 2–5 Minuten ein fertiges, texturiertes 3D‑Modell (GLB).
-                Kein Blender. Keine 3D‑Kenntnisse nötig.
-              </p>
-              <p className="text-base text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Der einfachste Weg vom Foto zum fertigen 3D‑Modell – für Unternehmen und für dich.
-              </p>
-            </FadeIn>
-
-            <FadeIn delay={300}>
-              <div className="flex flex-col items-center justify-center">
-                <Link
-                  href="/register"
-                  className="px-10 py-5 bg-[#00aaff] hover:bg-[#0088cc] text-white text-lg rounded-full font-semibold transition-all shadow-[0_0_30px_rgba(0,170,255,0.4)] hover:shadow-[0_0_40px_rgba(0,170,255,0.6)] flex items-center justify-center gap-3 group"
-                >
-                  Jetzt kostenlos testen
-                  <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <p className="text-sm text-gray-500 mt-4">
-                  Erstes Modell gratis · Keine Kreditkarte nötig
-                </p>
-              </div>
-            </FadeIn>
-          </div>
-
-          {/* 3D Viewer Container */}
-          <FadeIn delay={500} className="relative mx-auto w-full max-w-6xl rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-black/50 aspect-[4/3] md:aspect-[16/9] lg:h-[70vh] bg-black">
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-transparent to-transparent pointer-events-none z-10 opacity-60" />
-            <EmbedViewer config={demoConfig} enableChat={false} />
-
-            {/* Viewer overlay label */}
-            <div className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-full bg-black/50 border border-white/10 backdrop-blur-md text-xs font-medium text-white/80 flex items-center gap-2 pointer-events-none">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              Live-Demo
             </div>
-            <div className="absolute bottom-3 left-4 z-20 text-[10px] text-white/30 pointer-events-none">
-              * Beispielmodell zur Veranschaulichung
-            </div>
-          </FadeIn>
+          </motion.div>
         </div>
       </section>
 
-      {/* FEATURES SECTION */}
-      <section id="features" className="py-24 relative z-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <FadeIn>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">Alles aus einer Hand.</h2>
-              <p className="text-gray-400 text-lg">
-                Vom Foto zum fertigen 3D‑Erlebnis – einbettbar, konfigurierbar, teilbar.
-              </p>
-            </FadeIn>
+      {/* SHOWCASE */}
+      <section id="usecases" className="py-40 bg-white text-black rounded-[5rem] mx-4">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-wrap items-end justify-between gap-12 mb-32 text-left">
+            <div className="max-w-2xl">
+              <h2 className="text-xs font-black uppercase tracking-[0.5em] text-zinc-300 mb-8">Referenzen</h2>
+              <h3 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] uppercase">Branchen<br />Lösungen<span className="text-[#00aaff]">.</span></h3>
+            </div>
+            <Link href="/3d-snap" className="group flex items-center gap-6 text-sm font-black uppercase tracking-[0.4em] transition-all hover:gap-8">
+              Bibliothek öffnen <ArrowUpRight size={24} className="text-[#00aaff]" />
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              {
-                icon: <Camera className="w-6 h-6 text-[#00aaff]" />,
-                title: "Foto → 3D‑Modell (KI)",
-                desc: "Ein Foto hochladen und in Minuten ein sauberes, texturiertes 3D‑Modell (GLB) erhalten – für 3D‑Druck, Spiele, Prototypen oder schnelle Produkt‑Assets."
+              { 
+                title: "Möbel", 
+                desc: "Premium Präsentation", 
+                img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop" 
               },
-              {
-                icon: <Palette className="w-6 h-6 text-rose-400" />,
-                title: "Konfigurator",
-                desc: "Materialien und Farben live wechseln. Alle Varianten in einem Modell zeigen – perfekt zum Testen, Vergleichen und Präsentieren."
+              { 
+                title: "Industrie", 
+                desc: "Präzision & Technik", 
+                img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop" 
               },
-              {
-                icon: <MapPin className="w-6 h-6 text-purple-400" />,
-                title: "Hotspots",
-                desc: "Interaktive Info‑Punkte im 3D‑Raum platzieren – für Erklärungen, Anleitungen, Portfolios oder Produktseiten."
-              },
-              {
-                icon: <Link2 className="w-6 h-6 text-emerald-400" />,
-                title: "Einfach Einbinden",
-                desc: "Per iFrame-Code auf jeder Website integrieren – so einfach wie ein YouTube-Video."
-              },
-              {
-                icon: <Smartphone className="w-6 h-6 text-amber-400" />,
-                title: "Voll Responsive",
-                desc: "Optimiert für Desktop, Tablet und Smartphone mit Touch‑Gesten."
-              },
-              {
-                icon: <Zap className="w-6 h-6 text-cyan-400" />,
-                title: "Echtzeit‑Editor",
-                desc: "Änderungen im Dashboard sind sofort in der Live‑Ansicht sichtbar."
-              }
-            ].map((feature, idx) => (
-              <FadeIn key={idx} delay={idx * 100} className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-2xl hover:bg-white/10 transition-colors">
-                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 border border-white/10">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* USE CASES / ANWENDUNGEN SECTION */}
-      <section id="usecases" className="py-24 bg-black/50 border-y border-white/5">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <FadeIn>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">Grenzenlose Möglichkeiten</h2>
-              <p className="text-gray-400 text-lg">
-                3D‑Druck, Spieleentwicklung, Online‑Handel, Architektur, Bildung, Kunst – was immer du vorhast.
-              </p>
-            </FadeIn>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[
-              {
-                title: "Objekte digitalisieren",
-                desc: "Beliebige Gegenstände fotografieren und als texturiertes 3D‑Modell erhalten. Für Sammler, Macher und Neugierige.",
-                img: "https://images.unsplash.com/photo-1633899306328-c5e70574aaa2?q=80&w=800&auto=format&fit=crop"
-              },
-              {
-                title: "Produkte erlebbar machen",
-                desc: "Interaktive 3D‑Viewer auf der eigenen Website einbinden. Kunden konfigurieren live – statt nur Bilder zu sehen.",
-                img: "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=800&auto=format&fit=crop"
-              },
-              {
-                title: "Vom Foto zum 3D‑Druck",
-                desc: "GLB exportieren, in STL umwandeln, Druck starten. Ein schneller Weg vom Bild zum physischen Objekt.",
-                img: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?q=80&w=800&auto=format&fit=crop"
-              },
-              {
-                title: "Wissen sichtbar machen",
-                desc: "Hotspots, Beschriftungen und geführte Touren machen komplexe Zusammenhänge greifbar – ob Maschine, Exponat oder Prototyp.",
-                img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop"
+              { 
+                title: "Kreative", 
+                desc: "Builder & Artists", 
+                img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop" 
               }
             ].map((item, idx) => (
-              <FadeIn key={idx} delay={idx * 150} className="group relative rounded-2xl overflow-hidden border border-white/10">
-                <div className="aspect-[16/9] overflow-hidden">
-                  <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60" />
+              <div key={idx} className="group relative rounded-[3rem] overflow-hidden aspect-[4/5] md:aspect-[10/14] bg-zinc-100 shadow-xl">
+                <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-all duration-500" />
+                <div className="absolute bottom-10 left-10 text-white drop-shadow-lg">
+                  <h4 className="text-3xl font-black mb-2 uppercase tracking-tighter">{item.title}</h4>
+                  <p className="text-white/80 text-xs font-bold uppercase tracking-widest">{item.desc}</p>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent flex flex-col justify-end p-8">
-                  <h3 className="text-2xl font-bold mb-2">{item.title}</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">{item.desc}</p>
-                </div>
-              </FadeIn>
+              </div>
             ))}
           </div>
+
         </div>
       </section>
 
-      {/* PRICING SECTION */}
-      <section id="pricing" className="py-32 relative">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <FadeIn>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">Transparente Preise</h2>
-              <p className="text-gray-400 text-lg">
-                Wähle den Plan, der zu dir passt – oder starte gratis mit deinem ersten 3D‑Modell.
-              </p>
-            </FadeIn>
-          </div>
+      {/* PRICING */}
+      <section id="pricing" className="py-28 md:py-40">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="mb-8 text-xs font-black uppercase tracking-[0.6em] text-[#00aaff]">Investition</h2>
+          <h3 className="mb-20 text-5xl font-black tracking-tighter md:text-7xl lg:text-[6rem]">TARIFE.</h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
-            {/* Free */}
-            <FadeIn delay={0} className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-sm">
-              <h3 className="text-xl font-medium text-gray-400 mb-2">Kostenlos</h3>
-              <div className="text-4xl font-bold mb-6">0€ <span className="text-lg font-normal text-gray-500">/ Monat</span></div>
-              <ul className="space-y-4 mb-8">
-                {["1 Foto→3D‑Modell gratis", "1 Projekt", "Basis‑Editor", "Community‑Support", "Wasserzeichen"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-300">
-                    <Check className="w-5 h-5 text-gray-500 shrink-0" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/register" className="block w-full py-3 px-6 text-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-medium">
-                Jetzt kostenlos testen
-              </Link>
-            </FadeIn>
-
-            {/* Starter */}
-            <FadeIn delay={150} className="bg-gradient-to-b from-white/10 to-white/5 border border-[#00aaff]/50 rounded-3xl p-8 backdrop-blur-sm relative shadow-[0_0_40px_rgba(0,170,255,0.15)] md:-mt-8 md:mb-8">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#00aaff] text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                Empfohlen
+          <div className="mx-auto grid max-w-6xl grid-cols-1 items-stretch gap-6 md:grid-cols-3 md:[grid-auto-rows:1fr]">
+            <StudioCard className="flex h-full flex-col border-white/10 bg-zinc-950/70 p-8 text-left sm:p-10">
+              <div className="flex-1">
+                <h4 className="mb-5 text-[10px] font-black uppercase tracking-widest text-zinc-500">Trial</h4>
+                <div className="mb-8 text-5xl font-black tracking-tighter text-white">
+                  0€<span className="ml-2 text-xs text-zinc-500">/ MONAT</span>
+                </div>
+                <ul className="space-y-4 text-sm font-semibold text-zinc-300">
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> 1 AI Snapshot</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Standard Viewer</li>
+                </ul>
               </div>
-              <h3 className="text-xl font-medium text-[#00aaff] mb-2">Starter</h3>
-              <div className="text-4xl font-bold mb-6">29€ <span className="text-lg font-normal text-gray-400">/ Monat</span></div>
-              <ul className="space-y-4 mb-8">
-                {["10 Projekte", "Hotspots & Konfigurator", "Kein Wasserzeichen", "E‑Mail‑Support", "Analyse‑Dashboard", "Foto→3D als Zusatz buchbar"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-200">
-                    <Check className="w-5 h-5 text-[#00aaff] shrink-0" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/register" className="block w-full py-3 px-6 text-center rounded-xl bg-[#00aaff] hover:bg-[#0088cc] shadow-[0_0_15px_rgba(0,170,255,0.4)] transition-all font-medium">
-                7 Tage kostenlos testen
+              <Link
+                href="/register"
+                className="mt-10 w-full rounded-2xl border border-white/10 bg-zinc-900/80 px-4 py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-white transition-all hover:border-[#00aaff]/60 hover:bg-[#00aaff]/15"
+              >
+                GET STARTED
               </Link>
-            </FadeIn>
+            </StudioCard>
 
-            {/* Pro */}
-            <FadeIn delay={300} className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-sm">
-              <h3 className="text-xl font-medium text-gray-400 mb-2">Pro</h3>
-              <div className="text-4xl font-bold mb-6">99€ <span className="text-lg font-normal text-gray-500">/ Monat</span></div>
-              <ul className="space-y-4 mb-8">
-                {["Unbegrenzte Projekte", "Foto→3D für Teams", "Eigene Domain", "Prioritäts‑Support", "API‑Zugriff", "Team‑Verwaltung"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-300">
-                    <Check className="w-5 h-5 text-gray-400 shrink-0" /> {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/contact" className="block w-full py-3 px-6 text-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-medium">
-                Kontakt aufnehmen
+            <StudioCard className="relative z-10 flex h-full flex-col border-[#00aaff]/40 bg-[#03111a]/90 p-8 text-left ring-1 ring-[#00aaff]/30 sm:p-10">
+              <div className="absolute right-6 top-6 rounded-full bg-[#00aaff] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-white">
+                Professional
+              </div>
+              <div className="flex-1 pr-16">
+                <h4 className="mb-5 text-[10px] font-black uppercase tracking-widest text-[#00aaff]">Starter</h4>
+                <div className="mb-8 text-5xl font-black tracking-tighter text-white">
+                  29€<span className="ml-2 text-xs text-[#00aaff]">/ MONAT</span>
+                </div>
+                <ul className="space-y-4 text-sm font-semibold text-zinc-100">
+                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> 10 Projects / Month</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> Analytics Dashboard</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> Priority Processing</li>
+                </ul>
+              </div>
+              <Link
+                href="/register"
+                className="mt-10 w-full rounded-2xl bg-white px-4 py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-black shadow-[0_0_30px_rgba(255,255,255,0.18)] transition-all hover:scale-[1.01]"
+              >
+                START STUDIO
               </Link>
-            </FadeIn>
+            </StudioCard>
+
+            <StudioCard className="flex h-full flex-col border-white/10 bg-zinc-950/70 p-8 text-left sm:p-10">
+              <div className="flex-1">
+                <h4 className="mb-5 text-[10px] font-black uppercase tracking-widest text-zinc-500">Business</h4>
+                <div className="mb-8 text-5xl font-black tracking-tighter text-white">
+                  99€<span className="ml-2 text-xs text-zinc-500">/ MONAT</span>
+                </div>
+                <ul className="space-y-4 text-sm font-semibold text-zinc-300">
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Unlimited Volume</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> API Infrastructure</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Custom Domain</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> SLA Guarantee</li>
+                </ul>
+              </div>
+              <Link
+                href="/contact"
+                className="mt-10 w-full rounded-2xl border border-white/10 bg-zinc-900/80 px-4 py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-white transition-all hover:border-white/30 hover:bg-white hover:text-black"
+              >
+                CONTACT SALES
+              </Link>
+            </StudioCard>
           </div>
-
-          <FadeIn delay={400}>
-            <p className="text-center text-gray-500 text-sm mt-10 max-w-xl mx-auto">
-              Foto→3D auch einzeln als Zusatz buchbar – ideal, wenn du kein Abo willst, aber regelmäßig Modelle brauchst.
-            </p>
-          </FadeIn>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/10 bg-black pt-16 pb-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-12">
-            <Link href="/" className="text-2xl font-bold tracking-tighter text-white mb-6 md:mb-0">
-              3D-<span className="text-[#00aaff]">Snap</span>
-            </Link>
+      <footer className="border-t border-white/5 bg-black pt-48 pb-12">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start mb-32 gap-24 text-left">
+            <div className="max-w-sm">
+              <Link href="/" className="text-3xl font-black tracking-tighter text-white mb-10 block">
+                3D-SNAP<span className="text-[#00aaff] italic">.de</span>
+              </Link>
+              <p className="text-zinc-600 text-lg leading-relaxed font-medium">
+                Infrastruktur für automatisierte 3D-Asset-Generierung. 
+              </p>
+            </div>
 
-            <div className="flex flex-wrap justify-center gap-8">
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">Impressum</Link>
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">Datenschutz</Link>
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">AGB</Link>
-              <Link href="#" className="text-gray-400 hover:text-white transition-colors">Kontakt</Link>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-24">
+              <div className="flex flex-col gap-6">
+                <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Produkt</h5>
+                <Link href="/3d-snap" className="text-zinc-500 hover:text-[#00aaff] text-xs font-bold transition-colors">Bibliothek</Link>
+                <Link href="/was-ist-3d-snap" className="text-zinc-500 hover:text-[#00aaff] text-xs font-bold transition-colors">Technologie</Link>
+                <Link href="/dashboard" className="text-zinc-500 hover:text-[#00aaff] text-xs font-bold transition-colors">Studio</Link>
+              </div>
+              <div className="flex flex-col gap-6">
+                <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Rechtliches</h5>
+                <Link href="#" className="text-zinc-500 hover:text-white text-xs font-bold transition-colors">Impressum</Link>
+                <Link href="#" className="text-zinc-500 hover:text-white text-xs font-bold transition-colors">Datenschutz</Link>
+                <Link href="#" className="text-zinc-500 hover:text-white text-xs font-bold transition-colors">AGB</Link>
+              </div>
             </div>
           </div>
 
-          <div className="text-center text-gray-500 text-sm flex items-center justify-center gap-2">
-            Made with <span className="text-red-500">❤️</span> in Mannheim
+          <div className="flex flex-col md:flex-row justify-between items-center border-t border-white/5 pt-12 text-[10px] font-black uppercase tracking-[0.4em] text-zinc-800">
+            <span>&copy; 2026 ExhibitXR &middot; Build 0.4.9</span>
+            <div className="flex gap-12 mt-8 md:mt-0">
+               <span className="flex items-center gap-3"><ShieldCheck size={14} className="text-[#00aaff]" /> Sicherer Speicher</span>
+               <span className="flex items-center gap-3 tracking-[0.5em]">Berlin &middot; Mannheim</span>
+            </div>
           </div>
         </div>
       </footer>
