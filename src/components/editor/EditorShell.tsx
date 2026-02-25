@@ -330,30 +330,26 @@ export default function EditorShell({
 
                         {/* ── Tab Content ──────────────────────────── */}
                         <div className="min-h-0 flex-1 overflow-y-auto">
-                            {sidebarTab === "settings" && (
+                            <div className={sidebarTab === "settings" ? "" : "hidden"}>
                                 <EditorForm
                                     config={effectiveConfig}
                                     ambientIntensity={ambientIntensity}
                                     onChange={handleConfigChange}
                                 />
-                            )}
-                            {sidebarTab === "generate" && (
-                                <div className="p-4">
-                                    <ModelGeneratorPanel
-                                        tenantId={tenantId}
-                                        exhibitId={exhibitId}
-                                        onModelGenerated={handleModelGenerated}
-                                    />
-                                </div>
-                            )}
-                            {sidebarTab === "concierge" && (
-                                <div className="p-4">
-                                    <ConciergePanel
-                                        exhibitId={exhibitId}
-                                        initialStatus={initialConciergeStatus}
-                                    />
-                                </div>
-                            )}
+                            </div>
+                            <div className={sidebarTab === "generate" ? "p-4" : "hidden"}>
+                                <ModelGeneratorPanel
+                                    tenantId={tenantId}
+                                    exhibitId={exhibitId}
+                                    onModelGenerated={handleModelGenerated}
+                                />
+                            </div>
+                            <div className={sidebarTab === "concierge" ? "p-4" : "hidden"}>
+                                <ConciergePanel
+                                    exhibitId={exhibitId}
+                                    initialStatus={initialConciergeStatus}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

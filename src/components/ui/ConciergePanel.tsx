@@ -54,10 +54,23 @@ export function ConciergePanel({ exhibitId, initialStatus = "none" }: ConciergeP
           Premium Service
         </div>
         <h3 className="text-xl font-bold text-white">Make it Perfect</h3>
-        <p className="mt-1 text-sm text-white/60">
-          KI-Modelle sind gut. Unsere Artists machen sie perfekt.
+        <p className="mt-2 text-sm leading-relaxed text-white/60">
+          Die KI generiert ein gutes Basismodell aus deinem Foto.
+          Unser Concierge-Service geht einen Schritt weiter: Ein 3D-Artist
+          überarbeitet dein Modell manuell — für makellose Texturen,
+          optimierte Performance und professionelle Qualität.
         </p>
       </header>
+
+      <div className="mb-6 rounded-lg border border-purple-400/15 bg-purple-500/5 px-4 py-3">
+        <p className="text-xs font-medium text-purple-200/90">So funktioniert&apos;s:</p>
+        <ol className="mt-2 space-y-1 text-xs text-white/55">
+          <li>1. Lade ein Foto hoch im &quot;Foto → 3D&quot; Tab</li>
+          <li>2. Die KI generiert dein 3D-Modell automatisch</li>
+          <li>3. Bestelle hier den Concierge-Feinschliff</li>
+          <li>4. Unser Artist liefert das optimierte Modell in 24-48h</li>
+        </ol>
+      </div>
 
       <ul className="mb-8 space-y-4">
         {[
