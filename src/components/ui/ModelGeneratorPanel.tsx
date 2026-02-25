@@ -9,7 +9,7 @@ import {
     useState,
 } from "react";
 
-import { checkStatus, finalizeModel, submitImage } from "@/app/actions/generate3d";
+import { checkStatus, finalizeModel, submitImage, type Provider } from "@/app/actions/generate3d";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ type Step =
     | "done"
     | "error";
 
-type Provider = "basic" | "premium";
+
 
 interface ModelGeneratorPanelProps {
     tenantId: string;
@@ -144,6 +144,7 @@ export function ModelGeneratorPanel({
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const taskIdRef = useRef<string | null>(null);
+    const providerRef = useRef<Provider>("premium");
 
     // ── File selection ──────────────────────────────────────────────────────
 
@@ -227,7 +228,7 @@ export function ModelGeneratorPanel({
 
         const intervalId = setInterval(async () => {
             try {
-                const result = await checkStatus(id);
+                const result = await checkStatus(id, providerRef.current);
 
                 if (result.status === "FAILED" || result.status === "EXPIRED") {
                     setErrorMessage(result.error ?? "Die 3D-Generierung ist fehlgeschlagen.");
@@ -246,7 +247,7 @@ export function ModelGeneratorPanel({
                     setProgress(95);
 
                     try {
-                        const finalResult = await finalizeModel(id, tenantId, exhibitId);
+                        const finalResult = await finalizeModel(id, tenantId, exhibitId, providerRef.current);
                         setProgress(100);
                         setStep("done");
                         onModelGenerated?.(finalResult.glbUrl);
@@ -284,6 +285,8 @@ export function ModelGeneratorPanel({
         try {
             const formData = new FormData();
             formData.set("image", selectedFile);
+            formData.set("provider", provider);
+            providerRef.current = provider;
 
             const result = await submitImage(formData);
             taskIdRef.current = result.taskId;
@@ -376,15 +379,13 @@ export function ModelGeneratorPanel({
                 <button
                     type="button"
                     onClick={() => setProvider("basic")}
-                    disabled
                     className={`rounded-lg border px-3 py-2.5 text-left transition ${provider === "basic"
-                        ? "border-cyan-400 bg-cyan-500/10"
-                        : "border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900"
-                        } opacity-50 cursor-not-allowed`}
+                        ? "border-cyan-400 bg-cyan-500/10 shadow-[0_0_0_1px_rgba(34,211,238,0.2)]"
+                        : "border-zinc-200 bg-zinc-50 hover:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600"
+                        }`}
                 >
                     <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Basic</p>
                     <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Tripo · Schnell</p>
-                    <p className="mt-1 text-[10px] text-amber-500">Bald verfügbar</p>
                 </button>
                 <button
                     type="button"

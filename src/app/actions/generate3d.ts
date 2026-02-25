@@ -3,8 +3,11 @@
 import { getStorage, type Storage } from "firebase-admin/storage";
 
 import * as firebaseAdmin from "@/lib/firebaseAdmin";
-import { type GenerateResult, pollTaskStatus, type PollResult, submitImageTo3D } from "@/lib/meshy";
+import { type GenerateResult, pollTaskStatus as pollMeshy, type PollResult, submitImageTo3D as submitMeshy } from "@/lib/meshy";
+import { submitImageToTripo, pollTripoTaskStatus } from "@/lib/tripo";
 import { optimizeGlb } from "@/lib/glbOptimizer";
+
+export type Provider = "basic" | "premium";
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -40,6 +43,7 @@ function getAdminStorage(): Storage {
 export async function submitImage(formData: FormData): Promise<GenerateResult> {
   try {
     const rawImage = formData.get("image");
+    const provider = (formData.get("provider") as Provider) ?? "premium";
 
     if (!(rawImage instanceof File)) {
       throw new Error("Missing image file in form data.");
@@ -56,18 +60,24 @@ export async function submitImage(formData: FormData): Promise<GenerateResult> {
     const imageBuffer = Buffer.from(await rawImage.arrayBuffer());
     const filename = rawImage.name.trim().length > 0 ? rawImage.name : "upload-image";
 
-    return await submitImageTo3D(imageBuffer, filename);
+    if (provider === "basic") {
+      return await submitImageToTripo(imageBuffer, filename);
+    }
+    return await submitMeshy(imageBuffer, filename);
   } catch (error: unknown) {
     throw new Error(`Failed to submit image for 3D generation: ${toErrorMessage(error)}`);
   }
 }
 
-export async function checkStatus(taskId: string): Promise<PollResult> {
+export async function checkStatus(taskId: string, provider: Provider = "premium"): Promise<PollResult> {
   try {
     const normalizedTaskId = ensureNonEmptyValue(taskId, "taskId");
-    return await pollTaskStatus(normalizedTaskId);
+    if (provider === "basic") {
+      return await pollTripoTaskStatus(normalizedTaskId);
+    }
+    return await pollMeshy(normalizedTaskId);
   } catch (error: unknown) {
-    throw new Error(`Failed to check Meshy task status: ${toErrorMessage(error)}`);
+    throw new Error(`Failed to check task status: ${toErrorMessage(error)}`);
   }
 }
 
@@ -75,13 +85,15 @@ export async function finalizeModel(
   taskId: string,
   tenantId: string,
   exhibitId: string,
+  provider: Provider = "premium",
 ): Promise<{ glbUrl: string }> {
   try {
     const normalizedTaskId = ensureNonEmptyValue(taskId, "taskId");
     const normalizedTenantId = ensureNonEmptyValue(tenantId, "tenantId");
     const normalizedExhibitId = ensureNonEmptyValue(exhibitId, "exhibitId");
 
-    const pollResult = await pollTaskStatus(normalizedTaskId);
+    const pollFn = provider === "basic" ? pollTripoTaskStatus : pollMeshy;
+    const pollResult = await pollFn(normalizedTaskId);
     if (pollResult.status !== "SUCCEEDED") {
       throw new Error(`Meshy task is not finished. Current status: ${pollResult.status}.`);
     }
