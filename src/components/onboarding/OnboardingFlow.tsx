@@ -11,7 +11,7 @@ import { useOnboardingStatus } from '@/hooks/useOnboardingStatus';
 
 // Real Actions
 import { createExhibitionAction, updateExhibitionAction } from '@/app/actions/exhibitions';
-import { submitImage, enqueueGenerationJob, getGenerationJobStatus } from '@/app/actions/generate3d';
+import { submitImage, checkStatus, finalizeModel } from '@/app/actions/generate3d';
 import { uploadGlbFile } from '@/lib/storage';
 
 type PathType = 'photo' | 'upload' | 'demo';
@@ -98,7 +98,7 @@ export function OnboardingFlow({ tenantId, onDismiss }: { tenantId: string; onDi
 
             const result = await createExhibitionAction(formData);
             if (!result.ok) throw new Error(result.error);
-            
+
             dispatch({ type: 'CREATED', exhibitionId: result.exhibitionId });
         } catch (error) {
             console.error(error);
@@ -226,13 +226,13 @@ export function OnboardingFlow({ tenantId, onDismiss }: { tenantId: string; onDi
                 )}
 
                 {state.step === 'checklist' && (
-                    <ChecklistStep 
-                        key="checklist" 
+                    <ChecklistStep
+                        key="checklist"
                         exhibitionId={state.exhibitionId}
                         title={state.title}
                         environment={state.environment}
                         glbUrl={state.glbUrl}
-                        onDismiss={onDismiss} 
+                        onDismiss={onDismiss}
                     />
                 )}
             </AnimatePresence>
@@ -259,10 +259,10 @@ function ProcessingStep({ path, exhibitionId, tenantId, title, environment, onCo
                     const downloadUrl = await uploadGlbFile(tenantId, file, (p) => {
                         if (!isCancelled) setProgress(p);
                     });
-                    
+
                     if (isCancelled) return;
                     setStatusText("Speichere Modell in Ausstellung...");
-                    
+
                     const fd = new FormData();
                     fd.append("exhibitionId", exhibitionId);
                     fd.append("title", title);
@@ -279,32 +279,28 @@ function ProcessingStep({ path, exhibitionId, tenantId, title, environment, onCo
                     setStatusText("Lade Foto hoch und starte KI...");
                     const fd = new FormData();
                     fd.append("image", file);
-                    const { taskId, error: submitErr } = await submitImage(fd, "meshy");
-                    if (submitErr || !taskId) throw new Error(submitErr || "Keine Task ID erhalten");
+                    const generateResult = await submitImage(fd);
+                    if (!generateResult.taskId) throw new Error("Keine Task ID erhalten");
 
                     if (isCancelled) return;
 
-                    const { jobId, error: qErr } = await enqueueGenerationJob(taskId, tenantId, exhibitionId, "meshy");
-                    if (qErr || !jobId) throw new Error(qErr || "Konnte Job nicht starten");
-
-                    // Polling
+                    // Polling via checkStatus
                     let isDone = false;
                     let finalGlbUrl = "";
                     while (!isDone && !isCancelled) {
                         await new Promise(r => setTimeout(r, 3000));
                         if (isCancelled) break;
-                        
-                        const stat = await getGenerationJobStatus(tenantId, exhibitionId, jobId);
-                        if (stat.error && stat.status === 'FAILED') throw new Error(stat.error);
-                        
+
+                        const stat = await checkStatus(generateResult.taskId);
+                        if (stat.status === 'FAILED') throw new Error("Generierung fehlgeschlagen");
+
                         setProgress(stat.progress || 10);
                         setStatusText(`Generiere 3D-Modell... ${stat.progress || 0}%`);
 
                         if (stat.status === 'SUCCEEDED') {
                             isDone = true;
-                            finalGlbUrl = stat.glbUrl || "";
-                        } else if (stat.status === 'FAILED') {
-                            throw new Error("Generierung fehlgeschlagen");
+                            const final = await finalizeModel(generateResult.taskId, tenantId, exhibitionId);
+                            finalGlbUrl = final.glbUrl;
                         }
                     }
 
@@ -378,10 +374,10 @@ function ChecklistStep({ exhibitionId, title, environment, glbUrl, onDismiss }: 
     const [published, setPublished] = useState(false);
     const [publishing, setPublishing] = useState(false);
     const [copied, setCopied] = useState(false);
-    
+
     // Default Fallback für Server-Side Rendering (origin not available)
     const [embedUrl, setEmbedUrl] = useState('');
-    
+
     useEffect(() => {
         setEmbedUrl(`${window.location.origin}/embed/${exhibitionId}`);
     }, [exhibitionId]);
@@ -416,7 +412,7 @@ function ChecklistStep({ exhibitionId, title, environment, glbUrl, onDismiss }: 
         <motion.div key="complete" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="relative mx-auto w-full max-w-2xl py-8 text-left max-h-[85vh] overflow-y-auto hide-scrollbar">
             {published && copied && <ConfettiExplosion />}
             <h2 className="mb-8 text-3xl font-bold text-white text-center">Fast fertig! First-Win Checklist 🎉</h2>
-            
+
             <div className="space-y-4 mb-8">
                 {/* Step 1: Model */}
                 <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl">

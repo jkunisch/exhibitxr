@@ -23,7 +23,7 @@ function getWebhookSecret(): string {
 }
 
 function getMetadataValue(
-  metadata: Stripe.Metadata | null | undefined,
+  metadata: Record<string, string> | null | undefined,
   key: string,
 ): string | null {
   const value = metadata?.[key];
@@ -33,7 +33,7 @@ function getMetadataValue(
 async function updateTenantPlanToPaid(
   tenantId: string,
   planId: CheckoutPlanId,
-  session: Stripe.Checkout.Session,
+  session: { customer?: string | null; subscription?: string | null },
 ): Promise<void> {
   const adminDb = getAdminDb();
   const updatePayload: Record<string, unknown> = {
@@ -70,7 +70,7 @@ async function updateTenantPlanToFree(
 }
 
 async function resolveTenantIdForSubscription(
-  subscription: Stripe.Subscription,
+  subscription: { id: string; metadata?: Record<string, string> | null },
 ): Promise<string | null> {
   const tenantIdFromMetadata = getMetadataValue(subscription.metadata, "tenantId");
   if (tenantIdFromMetadata) {
@@ -92,8 +92,8 @@ async function resolveTenantIdForSubscription(
 }
 
 async function handleCheckoutCompleted(event: Stripe.Event): Promise<void> {
-  const session = event.data.object as Stripe.Checkout.Session;
-  const tenantId = getMetadataValue(session.metadata, "tenantId");
+  const session = event.data.object as { metadata?: Record<string, string> | null; customer?: string | null; subscription?: string | null };
+  const tenantId = getMetadataValue(session.metadata ?? null, "tenantId");
   const planIdRaw = getMetadataValue(session.metadata, "planId");
 
   if (!tenantId || !planIdRaw) {
@@ -118,7 +118,7 @@ async function handleCheckoutCompleted(event: Stripe.Event): Promise<void> {
 }
 
 async function handleSubscriptionDeleted(event: Stripe.Event): Promise<void> {
-  const subscription = event.data.object as Stripe.Subscription;
+  const subscription = event.data.object as { id: string; metadata?: Record<string, string> | null };
   const tenantId = await resolveTenantIdForSubscription(subscription);
 
   if (!tenantId) {

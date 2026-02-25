@@ -3,12 +3,12 @@
 import { useState, useTransition } from "react";
 
 import { createCheckoutSession } from "@/app/actions/billing";
-import { PLAN_LIMITS, type TenantPlan } from "@/lib/planLimits";
+import { PLAN_LIMITS, type PlanTier } from "@/lib/planLimits";
 
 type CheckoutPlan = "starter" | "pro";
 
 type PlanCard = {
-  id: TenantPlan;
+  id: PlanTier;
   name: string;
   priceLabel: string;
   highlights: string[];
@@ -47,12 +47,12 @@ const PLAN_CARDS: PlanCard[] = [
   },
 ];
 
-function isCheckoutPlan(planId: TenantPlan): planId is CheckoutPlan {
+function isCheckoutPlan(planId: PlanTier): planId is CheckoutPlan {
   return planId === "starter" || planId === "pro";
 }
 
 type BillingPlansProps = {
-  currentPlan: TenantPlan;
+  currentPlan: PlanTier;
 };
 
 export default function BillingPlans({ currentPlan }: BillingPlansProps) {
@@ -87,11 +87,10 @@ export default function BillingPlans({ currentPlan }: BillingPlansProps) {
           return (
             <article
               key={plan.id}
-              className={`rounded-2xl border p-5 backdrop-blur-xl ${
-                isCurrentPlan
-                  ? "border-cyan-200/50 bg-cyan-300/15"
-                  : "border-white/15 bg-white/8"
-              }`}
+              className={`rounded-2xl border p-5 backdrop-blur-xl ${isCurrentPlan
+                ? "border-cyan-200/50 bg-cyan-300/15"
+                : "border-white/15 bg-white/8"
+                }`}
             >
               <p className="text-xs uppercase tracking-[0.2em] text-cyan-100/80">
                 {plan.name}

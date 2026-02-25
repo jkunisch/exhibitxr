@@ -63,3 +63,14 @@ export function getRemainingExhibitions(plan: PlanTier, currentCount: number): n
 
   return Math.max(0, PLAN_LIMITS[plan].exhibitions - currentCount);
 }
+
+/** Alias for backwards-compat with #13 analytics code */
+export type PlanType = PlanTier;
+
+export function isViewLimitReached(plan: PlanTier, currentMonthlyViews: number): boolean {
+  if (!Number.isFinite(currentMonthlyViews) || currentMonthlyViews < 0) {
+    return false;
+  }
+
+  return currentMonthlyViews >= PLAN_LIMITS[plan].viewsPerMonth;
+}

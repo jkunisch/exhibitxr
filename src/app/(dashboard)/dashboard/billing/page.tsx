@@ -3,12 +3,12 @@ import { redirect } from "next/navigation";
 
 import BillingPlans from "@/components/ui/BillingPlans";
 import { getAdminDb } from "@/lib/firebaseAdmin";
-import { getPlanLimits, type TenantPlan } from "@/lib/planLimits";
+import { getPlanLimits, type PlanTier } from "@/lib/planLimits";
 import { getSessionUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-function normalizeTenantPlan(value: unknown): TenantPlan {
+function normalizeTenantPlan(value: unknown): PlanTier {
   if (
     value === "free" ||
     value === "starter" ||
