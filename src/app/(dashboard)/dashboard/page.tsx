@@ -150,24 +150,35 @@ export default async function DashboardPage() {
               className="rounded-xl border border-white/12 bg-black/20 px-4 py-3 transition hover:border-white/25 hover:bg-white/[0.04]"
             >
               <Link href={`/dashboard/editor/${item.id}`} className="block">
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <p className="font-medium text-white">{item.title}</p>
                     <p className="text-xs text-white/65">ID: {item.id}</p>
                   </div>
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${item.isPublished
-                      ? "border border-emerald-200/40 bg-emerald-300/15 text-emerald-100"
-                      : "border border-amber-200/35 bg-amber-300/15 text-amber-100"
-                      }`}
-                  >
-                    {item.isPublished ? "Published" : "Draft"}
-                  </span>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${item.isPublished
+                        ? "border border-emerald-200/40 bg-emerald-300/15 text-emerald-100"
+                        : "border border-amber-200/35 bg-amber-300/15 text-amber-100"
+                        }`}
+                    >
+                      {item.isPublished ? "Live" : "Entwurf"}
+                    </span>
+                  </div>
                 </div>
                 <p className="mt-2 text-xs text-white/60">
-                  Updated: {item.updatedAtLabel}
+                  Aktualisiert: {item.updatedAtLabel}
                 </p>
               </Link>
+              <div className="mt-2 flex justify-end">
+                <Link
+                  href={`/dashboard/exhibitions/${item.id}`}
+                  className="text-[11px] text-white/45 transition hover:text-white/80"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Einstellungen
+                </Link>
+              </div>
             </li>
           ))}
         </ul>
