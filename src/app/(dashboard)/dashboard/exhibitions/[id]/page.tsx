@@ -214,6 +214,12 @@ export default async function ExhibitionDetailPage({
         >
           Im Editor oeffnen
         </Link>
+        <Link
+          href={`/dashboard/exhibitions/${exhibition.id}/branding`}
+          className="inline-flex rounded-lg border border-cyan-300/40 bg-cyan-300/10 px-3 py-2 text-xs font-medium text-cyan-100 transition hover:bg-cyan-300/20"
+        >
+          Branding
+        </Link>
       </div>
 
       {created ? (
