@@ -57,6 +57,44 @@ export default function ModelViewer({
     onTransformEnd,
 }: ModelViewerProps) {
     const groupRef = useRef<THREE.Group>(null);
+
+    // If no GLB URL, render an empty placeholder instead of crashing
+    if (!config.glbUrl) {
+        return (
+            <group>
+                <mesh position={[0, 0.5, 0]}>
+                    <boxGeometry args={[0.5, 0.5, 0.5]} />
+                    <meshStandardMaterial color="#334155" wireframe />
+                </mesh>
+            </group>
+        );
+    }
+
+    return <ModelViewerInner
+        config={config}
+        activeVariantId={activeVariantId}
+        onHotspotClick={onHotspotClick}
+        hotspotColor={hotspotColor}
+        hotspotFontFamily={hotspotFontFamily}
+        isEditor={isEditor}
+        isSelected={isSelected}
+        onSelect={onSelect}
+        onTransformEnd={onTransformEnd}
+    />;
+}
+
+function ModelViewerInner({
+    config,
+    activeVariantId,
+    onHotspotClick,
+    hotspotColor = "#00aaff",
+    hotspotFontFamily = "system-ui, sans-serif",
+    isEditor = false,
+    isSelected = false,
+    onSelect,
+    onTransformEnd,
+}: ModelViewerProps) {
+    const groupRef = useRef<THREE.Group>(null);
     const { scene } = useGLTF(config.glbUrl, DRACO_DECODER_PATH);
 
     // Clone scene to avoid polluting the GLTF cache

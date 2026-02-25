@@ -206,13 +206,13 @@ export default async function ExhibitionDetailPage({
           href="/dashboard/exhibitions"
           className="inline-flex rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-white/15"
         >
-          Back to Exhibitions
+          Zurück
         </Link>
         <Link
           href={editorUrl}
           className="inline-flex rounded-lg border border-cyan-300/35 bg-cyan-300/20 px-3 py-2 text-xs font-semibold text-cyan-50 transition hover:bg-cyan-300/30"
         >
-          Im Editor oeffnen
+          Im Editor öffnen
         </Link>
         <Link
           href={`/dashboard/exhibitions/${exhibition.id}/branding`}
@@ -224,13 +224,13 @@ export default async function ExhibitionDetailPage({
 
       {created ? (
         <p className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-          Exhibition created successfully.
+          Ausstellung erfolgreich erstellt.
         </p>
       ) : null}
 
       {saved ? (
         <p className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-          Changes saved.
+          Änderungen gespeichert.
         </p>
       ) : null}
 
@@ -247,15 +247,15 @@ export default async function ExhibitionDetailPage({
       ) : null}
 
       <GlassFormPanel
-        title={`Edit Exhibition: ${exhibition.title}`}
-        subtitle={`Created: ${exhibition.createdAtLabel} • Updated: ${exhibition.updatedAtLabel}`}
+        title={`Ausstellung: ${exhibition.title}`}
+        subtitle={`Erstellt: ${exhibition.createdAtLabel} • Aktualisiert: ${exhibition.updatedAtLabel}`}
       >
         <form action={handleUpdate} className="space-y-4">
           <input type="hidden" name="exhibitionId" value={exhibition.id} />
 
           <div className="space-y-2">
             <label htmlFor="title" className="text-sm font-medium text-slate-800 dark:text-slate-100">
-              Title
+              Titel
             </label>
             <input
               id="title"
@@ -274,7 +274,7 @@ export default async function ExhibitionDetailPage({
               htmlFor="description"
               className="text-sm font-medium text-slate-800 dark:text-slate-100"
             >
-              Description
+              Beschreibung
             </label>
             <textarea
               id="description"
@@ -291,7 +291,7 @@ export default async function ExhibitionDetailPage({
               htmlFor="environment"
               className="text-sm font-medium text-slate-800 dark:text-slate-100"
             >
-              Environment Preset
+              Umgebung
             </label>
             <select
               id="environment"
@@ -312,7 +312,7 @@ export default async function ExhibitionDetailPage({
               htmlFor="glbUrl"
               className="text-sm font-medium text-slate-800 dark:text-slate-100"
             >
-              GLB URL
+              Modell-URL (GLB)
             </label>
             <input
               id="glbUrl"
@@ -331,24 +331,24 @@ export default async function ExhibitionDetailPage({
               defaultChecked={exhibition.isPublished}
               className="h-4 w-4 rounded border-slate-400 text-cyan-500 focus:ring-cyan-400/50 dark:border-white/30"
             />
-            Published
+            Veröffentlicht
           </label>
 
           <button
             type="submit"
             className="rounded-xl border border-cyan-500/45 bg-cyan-500/20 px-4 py-2.5 text-sm font-medium text-slate-900 transition hover:bg-cyan-500/30 dark:text-white"
           >
-            Save Changes
+            Speichern
           </button>
         </form>
       </GlassFormPanel>
 
       <GlassFormPanel
-        title="Embed"
-        subtitle="Use this iframe snippet to embed the published exhibition."
+        title="Einbetten"
+        subtitle="Verwende diesen iframe-Code, um die Ausstellung einzubetten."
       >
         <div className="space-y-3">
-          <p className="text-xs text-white/70">Embed URL: {embedUrl}</p>
+          <p className="text-xs text-white/70">Embed-URL: {embedUrl}</p>
           <pre className="overflow-x-auto rounded-xl border border-white/15 bg-black/30 p-3 text-xs text-cyan-50">
             <code>{embedIframeCode}</code>
           </pre>
@@ -357,8 +357,8 @@ export default async function ExhibitionDetailPage({
       </GlassFormPanel>
 
       <GlassFormPanel
-        title="Delete Exhibition"
-        subtitle="Safety check: type the exact title before deletion."
+        title="Ausstellung löschen"
+        subtitle="Sicherheitsabfrage: Gib den Titel zur Bestätigung ein."
       >
         <form action={handleDelete} className="space-y-4">
           <input type="hidden" name="exhibitionId" value={exhibition.id} />
@@ -367,7 +367,7 @@ export default async function ExhibitionDetailPage({
               htmlFor="confirmTitle"
               className="text-sm font-medium text-slate-800 dark:text-slate-100"
             >
-              Type &quot;{exhibition.title}&quot; to confirm
+              Gib &quot;{exhibition.title}&quot; zur Bestätigung ein
             </label>
             <input
               id="confirmTitle"
@@ -382,10 +382,20 @@ export default async function ExhibitionDetailPage({
             type="submit"
             className="rounded-xl border border-rose-300/40 bg-rose-500/20 px-4 py-2.5 text-sm font-medium text-rose-900 transition hover:bg-rose-500/30 dark:text-rose-100"
           >
-            Delete Exhibition
+            Ausstellung löschen
           </button>
         </form>
       </GlassFormPanel>
+
+      {/* Weiter-Button zum Editor */}
+      <div className="flex justify-end">
+        <Link
+          href={editorUrl}
+          className="inline-flex items-center gap-2 rounded-xl border border-cyan-300/40 bg-cyan-400/15 px-6 py-3 text-sm font-semibold text-cyan-50 transition hover:bg-cyan-400/25"
+        >
+          Weiter zum Editor →
+        </Link>
+      </div>
     </section>
   );
 }
