@@ -6,6 +6,7 @@ import ModelViewer from "@/components/3d/ModelViewer";
 import ChatWidget from "@/components/ui/ChatWidget";
 import type { ExhibitConfig } from "@/types/schema";
 import { DEFAULT_AMBIENT_INTENSITY } from "@/lib/lighting";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface EmbedViewerProps {
     config: ExhibitConfig;
@@ -16,24 +17,40 @@ interface EmbedViewerProps {
 /**
  * Embeddable 3D viewer — full viewport, no dashboard chrome.
  * Renders the model with variant switching and hotspot interaction.
- *
- * CRITICAL: All HTML overlays use pointer-events-none so the Canvas
- * receives all mouse/touch events. Only interactive elements (buttons)
- * opt back in with pointer-events-auto.
  */
 export default function EmbedViewer({
     config,
     ambientIntensity = DEFAULT_AMBIENT_INTENSITY,
     enableChat,
 }: EmbedViewerProps) {
+    const { trackHotspotClick, trackVariantChange, trackChatMessage } = useAnalytics(
+        config.id,
+        config.tenantId
+    );
+
     const [activeVariant, setActiveVariant] = useState<string | undefined>(
         config.model.variants[0]?.id
     );
     const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
 
-    const handleHotspotClick = useCallback((hotspotId: string) => {
-        setActiveHotspot((prev) => (prev === hotspotId ? null : hotspotId));
-    }, []);
+    const handleHotspotClick = useCallback(
+        (hotspotId: string) => {
+            setActiveHotspot((prev) => {
+                const isNew = prev !== hotspotId;
+                if (isNew) trackHotspotClick(hotspotId);
+                return isNew ? hotspotId : null;
+            });
+        },
+        [trackHotspotClick]
+    );
+
+    const handleVariantChange = useCallback(
+        (variantId: string) => {
+            setActiveVariant(variantId);
+            trackVariantChange(variantId);
+        },
+        [trackVariantChange]
+    );
 
     const hotspotInfo = activeHotspot
         ? config.model.hotspots.find((h) => h.id === activeHotspot)
@@ -98,7 +115,7 @@ export default function EmbedViewer({
                         {config.model.variants.map((variant) => (
                             <button
                                 key={variant.id}
-                                onClick={() => setActiveVariant(variant.id)}
+                                onClick={() => handleVariantChange(variant.id)}
                                 style={{
                                     padding: "8px 16px",
                                     borderRadius: 8,
@@ -161,7 +178,13 @@ export default function EmbedViewer({
             </div>
 
             {/* AI Chat Widget */}
-            {enableChat && <ChatWidget context={JSON.stringify(config)} />}
+            {enableChat && (
+                <ChatWidget
+                    context={JSON.stringify(config)}
+                    onMessageSent={trackChatMessage}
+                />
+            )}
         </div>
     );
 }
+

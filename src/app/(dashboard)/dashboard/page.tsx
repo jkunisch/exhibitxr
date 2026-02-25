@@ -126,6 +126,12 @@ export default async function DashboardPage() {
             Billing
           </Link>
           <Link
+            href="/dashboard/analytics"
+            className="rounded-lg border border-purple-200/35 bg-purple-300/15 px-3 py-2 text-xs font-medium text-purple-100 transition hover:bg-purple-300/25"
+          >
+            Analytics
+          </Link>
+          <Link
             href="/dashboard/exhibitions"
             className="rounded-lg border border-cyan-200/35 bg-cyan-300/15 px-3 py-2 text-xs font-medium text-cyan-100 transition hover:bg-cyan-300/25"
           >

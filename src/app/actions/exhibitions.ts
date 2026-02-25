@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getAdminDb } from "@/lib/firebaseAdmin";
-import { canCreateExhibition, getPlanLimits, type TenantPlan } from "@/lib/planLimits";
+import { type PlanTier } from "@/lib/planLimits";
 import { getSessionUser } from "@/lib/session";
 import { getTenantEntitlementSnapshot } from "@/lib/tenantEntitlements";
 
@@ -81,7 +81,7 @@ function extractZodError(result: { success: false; error: z.ZodError }): string 
   return result.error.issues[0]?.message ?? "Invalid form input.";
 }
 
-function normalizeTenantPlan(value: unknown): TenantPlan {
+function normalizeTenantPlan(value: unknown): PlanTier {
   if (
     value === "free" ||
     value === "starter" ||
@@ -117,48 +117,34 @@ export async function createExhibitionAction(
   }
 
   const adminDb = getAdminDb();
-  const tenantRef = adminDb.collection("tenants").doc(sessionUser.tenantId);
-  const exhibitionsRef = tenantRef.collection("exhibitions");
-  const [tenantSnapshot, exhibitionsSnapshot] = await Promise.all([
-    tenantRef.get(),
-    exhibitionsRef.get(),
-  ]);
-
-  const tenantPlan = normalizeTenantPlan(tenantSnapshot.data()?.plan);
-  const currentExhibitionCount = exhibitionsSnapshot.size;
-
-  if (!canCreateExhibition(tenantPlan, currentExhibitionCount)) {
-    const limit = getPlanLimits(tenantPlan).exhibitions;
-
-    return {
-      ok: false,
-      error: `Plan limit reached. ${tenantPlan.toUpperCase()} allows ${limit} exhibition(s).`,
-    };
-  }
+  const exhibitionsRef = adminDb
+    .collection("tenants")
+    .doc(sessionUser.tenantId)
+    .collection("exhibitions");
 
   const exhibitionId = crypto.randomUUID();
   const now = FieldValue.serverTimestamp();
 
   await exhibitionsRef.doc(exhibitionId).set({
-      id: exhibitionId,
-      tenantId: sessionUser.tenantId,
-      title: parsedInput.data.title,
-      description: parsedInput.data.description,
-      isPublished: parsedInput.data.isPublished,
-      environment: parsedInput.data.environment,
-      glbUrl: parsedInput.data.glbUrl,
-      model: {
-        id: crypto.randomUUID(),
-        label: parsedInput.data.title,
-        glbUrl: parsedInput.data.glbUrl || "",
-        scale: 1,
-        position: [0, 0, 0],
-        variants: [],
-        hotspots: [],
-      },
-      createdAt: now,
-      updatedAt: now,
-    });
+    id: exhibitionId,
+    tenantId: sessionUser.tenantId,
+    title: parsedInput.data.title,
+    description: parsedInput.data.description,
+    isPublished: parsedInput.data.isPublished,
+    environment: parsedInput.data.environment,
+    glbUrl: parsedInput.data.glbUrl,
+    model: {
+      id: crypto.randomUUID(),
+      label: parsedInput.data.title,
+      glbUrl: parsedInput.data.glbUrl || "",
+      scale: 1,
+      position: [0, 0, 0],
+      variants: [],
+      hotspots: [],
+    },
+    createdAt: now,
+    updatedAt: now,
+  });
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/exhibitions");
