@@ -275,12 +275,12 @@ export default function EmbedViewer({
                     }}
                 >
                     <a
-                        href="https://exhibitxr.app"
+                        href="https://3d-snap.com"
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ color: "inherit" }}
                     >
-                        Powered by ExhibitXR
+                        Powered by 3D-Snap
                     </a>
                 </div>
             ) : null}

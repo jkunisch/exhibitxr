@@ -132,7 +132,7 @@ export function OnboardingFlow({ tenantId, onDismiss }: { tenantId: string; onDi
                                 <div className="absolute left-1/2 top-1/2 -ml-5 -mt-5 h-10 w-10 border border-[#ffd93d] bg-[#ffd93d]/20 backdrop-blur-sm animate-[float_3.5s_ease-in-out_infinite_1s]" style={{ transform: 'translate3d(10px, 40px, 50px) rotateY(60deg) rotateZ(45deg)' }} />
                             </div>
                         </div>
-                        <h1 className="mb-6 text-4xl font-bold text-white md:text-5xl">Willkommen bei ExhibitXR</h1>
+                        <h1 className="mb-6 text-4xl font-bold text-white md:text-5xl">Willkommen bei 3D-Snap</h1>
                         <p className="mb-10 text-lg text-gray-400">In unter 15 Minuten haben Sie Ihren ersten interaktiven 3D-Showroom eingebunden.</p>
                         <div className="flex flex-col items-center gap-4">
                             <button autoFocus onClick={() => dispatch({ type: 'START' })} className="rounded-xl bg-[#00aaff] px-10 py-4 text-lg font-bold text-white shadow-[0_0_30px_rgba(0,170,255,0.4)] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
@@ -486,7 +486,7 @@ function ChecklistStep({ exhibitionId, title, environment, glbUrl, onDismiss }: 
             {/* Concierge CTA */}
             <div className="mt-8 border-t border-white/10 pt-6 text-center">
                 <p className="text-sm text-gray-400 mb-3">Keine Zeit, das alles selbst einzurichten?</p>
-                <a href="mailto:support@exhibitxr.com?subject=Concierge%20Service%20Anfrage" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10 hover:border-white/30">
+                <a href="mailto:support@3d-snap.com?subject=Concierge%20Service%20Anfrage" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10 hover:border-white/30">
                     <Mail size={16} /> Wir richten es für dich ein (Concierge Service)
                 </a>
             </div>

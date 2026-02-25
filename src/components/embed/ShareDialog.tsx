@@ -27,7 +27,7 @@ function buildEmbedCode(id: string, options: EmbedOptions): string {
     const query = params.toString() ? `?${params.toString()}` : "";
 
     return `<iframe
-  src="https://exhibitxr.com/embed/${id}${query}"
+  src="https://3d-snap.com/embed/${id}${query}"
   width="${options.width || "100%"}"
   height="${options.height || "600px"}"
   frameborder="0"
@@ -41,7 +41,7 @@ export function ShareDialog({ exhibitId, title, onClose, options = {} }: ShareDi
     const [copiedLink, setCopiedLink] = useState(false);
     const [copiedEmbed, setCopiedEmbed] = useState(false);
 
-    const directUrl = `https://exhibitxr.com/embed/${exhibitId}`;
+    const directUrl = `https://3d-snap.com/embed/${exhibitId}`;
     const embedCode = buildEmbedCode(exhibitId, options);
 
     const handleCopy = async (text: string, setCopied: (val: boolean) => void) => {

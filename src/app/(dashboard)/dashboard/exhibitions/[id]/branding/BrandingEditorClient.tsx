@@ -131,7 +131,7 @@ function MiniEmbedPreview({
 
           {shouldShowWatermark ? (
             <a
-              href="https://exhibitxr.app"
+              href="https://3d-snap.com"
               target="_blank"
               rel="noopener noreferrer"
               className="absolute bottom-2 left-2 z-30"
@@ -142,7 +142,7 @@ function MiniEmbedPreview({
                 opacity: 0.4,
               }}
             >
-              Powered by ExhibitXR
+              Powered by 3D-Snap
             </a>
           ) : null}
         </div>
@@ -362,7 +362,7 @@ export function BrandingEditorClient({
                 disabled={watermarkToggleDisabled || isPending}
                 className="h-4 w-4 rounded border-white/35 bg-black/30 text-cyan-300 focus:ring-cyan-300/55"
               />
-              ExhibitXR Wasserzeichen ausblenden
+              3D-Snap Wasserzeichen ausblenden
             </label>
             {watermarkToggleDisabled ? (
               <p className="text-xs text-white/60">

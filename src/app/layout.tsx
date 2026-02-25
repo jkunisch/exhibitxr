@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-    title: "ExhibitXR — Interactive 3D Experiences",
-    description: "B2B SaaS for interactive 3D product experiences in the browser.",
+    title: "3D-Snap | Foto zu 3D Modell",
+    description: "Der einfachste Foto zu 3D Modell Generator für Creator, Maker und E-Commerce.",
 };
 
 export default function RootLayout({

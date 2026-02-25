@@ -106,7 +106,7 @@ export function EmbedChrome({
                             <img src={tenantLogo} alt="Logo" className="h-6 sm:h-8 w-auto object-contain" />
                         ) : (
                             <div className="h-6 sm:h-8 flex items-center justify-center font-bold text-white tracking-wider px-2">
-                                ExhibitXR
+                                3D-Snap
                             </div>
                         )}
                         <div className="w-px h-6 bg-white/20" />
@@ -176,13 +176,13 @@ export function EmbedChrome({
 
                         {showBranding && (
                             <a
-                                href="https://exhibitxr.com"
+                                href="https://3d-snap.com"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-white/60 text-xs text-right hidden sm:block pointer-events-auto bg-black/40 backdrop-blur-md px-3 py-2 rounded-xl border border-white/10 shadow-lg hover:text-white transition-colors"
                             >
                                 Powered by <br />
-                                <span className="font-bold text-white/90">ExhibitXR</span>
+                                <span className="font-bold text-white/90">3D-Snap</span>
                             </a>
                         )}
                     </div>

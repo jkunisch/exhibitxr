@@ -26,7 +26,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           <div className="flex-shrink-0">
             <Link href="/" className="text-2xl font-bold tracking-tighter text-white">
-              Exhibit<span className="text-[#00aaff]">XR</span>
+              3D-<span className="text-[#00aaff]">Snap</span>
             </Link>
           </div>
 

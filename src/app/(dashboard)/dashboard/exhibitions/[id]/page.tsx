@@ -102,7 +102,7 @@ async function getRequestOrigin(): Promise<string> {
     return fallbackOrigin.replace(/\/+$/, "");
   }
 
-  return "https://exhibitxr.app";
+  return "https://3d-snap.com";
 }
 
 async function loadExhibition(

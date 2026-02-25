@@ -40,7 +40,7 @@ const ExhibitionCard = memo(({ exhibition }: { exhibition: ExhibitionClientData 
     const EnvIcon = ENV_ICONS[env] || ENV_ICONS.default;
 
     const handleEmbed = () => {
-        const code = `<iframe src="https://exhibitxr.com/embed/${exhibition.id}" width="100%" height="600" frameborder="0" allow="xr-spatial-tracking" allowfullscreen></iframe>`;
+        const code = `<iframe src="https://3d-snap.com/embed/${exhibition.id}" width="100%" height="600" frameborder="0" allow="xr-spatial-tracking" allowfullscreen></iframe>`;
         navigator.clipboard.writeText(code);
         showToast('Embed-Code kopiert! ✓');
     };

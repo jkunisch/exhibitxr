@@ -41,7 +41,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
       <section className="relative z-10 w-full max-w-md rounded-3xl border border-white/15 bg-white/8 p-6 shadow-[0_40px_120px_rgba(15,23,42,0.55)] backdrop-blur-xl sm:p-8">
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/80">
-          ExhibitXR Admin
+          3D-Snap Admin
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">
           Welcome back

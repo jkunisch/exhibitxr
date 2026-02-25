@@ -262,7 +262,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center mb-12">
             <Link href="/" className="text-2xl font-bold tracking-tighter text-white mb-6 md:mb-0">
-              Exhibit<span className="text-[#00aaff]">XR</span>
+              3D-<span className="text-[#00aaff]">Snap</span>
             </Link>
 
             <div className="flex flex-wrap justify-center gap-8">

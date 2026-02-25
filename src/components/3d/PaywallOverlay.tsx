@@ -56,7 +56,7 @@ export default function PaywallOverlay() {
 
       <div style={{ marginTop: 40 }}>
         <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-          Powered by ExhibitXR
+          Powered by 3D-Snap
         </span>
       </div>
     </div>

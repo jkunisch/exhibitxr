@@ -31,7 +31,7 @@ export default async function DashboardLayout({
                 Dashboard
               </p>
               <h1 className="mt-2 text-2xl font-semibold text-white">
-                ExhibitXR Kontrollraum
+                3D-Snap Kontrollraum
               </h1>
               <p className="mt-1 text-xs text-white/70 sm:text-sm">
                 Tenant: {sessionUser.tenantId}

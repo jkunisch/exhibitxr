@@ -43,7 +43,7 @@ export function EmbedBuilder({ exhibitId, isProPlan = false }: EmbedBuilderProps
     };
 
     const embedCode = useMemo(() => {
-        const directUrl = `https://exhibitxr.com/embed/${exhibitId}${getQueryString()}`;
+        const directUrl = `https://3d-snap.com/embed/${exhibitId}${getQueryString()}`;
         return `<iframe
   src="${directUrl}"
   width="${options.width || "100%"}"
