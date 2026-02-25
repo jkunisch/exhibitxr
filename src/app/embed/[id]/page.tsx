@@ -1,118 +1,189 @@
+import { FieldPath } from "firebase-admin/firestore";
 import { notFound } from "next/navigation";
 
-import { getAdminDb } from "@/lib/firebaseAdmin";
-import { parseExhibitConfig } from "@/lib/validateConfig";
 import EmbedViewer from "@/components/3d/EmbedViewer";
 import PaywallOverlay from "@/components/3d/PaywallOverlay";
 import {
+  automotiveDemoConfig,
   demoConfig,
   industrialDemoConfig,
-  automotiveDemoConfig,
 } from "@/data/demo";
-import type { ExhibitConfig, Tenant } from "@/types/schema";
+import {
+  applyPlanLimitsToBranding,
+  compactEmbedBranding,
+  normalizeEmbedBranding,
+  normalizeTenantPlan,
+} from "@/lib/branding";
+import { getAdminDb } from "@/lib/firebaseAdmin";
 import {
   DEFAULT_AMBIENT_INTENSITY,
   sanitizeAmbientIntensity,
 } from "@/lib/lighting";
-import { isViewLimitReached, PlanType } from "@/lib/planLimits";
+import { isViewLimitReached } from "@/lib/planLimits";
+import { parseExhibitConfig } from "@/lib/validateConfig";
+import type { EmbedBranding } from "@/types/branding";
+import type { ExhibitConfig } from "@/types/schema";
 
 interface EmbedPageProps {
   params: Promise<{ id: string }>;
 }
 
-/**
- * Embed-Route: Laedt Ausstellungs-Konfiguration aus Firestore.
- * Oeffentlich zugaenglich, prueft isPublished Status.
- */
-export default async function EmbedPage({ params }: EmbedPageProps) {
-  const { id } = await params;
+type EmbedLoadResult = {
+  config: ExhibitConfig;
+  branding: EmbedBranding;
+  ambientIntensity: number;
+  tenantId: string;
+  tenantPlan: string;
+} | null;
 
-  let config: ExhibitConfig;
-  let ambientIntensity = DEFAULT_AMBIENT_INTENSITY;
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return null;
+  }
 
-  // Spezialfall: Demo-Konfigurationen
+  return value as Record<string, unknown>;
+}
+
+function buildConfigInput(
+  exhibitionId: string,
+  tenantId: string,
+  source: Record<string, unknown>,
+): Record<string, unknown> {
+  const sourceId =
+    typeof source.id === "string" && source.id.trim().length > 0
+      ? source.id
+      : exhibitionId;
+
+  return {
+    ...source,
+    id: sourceId,
+    tenantId,
+  };
+}
+
+async function loadEmbedData(exhibitionId: string): Promise<EmbedLoadResult> {
   const demoConfigs: Record<string, ExhibitConfig> = {
     demo: demoConfig,
     "demo-industrial": industrialDemoConfig,
     "demo-automotive": automotiveDemoConfig,
   };
 
-  const demoMatch = demoConfigs[id];
+  const demoMatch = demoConfigs[exhibitionId];
   if (demoMatch) {
     try {
-      config = parseExhibitConfig(demoMatch);
-    } catch (error) {
-      console.error("Error loading demo config:", error);
-      return notFound();
+      return {
+        config: parseExhibitConfig(demoMatch),
+        branding: {},
+        ambientIntensity: DEFAULT_AMBIENT_INTENSITY,
+        tenantId: "demo",
+        tenantPlan: "pro",
+      };
+    } catch {
+      return null;
     }
-
-    return <EmbedViewer config={config} ambientIntensity={ambientIntensity} enableChat />;
   }
 
   const adminDb = getAdminDb();
 
-  try {
-    // Collection Group Query: Sucht in allen Tenants nach der Exhibit-ID.
-    // Pfad in Firestore: /tenants/{tenantId}/exhibitions/{exhibitId}
-    const snapshot = await adminDb
+  let snapshot = await adminDb
+    .collectionGroup("exhibitions")
+    .where("id", "==", exhibitionId)
+    .limit(1)
+    .get();
+
+  if (snapshot.empty) {
+    snapshot = await adminDb
       .collectionGroup("exhibitions")
-      .where("id", "==", id)
+      .where(FieldPath.documentId(), "==", exhibitionId)
       .limit(1)
       .get();
+  }
 
-    if (snapshot.empty) {
-      console.warn(`Exhibition with ID "${id}" not found.`);
-      return notFound();
-    }
+  if (snapshot.empty) {
+    return null;
+  }
 
-    const doc = snapshot.docs[0];
-    const data = doc.data();
-    const tenantId = data.tenantId;
+  const doc = snapshot.docs[0];
+  const data = doc.data();
 
-    ambientIntensity = sanitizeAmbientIntensity(data.ambientIntensity);
+  if (data.isPublished !== true) {
+    return null;
+  }
 
-    // Nur publizierte Ausstellungen anzeigen
-    if (data.isPublished !== true) {
-      console.info(`Exhibition "${id}" is not published.`);
-      return notFound();
-    }
+  const tenantId =
+    typeof data.tenantId === "string"
+      ? data.tenantId
+      : doc.ref.parent.parent?.id;
+  if (!tenantId) {
+    return null;
+  }
 
-    // Validierung gegen das Schema (src/types/schema.ts)
-    config = parseExhibitConfig(data);
+  const rawConfig = asRecord(data.config) ?? asRecord(data);
+  if (!rawConfig) {
+    return null;
+  }
 
-    // ─── Plan Enforcement ──────────────────────────────────────────
-    // 1. Tenant Plan lesen
-    const tenantDoc = await adminDb.collection("tenants").doc(tenantId).get();
-    if (!tenantDoc.exists) {
-      console.error(`Tenant "${tenantId}" not found for exhibition "${id}".`);
-      return notFound();
-    }
-    const tenantData = tenantDoc.data() as Tenant;
-    const plan = tenantData.plan as PlanType;
+  const configInput = buildConfigInput(exhibitionId, tenantId, rawConfig);
 
-    // 2. Aktuelle Views fuer diesen Monat lesen
-    const monthKey = new Date().toISOString().substring(0, 7); // YYYY-MM
-    const statsDoc = await adminDb
-      .collection("tenants")
-      .doc(tenantId)
-      .collection("stats")
-      .doc("views")
-      .get();
-    
-    const statsData = statsDoc.data();
-    const monthlyViews = statsData?.monthly?.[monthKey] || 0;
+  let config: ExhibitConfig;
+  try {
+    config = parseExhibitConfig(configInput);
+  } catch {
+    return null;
+  }
 
-    // 3. Limit pruefen
-    if (isViewLimitReached(plan, monthlyViews)) {
-      console.warn(`View limit reached for tenant "${tenantId}". Plan: ${plan}, Views: ${monthlyViews}`);
-      return <PaywallOverlay />;
-    }
+  const ambientIntensity = sanitizeAmbientIntensity(data.ambientIntensity);
+  const tenantSnapshot = await adminDb.collection("tenants").doc(tenantId).get();
+  const tenantPlan = normalizeTenantPlan(tenantSnapshot.data()?.plan);
+  const branding = compactEmbedBranding(
+    applyPlanLimitsToBranding(normalizeEmbedBranding(data.branding), tenantPlan),
+  );
 
-  } catch (error) {
-    console.error("Error loading exhibition from Firestore:", error);
+  return {
+    config,
+    branding,
+    ambientIntensity,
+    tenantId,
+    tenantPlan,
+  };
+}
+
+/**
+ * Embed route: loads exhibition config from Firestore.
+ * Public route, but only published exhibitions are rendered.
+ * Enforces view limits per tenant plan.
+ */
+export default async function EmbedPage({ params }: EmbedPageProps) {
+  const { id } = await params;
+  const embedData = await loadEmbedData(id);
+
+  if (!embedData) {
     return notFound();
   }
 
-  return <EmbedViewer config={config} ambientIntensity={ambientIntensity} enableChat />;
-}
+  // ─── View Limit Enforcement ──────────────────────────────────
+  const adminDb = getAdminDb();
+  const monthKey = new Date().toISOString().substring(0, 7);
+  const statsDoc = await adminDb
+    .collection("tenants")
+    .doc(embedData.tenantId)
+    .collection("stats")
+    .doc("views")
+    .get();
 
+  const statsData = statsDoc.data();
+  const monthlyViews = statsData?.monthly?.[monthKey] || 0;
+
+  if (isViewLimitReached(embedData.tenantPlan as Parameters<typeof isViewLimitReached>[0], monthlyViews)) {
+    return <PaywallOverlay />;
+  }
+
+  return (
+    <EmbedViewer
+      config={embedData.config}
+      branding={embedData.branding}
+      ambientIntensity={embedData.ambientIntensity}
+      enableChat
+    />
+  );
+}

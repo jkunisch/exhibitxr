@@ -19,6 +19,10 @@ interface ModelViewerProps {
     activeVariantId?: string;
     /** Callback when a hotspot is clicked. */
     onHotspotClick?: (hotspotId: string) => void;
+    /** Accent color for hotspot glow and labels. */
+    hotspotColor?: string;
+    /** Font family for hotspot labels. */
+    hotspotFontFamily?: string;
     /** Enable editor interactions (selection highlight, PivotControls). */
     isEditor?: boolean;
     /** Whether this model is currently selected in editor mode. */
@@ -45,6 +49,8 @@ export default function ModelViewer({
     config,
     activeVariantId,
     onHotspotClick,
+    hotspotColor = "#00aaff",
+    hotspotFontFamily = "system-ui, sans-serif",
     isEditor = false,
     isSelected = false,
     onSelect,
@@ -163,6 +169,8 @@ export default function ModelViewer({
                     key={hotspot.id}
                     hotspot={hotspot}
                     onSelect={onHotspotClick ?? (() => { })}
+                    color={hotspotColor}
+                    fontFamily={hotspotFontFamily}
                 />
             ))}
         </group>
