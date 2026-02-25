@@ -13,6 +13,7 @@ import {
     useFirestoreExhibit,
     type EditorConfigUpdate,
 } from "@/hooks/useFirestoreExhibit";
+import { isWallProduct } from "@/lib/viewerOrbit";
 
 type SidebarTab = "settings" | "generate" | "concierge";
 
@@ -157,6 +158,8 @@ export default function EditorShell({
         );
     }
 
+    const restrictOrbitToHalfTurn = isWallProduct(config);
+
     return (
         <div className="flex h-[calc(100dvh-10rem)] min-h-[560px] flex-col gap-3">
             <header className="rounded-2xl border border-white/15 bg-white/8 px-4 py-3 backdrop-blur-xl sm:px-5">
@@ -195,6 +198,7 @@ export default function EditorShell({
                             cameraPosition={config.cameraPosition}
                             className="h-full w-full"
                             disableBounds={selectedModelId !== null}
+                            restrictOrbitToHalfTurn={restrictOrbitToHalfTurn}
                         >
                             <ModelViewer
                                 config={config.model}

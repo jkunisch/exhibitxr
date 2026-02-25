@@ -7,6 +7,7 @@ import ChatWidget from "@/components/ui/ChatWidget";
 import type { ExhibitConfig } from "@/types/schema";
 import { DEFAULT_AMBIENT_INTENSITY } from "@/lib/lighting";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { isWallProduct } from "@/lib/viewerOrbit";
 
 interface EmbedViewerProps {
     config: ExhibitConfig;
@@ -23,6 +24,7 @@ export default function EmbedViewer({
     ambientIntensity = DEFAULT_AMBIENT_INTENSITY,
     enableChat,
 }: EmbedViewerProps) {
+    const restrictOrbitToHalfTurn = isWallProduct(config);
     const { trackHotspotClick, trackVariantChange, trackChatMessage } = useAnalytics(
         config.id,
         config.tenantId
@@ -65,6 +67,7 @@ export default function EmbedViewer({
                 bgColor={config.bgColor}
                 ambientIntensity={ambientIntensity}
                 cameraPosition={config.cameraPosition}
+                restrictOrbitToHalfTurn={restrictOrbitToHalfTurn}
             >
                 <ModelViewer
                     config={config.model}

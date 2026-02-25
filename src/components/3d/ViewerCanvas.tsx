@@ -30,6 +30,8 @@ interface ViewerCanvasProps {
     className?: string;
     /** Disable Bounds auto-fit (e.g. when using PivotControls in editor). */
     disableBounds?: boolean;
+    /** Restrict horizontal orbit rotation to 180° (front-only view). */
+    restrictOrbitToHalfTurn?: boolean;
 }
 
 /**
@@ -37,7 +39,7 @@ interface ViewerCanvasProps {
  *
  * Features:
  * - ACESFilmic tone-mapping for cinematic color grading
- * - OrbitControls with full 360° rotation and zoom
+ * - OrbitControls with zoom and optional 180° horizontal limit
  * - HDRI Environment with soft blur for natural PBR reflections
  * - Shadow-casting directional light with 2048² shadow-map
  * - HemisphereLight to prevent dark undersides
@@ -55,6 +57,7 @@ export default function ViewerCanvas({
     cameraPosition = [0, 1.5, 4],
     className,
     disableBounds = false,
+    restrictOrbitToHalfTurn = false,
 }: ViewerCanvasProps) {
     const [dpr, setDpr] = useState<number | [number, number]>([1, 2]);
     const [degraded, setDegraded] = useState(false);
@@ -166,12 +169,14 @@ export default function ViewerCanvas({
                 {/* ── Preload all assets eagerly ───────────────────────── */}
                 <Preload all />
 
-                {/* ── OrbitControls: full 360° rotation ─────────────────── */}
+                {/* ── OrbitControls: optional 180° horizontal limit ─────── */}
                 <OrbitControls
                     makeDefault
                     enablePan={false}
                     enableDamping
                     dampingFactor={0.08}
+                    minAzimuthAngle={restrictOrbitToHalfTurn ? -Math.PI / 2 : -Infinity}
+                    maxAzimuthAngle={restrictOrbitToHalfTurn ? Math.PI / 2 : Infinity}
                     minPolarAngle={0}
                     maxPolarAngle={Math.PI}
                     minDistance={0.5}
