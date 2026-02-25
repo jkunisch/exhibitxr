@@ -7,7 +7,8 @@ import { type GenerateResult, pollTaskStatus as pollMeshy, type PollResult, subm
 import { submitImageToTripo, pollTripoTaskStatus } from "@/lib/tripo";
 import { optimizeGlb } from "@/lib/glbOptimizer";
 import { getSessionUser } from "@/lib/session";
-import { deductCredits, getGenerationCost, getCreditBalance } from "@/lib/credits";
+import { deductCredits, getGenerationCost, getCreditBalance, isAdminEmail, refundCredits } from "@/lib/credits";
+import { notifyModelGeneration } from "@/lib/telegram";
 
 export type Provider = "basic" | "premium";
 
@@ -65,28 +66,51 @@ export async function submitImage(formData: FormData): Promise<GenerateResult> {
       throw new Error("Nicht angemeldet. Bitte zuerst einloggen.");
     }
 
-    const cost = getGenerationCost(provider);
-    const balance = await getCreditBalance(sessionUser.tenantId);
-    if (balance.credits < cost) {
-      throw new Error(
-        `Nicht genügend Credits (${balance.credits}/${cost}). ` +
-        `Bitte upgraden oder Credits zukaufen.`
-      );
+    const adminBypass = isAdminEmail(sessionUser.email);
+
+    if (!adminBypass) {
+      const cost = getGenerationCost(provider);
+      const balance = await getCreditBalance(sessionUser.tenantId);
+      if (balance.credits < cost) {
+        throw new Error(
+          `Nicht genügend Credits (${balance.credits}/${cost}). ` +
+          `Bitte upgraden oder Credits zukaufen.`
+        );
+      }
     }
 
     // ── Submit to provider ──────────────────────────────────────────────
     const imageBuffer = Buffer.from(await rawImage.arrayBuffer());
     const filename = rawImage.name.trim().length > 0 ? rawImage.name : "upload-image";
 
-    let result: GenerateResult;
-    if (provider === "basic") {
-      result = await submitImageToTripo(imageBuffer, filename);
-    } else {
-      result = await submitMeshy(imageBuffer, filename);
+    // Deduct credits before API call (will refund on failure)
+    if (!adminBypass) {
+      await deductCredits(sessionUser.tenantId, provider);
     }
 
-    // ── Deduct credits on successful submission ─────────────────────────
-    await deductCredits(sessionUser.tenantId, provider);
+    let result: GenerateResult;
+    try {
+      if (provider === "basic") {
+        result = await submitImageToTripo(imageBuffer, filename);
+      } else {
+        result = await submitMeshy(imageBuffer, filename);
+      }
+    } catch (apiError) {
+      // API call failed — refund the credit
+      if (!adminBypass) {
+        await refundCredits(
+          sessionUser.tenantId,
+          provider,
+          `API submission failed: ${toErrorMessage(apiError)}`
+        );
+      }
+      throw apiError;
+    }
+
+    // ── Telegram notification (non-admin only, fire-and-forget) ──────
+    if (!adminBypass) {
+      notifyModelGeneration({ email: sessionUser.email, provider }).catch(() => { });
+    }
 
     return result;
   } catch (error: unknown) {
