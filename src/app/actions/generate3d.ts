@@ -160,7 +160,7 @@ export async function submitImage(formData: FormData): Promise<GenerateResult> {
   }
 }
 
-export async function checkStatus(taskId: string, provider: Provider = "premium"): Promise<PollResult> {
+export async function checkStatus(taskId: string, provider: Provider = "basic"): Promise<PollResult> {
   try {
     const normalizedTaskId = ensureNonEmptyValue(taskId, "taskId");
     if (provider === "basic") {
@@ -176,7 +176,7 @@ export async function finalizeModel(
   taskId: string,
   tenantId: string,
   exhibitId: string,
-  provider: Provider = "premium",
+  provider: Provider = "basic",
 ): Promise<{ glbUrl: string; usdzUrl?: string }> {
   try {
     const normalizedTaskId = ensureNonEmptyValue(taskId, "taskId");

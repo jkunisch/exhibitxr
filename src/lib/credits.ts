@@ -31,8 +31,8 @@ const PLAN_MONTHLY_CREDITS: Record<PlanTier, number> = {
 
 /** Credit cost per generation by provider. */
 const GENERATION_COST: Record<string, number> = {
-    basic: 1,    // Tripo
-    premium: 1,  // Meshy — TODO: set to 2 once credit purchase UI exists
+    basic: 1,    // Tripo — fast, ~30s
+    premium: 2,  // Meshy — high quality, 3-5 min
 };
 
 // ─── Rate Limiting (anonymous) ──────────────────────────────────────────────

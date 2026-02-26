@@ -15,6 +15,7 @@ import { checkStatus, finalizeModel, submitImage, type Provider } from "@/app/ac
 
 type Step =
     | "idle"
+    | "cropping"
     | "uploading"
     | "removing-bg"
     | "generating"
@@ -140,11 +141,19 @@ export function ModelGeneratorPanel({
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isDragActive, setIsDragActive] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [provider, setProvider] = useState<Provider>("premium");
+    const [provider, setProvider] = useState<Provider>("basic");
+
+    // ── Cropping States ──────────────────────────────────────────────────
+    const [cropPosition, setCropPosition] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [isDragging, setIsDragging] = useState(false);
+    const dragStart = useRef({ x: 0, y: 0 });
+    const cropContainerRef = useRef<HTMLDivElement>(null);
+    const imageRef = useRef<HTMLImageElement>(null);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const taskIdRef = useRef<string | null>(null);
-    const providerRef = useRef<Provider>("premium");
+    const providerRef = useRef<Provider>("basic");
 
     // ── File selection ──────────────────────────────────────────────────────
 
@@ -157,9 +166,11 @@ export function ModelGeneratorPanel({
         }
 
         setErrorMessage(null);
-        setStep("idle");
         setSelectedFile(file);
         setPreviewUrl(URL.createObjectURL(file));
+        setStep("cropping");
+        setZoom(1);
+        setCropPosition({ x: 0, y: 0 });
     }, []);
 
     const handleInputChange = useCallback(
@@ -197,6 +208,85 @@ export function ModelGeneratorPanel({
     const openFilePicker = useCallback(() => {
         fileInputRef.current?.click();
     }, []);
+
+    // ── Cropping Handlers ──────────────────────────────────────────────────
+
+    const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+        setIsDragging(true);
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+        dragStart.current = { x: clientX - cropPosition.x, y: clientY - cropPosition.y };
+    };
+
+    const handleMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
+        if (!isDragging) return;
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+        setCropPosition({
+            x: clientX - dragStart.current.x,
+            y: clientY - dragStart.current.y
+        });
+    }, [isDragging]);
+
+    const handleMouseUp = useCallback(() => {
+        setIsDragging(false);
+    }, []);
+
+    useEffect(() => {
+        if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+            window.addEventListener('touchmove', handleMouseMove);
+            window.addEventListener('touchend', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchmove', handleMouseMove);
+            window.removeEventListener('touchend', handleMouseUp);
+        };
+    }, [isDragging, handleMouseMove, handleMouseUp]);
+
+    const confirmCrop = async () => {
+        if (!imageRef.current || !cropContainerRef.current || !selectedFile) return;
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const size = 1024;
+        canvas.width = size;
+        canvas.height = size;
+
+        const img = imageRef.current;
+        const container = cropContainerRef.current;
+        const rect = container.getBoundingClientRect();
+
+        // Calculate how the image is rendered relative to the 1024x1024 output
+        const scale = size / rect.width;
+        
+        ctx.fillStyle = "#000000"; // Background black for transparent PNGs
+        ctx.fillRect(0, 0, size, size);
+
+        // Draw the image with current transform
+        const drawX = cropPosition.x * scale;
+        const drawY = cropPosition.y * scale;
+        const drawW = img.clientWidth * zoom * scale;
+        const drawH = img.clientHeight * zoom * scale;
+
+        ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+        canvas.toBlob(async (blob) => {
+            if (!blob) return;
+            const croppedFile = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+            setSelectedFile(croppedFile);
+            setPreviewUrl(URL.createObjectURL(croppedFile));
+            setStep("uploading");
+            
+            // Start generation immediately after crop
+            await startGeneration(croppedFile);
+        }, "image/jpeg", 0.9);
+    };
 
     // ── Cleanup preview URL ────────────────────────────────────────────────
 
@@ -275,18 +365,16 @@ export function ModelGeneratorPanel({
 
     // ── Generate action ────────────────────────────────────────────────────
 
-    const handleGenerate = useCallback(async () => {
-        if (!selectedFile) return;
-
+    const startGeneration = async (fileToUse: File) => {
         setStep("uploading");
         setProgress(0);
         setErrorMessage(null);
 
         try {
             const formData = new FormData();
-            formData.set("image", selectedFile);
+            formData.set("image", fileToUse);
             formData.set("provider", provider);
-            formData.set("exhibitId", exhibitId); // Neu: ID mitgeben
+            formData.set("exhibitId", exhibitId);
             providerRef.current = provider;
 
             const result = await submitImage(formData);
@@ -294,13 +382,15 @@ export function ModelGeneratorPanel({
             setStep("generating");
             setProgress(5);
         } catch (submitError: unknown) {
-            const msg =
-                submitError instanceof Error
-                    ? submitError.message
-                    : "Upload fehlgeschlagen.";
+            const msg = submitError instanceof Error ? submitError.message : "Upload fehlgeschlagen.";
             setErrorMessage(msg);
             setStep("error");
         }
+    };
+
+    const handleGenerate = useCallback(async () => {
+        if (!selectedFile) return;
+        await startGeneration(selectedFile);
     }, [selectedFile, provider]);
 
     // ── Render: pipeline step list ─────────────────────────────────────────
@@ -398,9 +488,73 @@ export function ModelGeneratorPanel({
                         }`}
                 >
                     <p className="text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-1">Pro <Sparkles size={10} /></p>
-                    <p className="text-[9px] font-medium opacity-60">5 Credits</p>
+                    <p className="text-[9px] font-medium opacity-60">2 Credits</p>
                 </button>
             </div>
+
+            {/* ── CROPPING: Interactive Adjustment ────────────────────────── */}
+            {step === "cropping" && previewUrl && (
+                <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-300">
+                    <p className="text-xs font-bold text-zinc-400 uppercase tracking-[0.2em] mb-6">Ausschnitt anpassen</p>
+                    
+                    <div 
+                        ref={cropContainerRef}
+                        className="relative aspect-square w-full max-w-[280px] rounded-[2.5rem] bg-black border-2 border-[#00aaff]/30 overflow-hidden cursor-move touch-none"
+                        onMouseDown={handleMouseDown}
+                        onTouchStart={handleMouseDown}
+                    >
+                        <img
+                            ref={imageRef}
+                            src={previewUrl}
+                            alt="Crop target"
+                            draggable={false}
+                            className="absolute pointer-events-none origin-top-left"
+                            style={{
+                                transform: `translate(${cropPosition.x}px, ${cropPosition.y}px) scale(${zoom})`,
+                                width: '100%',
+                                height: 'auto'
+                            }}
+                        />
+                        {/* Overlay: Guide Circle */}
+                        <div className="absolute inset-0 border-[40px] border-black/40 pointer-events-none" />
+                        <div className="absolute inset-0 border border-white/20 rounded-full pointer-events-none opacity-50" />
+                    </div>
+
+                    {/* Zoom Slider */}
+                    <div className="mt-8 w-full max-w-[240px] space-y-3">
+                        <div className="flex justify-between items-center px-1">
+                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Zoom</span>
+                            <span className="text-[10px] font-black text-[#00aaff]">{Math.round(zoom * 100)}%</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="1"
+                            max="3"
+                            step="0.01"
+                            value={zoom}
+                            onChange={(e) => setZoom(parseFloat(e.target.value))}
+                            className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#00aaff]"
+                        />
+                    </div>
+
+                    <div className="mt-10 flex gap-3 w-full max-w-[280px]">
+                        <button
+                            type="button"
+                            onClick={reset}
+                            className="flex-1 rounded-2xl py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500 border border-white/5 hover:bg-white/5 transition-all"
+                        >
+                            Abbrechen
+                        </button>
+                        <button
+                            type="button"
+                            onClick={confirmCrop}
+                            className="flex-[2] rounded-2xl bg-[#00aaff] py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-[0_0_30px_rgba(0,170,255,0.3)] hover:scale-[1.02] active:scale-95 transition-all"
+                        >
+                            Snap starten
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* ── IDLE: Drop zone ────────────────────────────────────────────── */}
             {step === "idle" && (
@@ -470,7 +624,7 @@ export function ModelGeneratorPanel({
                             3D Snap starten
                         </span>
                     </button>
-                    
+
                     <p className="mt-4 text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
                         PNG, JPEG oder WebP · max. 10 MB
                     </p>
