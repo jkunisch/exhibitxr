@@ -9,6 +9,7 @@ import {
     PerformanceMonitor,
     Bounds,
     Preload,
+    Backdrop,
 } from "@react-three/drei";
 import { type ReactNode } from "react";
 import * as THREE from "three";
@@ -221,22 +222,27 @@ export default function ViewerCanvas({
 
                 {/* ── Scene Staging (Pedestals & Backdrops) ────────────── */}
                 {stageType === "pedestal-marble" && (
-                    <mesh receiveShadow position={[0, -1.50, 0]}>
+                    <mesh receiveShadow position={[0, -0.05, 0]}>
                         <cylinderGeometry args={[1.5, 1.5, 0.1, 64]} />
                         <meshStandardMaterial color="#f8f9fa" roughness={0.1} metalness={0.2} />
                     </mesh>
                 )}
                 {stageType === "pedestal-wood" && (
-                    <mesh receiveShadow position={[0, -1.50, 0]}>
+                    <mesh receiveShadow position={[0, -0.05, 0]}>
                         <cylinderGeometry args={[1.5, 1.5, 0.1, 64]} />
                         <meshStandardMaterial color="#3e2723" roughness={0.7} metalness={0.0} />
                     </mesh>
                 )}
                 {stageType === "backdrop-curved" && (
-                    <mesh receiveShadow position={[0, 0, -2]} rotation={[0, 0, 0]}>
-                        <cylinderGeometry args={[4, 4, 6, 64, 1, true, Math.PI + 0.5, Math.PI - 1]} />
-                        <meshStandardMaterial color="#ffffff" side={THREE.DoubleSide} roughness={0.9} />
-                    </mesh>
+                    <Backdrop
+                        receiveShadow
+                        floor={2} // amount of floor
+                        segments={20} // number of segments
+                        position={[0, 0, -3]}
+                        scale={[15, 10, 5]}
+                    >
+                        <meshStandardMaterial color="#f0f0f0" roughness={1} />
+                    </Backdrop>
                 )}
 
                 {/* ── Ground Contact Shadows (Apple / Spline style) ──────
@@ -244,7 +250,7 @@ export default function ViewerCanvas({
                      to cut render passes and GPU fill rate. */}
                 {contactShadows && !degraded && (
                     <ContactShadows
-                        position={[0, -1.5, 0]}
+                        position={[0, 0, 0]}
                         opacity={0.4}
                         scale={contactShadowScale}
                         blur={contactShadowBlur}
@@ -257,7 +263,7 @@ export default function ViewerCanvas({
                 <mesh
                     receiveShadow
                     rotation={[-Math.PI / 2, 0, 0]}
-                    position={[0, -1.5, 0]}
+                    position={[0, 0, 0]}
                 >
                     <planeGeometry args={[50, 50]} />
                     <shadowMaterial transparent opacity={0.1} />
