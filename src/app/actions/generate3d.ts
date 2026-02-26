@@ -6,7 +6,6 @@ import * as firebaseAdmin from "@/lib/firebaseAdmin";
 import { type GenerateResult, pollTaskStatus as pollMeshy, type PollResult, submitImageTo3D as submitMeshy } from "@/lib/meshy";
 import { submitImageToTripo, pollTripoTaskStatus } from "@/lib/tripo";
 import { optimizeGlb } from "@/lib/glbOptimizer";
-import { convertGlbToUsdz } from "@/lib/usdzConverter";
 import { getSessionUser } from "@/lib/session";
 import { deductCredits, getGenerationCost, getCreditBalance, isAdminEmail, refundCredits } from "@/lib/credits";
 import { notifyModelGeneration } from "@/lib/telegram";
@@ -207,12 +206,15 @@ export async function finalizeModel(
     const glbBuffer = await optimizeGlb(rawBuffer);
 
     // ── USDZ Conversion (for Apple AR Quick Look) ────────────────────
+    // TEMP FIX: Disabled on server side to prevent Three.js crash in Node.js
     let usdzBuffer: Buffer | null = null;
+    /* 
     try {
       usdzBuffer = await convertGlbToUsdz(glbBuffer);
     } catch (usdzError) {
       console.warn("[generate3d] USDZ conversion failed, proceeding with GLB only:", usdzError);
     }
+    */
 
     const timestamp = Date.now();
     const storage = getAdminStorage();

@@ -6,7 +6,11 @@ import { Camera, ExternalLink, Settings, SlidersHorizontal, Sparkles, X, Downloa
 import ViewerCanvas from "@/components/3d/ViewerCanvas";
 import ModelViewer from "@/components/3d/ModelViewer";
 import EditorForm from "@/components/editor/EditorForm";
-import { ModelGeneratorPanel } from "@/components/ui/ModelGeneratorPanel";
+import dynamic from "next/dynamic";
+const ModelGeneratorPanel = dynamic(
+    () => import("@/components/ui/ModelGeneratorPanel").then((mod) => mod.ModelGeneratorPanel),
+    { ssr: false, loading: () => <div className="p-8 text-center text-zinc-500">Studio wird geladen...</div> }
+);
 import { ConciergePanel } from "@/components/ui/ConciergePanel";
 import { useEditorStore, type SaveStatus } from "@/store/editorStore";
 import {
