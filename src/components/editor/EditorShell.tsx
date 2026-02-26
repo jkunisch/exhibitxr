@@ -159,9 +159,9 @@ export default function EditorShell({
     );
 
     const handleModelGenerated = useCallback(
-        (glbUrl: string) => {
+        (glbUrl: string, usdzUrl?: string) => {
             if (!config) return;
-            const updatedModel = { ...config.model, glbUrl };
+            const updatedModel = { ...config.model, glbUrl, usdzUrl };
             handleConfigChange({ model: updatedModel });
             // Switch to settings tab so user sees the updated model
             setSidebarTab("settings");

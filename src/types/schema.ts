@@ -54,6 +54,10 @@ export const ExhibitModelSchema = z.object({
   label: z.string(),
   /** URL zur GLB-Datei (Storage-URL oder CDN). */
   glbUrl: z.string().url(),
+  /** URL zur USDZ-Datei für Apple AR Quick Look. */
+  usdzUrl: z.string().url().optional(),
+  /** URL zu einem Vorschaubild (Thumbnail). */
+  thumbnailUrl: z.string().url().optional(),
   /** Skalierung (uniform). Standard: 1. */
   scale: z.number().positive().default(1),
   /** Position Offset [x, y, z]. */

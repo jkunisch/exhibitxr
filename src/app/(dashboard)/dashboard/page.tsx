@@ -26,6 +26,8 @@ type ExhibitionListItem = {
   title: string;
   isPublished: boolean;
   updatedAtLabel: string;
+  thumbnailUrl?: string;
+  hasAR: boolean;
 };
 
 function formatDate(value: unknown): string {
@@ -69,12 +71,19 @@ async function listTenantExhibitions(tenantId: string): Promise<ExhibitionListIt
           ? data.updatedAt.toDate().getTime()
           : 0;
 
+      // Extrahiere Model-Daten für Visuals
+      const model = data.model || {};
+      const thumbnailUrl = typeof model.thumbnailUrl === "string" ? model.thumbnailUrl : undefined;
+      const hasAR = typeof model.usdzUrl === "string" && model.usdzUrl.length > 0;
+
       return {
         id: document.id,
         title,
         isPublished: data.isPublished === true,
         updatedAtLabel: formatDate(data.updatedAt),
         updatedAt,
+        thumbnailUrl,
+        hasAR,
       };
     })
     .sort((left, right) => right.updatedAt - left.updatedAt);
@@ -84,6 +93,8 @@ async function listTenantExhibitions(tenantId: string): Promise<ExhibitionListIt
     title: item.title,
     isPublished: item.isPublished,
     updatedAtLabel: item.updatedAtLabel,
+    thumbnailUrl: item.thumbnailUrl,
+    hasAR: item.hasAR,
   }));
 }
 
@@ -165,43 +176,62 @@ export default async function DashboardPage() {
               <Link href="/dashboard/exhibitions/new" className="mt-4 text-xs font-bold text-white underline">Jetzt die erste erstellen</Link>
             </StudioCard>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {exhibitions.map((item, idx) => (
-                <StudioCard key={item.id} delay={idx * 0.05} className="group p-0 overflow-hidden">
-                  <div className="relative flex items-center p-6 gap-6">
-                    <Link href={`/dashboard/editor/${item.id}`} className="absolute inset-0 z-0" aria-label={item.title} />
-                    <div className="w-20 h-20 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center group-hover:bg-white/5 transition-colors shrink-0">
-                      <Box size={24} className="text-zinc-700 group-hover:text-zinc-300 transition-colors" />
-                    </div>
+                <StudioCard key={item.id} delay={idx * 0.05} className="group p-0 overflow-hidden flex flex-col h-full">
+                  <div className="relative aspect-video bg-black/40 flex items-center justify-center border-b border-white/5 overflow-hidden">
+                    <Link href={`/dashboard/editor/${item.id}`} className="absolute inset-0 z-10" aria-label={item.title} />
+                    
+                    {item.thumbnailUrl ? (
+                      <img 
+                        src={item.thumbnailUrl} 
+                        alt={item.title} 
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                      />
+                    ) : (
+                      <Box size={48} className="text-zinc-800 group-hover:text-zinc-600 transition-colors" />
+                    )}
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-1">
-                        <h4 className="text-xl font-bold text-white truncate">{item.title}</h4>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest ${item.isPublished
-                          ? 'bg-green-500/10 text-green-500 border border-green-500/20'
-                          : 'bg-zinc-800 text-zinc-500 border border-zinc-700'
-                          }`}>
-                          {item.isPublished ? 'Live' : 'Draft'}
+                    <div className="absolute top-4 left-4 z-20 flex gap-2">
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest backdrop-blur-md ${item.isPublished
+                        ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                        : 'bg-zinc-900/60 text-zinc-500 border border-white/10'
+                        }`}>
+                        {item.isPublished ? 'Live' : 'Draft'}
+                      </span>
+                      {item.hasAR && (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-[#00aaff]/20 text-[#00aaff] border border-[#00aaff]/30 backdrop-blur-md">
+                          AR Ready
                         </span>
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-zinc-500 font-medium">
-                        <span className="flex items-center gap-1.5"><Clock size={12} /> {item.updatedAtLabel}</span>
-                        <span className="hidden sm:inline text-zinc-700">ID: {item.id}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div>
+                        <h4 className="text-lg font-bold text-white leading-tight group-hover:text-[#00aaff] transition-colors">{item.title}</h4>
+                        <p className="text-[10px] text-zinc-500 font-medium mt-1 flex items-center gap-1.5 uppercase tracking-wider">
+                          <Clock size={10} /> {item.updatedAtLabel}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="relative z-10 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity pr-2">
+                    <div className="flex items-center gap-2 mt-auto">
+                      <Link
+                        href={`/dashboard/editor/${item.id}`}
+                        className="flex-1 py-2 rounded-lg bg-white/5 border border-white/10 text-center text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-colors"
+                      >
+                        Editor
+                      </Link>
                       <Link
                         href={`/dashboard/exhibitions/${item.id}`}
-                        className="p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                        className="p-2 rounded-lg bg-white/5 border border-white/10 text-zinc-500 hover:text-white transition-colors"
                         title="Einstellungen"
                       >
-                        <Settings size={16} />
+                        <Settings size={14} />
                       </Link>
                       <InlineDeleteButton exhibitionId={item.id} tenantId={sessionUser.tenantId} />
-                      <div className="p-3 rounded-full bg-white text-black transition-transform hover:scale-110">
-                        <ExternalLink size={16} />
-                      </div>
                     </div>
                   </div>
                 </StudioCard>

@@ -2,7 +2,7 @@
 
 import React, { useState, Suspense, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { Share2, Maximize2 } from 'lucide-react';
+import { Share2, Maximize2, Box } from 'lucide-react';
 import ViewerCanvas from './ViewerCanvas';
 
 // Wir laden den schweren ModelViewer nur client-seitig und bei Bedarf
@@ -13,6 +13,7 @@ const ModelViewer = dynamic(() => import('./ModelViewer'), {
 
 interface EmbedViewerProps {
   modelUrl: string;
+  usdzUrl?: string;
   posterUrl?: string;
   title?: string;
   exhibitionId?: string;
@@ -23,6 +24,7 @@ interface EmbedViewerProps {
 
 export default function EmbedViewer({
   modelUrl,
+  usdzUrl,
   posterUrl,
   title,
   exhibitionId,
@@ -32,6 +34,25 @@ export default function EmbedViewer({
 }: EmbedViewerProps) {
   const [isInteracted, setIsInteracted] = useState(false);
   const [showShare, setShowShare] = useState(false);
+
+  // ── AR Logic ────────────────────────────────────────────────────────────
+  const handleAR = () => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    
+    if (isIOS && usdzUrl) {
+      // Apple Quick Look
+      const anchor = document.createElement('a');
+      anchor.setAttribute('rel', 'ar');
+      anchor.setAttribute('href', usdzUrl);
+      const img = document.createElement('img');
+      anchor.appendChild(img);
+      anchor.click();
+    } else {
+      // Android Scene Viewer
+      const sceneViewerUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end`;
+      window.location.href = sceneViewerUrl;
+    }
+  };
 
   // Auto-interact if autoRotate is enabled (useful for recording)
   React.useEffect(() => {
@@ -120,6 +141,14 @@ export default function EmbedViewer({
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleAR}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00aaff]/10 border border-[#00aaff]/20 text-[#00aaff] hover:bg-[#00aaff]/20 transition-all text-[10px] font-black uppercase tracking-widest"
+            title="In AR ansehen (iOS/Android)"
+          >
+            <Box size={14} />
+            <span>AR</span>
+          </button>
           <button
             onClick={() => setShowShare(!showShare)}
             className="text-zinc-500 hover:text-white transition-colors"

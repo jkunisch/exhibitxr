@@ -6,6 +6,7 @@ import * as firebaseAdmin from "@/lib/firebaseAdmin";
 import { type GenerateResult, pollTaskStatus as pollMeshy, type PollResult, submitImageTo3D as submitMeshy } from "@/lib/meshy";
 import { submitImageToTripo, pollTripoTaskStatus } from "@/lib/tripo";
 import { optimizeGlb } from "@/lib/glbOptimizer";
+import { convertGlbToUsdz } from "@/lib/usdzConverter";
 import { getSessionUser } from "@/lib/session";
 import { deductCredits, getGenerationCost, getCreditBalance, isAdminEmail, refundCredits } from "@/lib/credits";
 import { notifyModelGeneration } from "@/lib/telegram";
@@ -47,6 +48,7 @@ export async function submitImage(formData: FormData): Promise<GenerateResult> {
   try {
     const rawImage = formData.get("image");
     const provider = (formData.get("provider") as Provider) ?? "premium";
+    const exhibitId = formData.get("exhibitId") as string | null; // Neu: exhibitId extrahieren
 
     if (!(rawImage instanceof File)) {
       throw new Error("Missing image file in form data.");
@@ -79,10 +81,50 @@ export async function submitImage(formData: FormData): Promise<GenerateResult> {
       }
     }
 
-    // ── Submit to provider ──────────────────────────────────────────────
+    // ── Store original image as Thumbnail ───────────────────────────────
+    let thumbnailUrl: string | undefined = undefined;
     const imageBuffer = Buffer.from(await rawImage.arrayBuffer());
     const filename = rawImage.name.trim().length > 0 ? rawImage.name : "upload-image";
 
+    if (exhibitId) {
+      try {
+        const timestamp = Date.now();
+        const storage = getAdminStorage();
+        const bucket = storage.bucket();
+        const thumbToken = crypto.randomUUID();
+        const thumbPath = `tenants/${sessionUser.tenantId}/thumbnails/${timestamp}-${filename}`;
+        const thumbFile = bucket.file(thumbPath);
+
+        await thumbFile.save(imageBuffer, {
+          resumable: false,
+          metadata: {
+            contentType: rawImage.type,
+            metadata: {
+              firebaseStorageDownloadTokens: thumbToken,
+              tenantId: sessionUser.tenantId,
+            },
+          },
+        });
+
+        thumbnailUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/` +
+          `${encodeURIComponent(thumbPath)}?alt=media&token=${thumbToken}`;
+
+        // Update database immediately
+        const adminDb = firebaseAdmin.getAdminDb();
+        await adminDb
+          .collection("tenants")
+          .doc(sessionUser.tenantId)
+          .collection("exhibitions")
+          .doc(exhibitId)
+          .update({
+            "model.thumbnailUrl": thumbnailUrl,
+          });
+      } catch (thumbError) {
+        console.warn("[generate3d] Failed to save thumbnail, proceeding anyway:", thumbError);
+      }
+    }
+
+    // ── Submit to provider ──────────────────────────────────────────────
     // Deduct credits before API call (will refund on failure)
     if (!adminBypass) {
       await deductCredits(sessionUser.tenantId, provider);
@@ -135,7 +177,7 @@ export async function finalizeModel(
   tenantId: string,
   exhibitId: string,
   provider: Provider = "premium",
-): Promise<{ glbUrl: string }> {
+): Promise<{ glbUrl: string; usdzUrl?: string }> {
   try {
     const normalizedTaskId = ensureNonEmptyValue(taskId, "taskId");
     const normalizedTenantId = ensureNonEmptyValue(tenantId, "tenantId");
@@ -164,14 +206,23 @@ export async function finalizeModel(
     // Optimize: dedup, simplify, draco compress (40MB → 2-3MB typically)
     const glbBuffer = await optimizeGlb(rawBuffer);
 
+    // ── USDZ Conversion (for Apple AR Quick Look) ────────────────────
+    let usdzBuffer: Buffer | null = null;
+    try {
+      usdzBuffer = await convertGlbToUsdz(glbBuffer);
+    } catch (usdzError) {
+      console.warn("[generate3d] USDZ conversion failed, proceeding with GLB only:", usdzError);
+    }
+
     const timestamp = Date.now();
-    const storagePath = `tenants/${normalizedTenantId}/models/ai-generated-${timestamp}.glb`;
     const storage = getAdminStorage();
     const bucket = storage.bucket();
-    const storageFile = bucket.file(storagePath);
     const downloadToken = crypto.randomUUID();
 
-    await storageFile.save(glbBuffer, {
+    // 1. Save GLB
+    const glbPath = `tenants/${normalizedTenantId}/models/ai-generated-${timestamp}.glb`;
+    const glbFile = bucket.file(glbPath);
+    await glbFile.save(glbBuffer, {
       resumable: false,
       metadata: {
         contentType: "model/gltf-binary",
@@ -184,10 +235,34 @@ export async function finalizeModel(
       },
     });
 
-    const encodedStoragePath = encodeURIComponent(storagePath);
-    const downloadURL =
+    const encodedGlbPath = encodeURIComponent(glbPath);
+    const glbUrl =
       `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/` +
-      `${encodedStoragePath}?alt=media&token=${downloadToken}`;
+      `${encodedGlbPath}?alt=media&token=${downloadToken}`;
+
+    // 2. Save USDZ (if conversion succeeded)
+    let usdzUrl: string | undefined = undefined;
+    if (usdzBuffer) {
+      const usdzPath = `tenants/${normalizedTenantId}/models/ai-generated-${timestamp}.usdz`;
+      const usdzFile = bucket.file(usdzPath);
+      const usdzToken = crypto.randomUUID();
+
+      await usdzFile.save(usdzBuffer, {
+        resumable: false,
+        metadata: {
+          contentType: "model/vnd.usdz+zip",
+          metadata: {
+            firebaseStorageDownloadTokens: usdzToken,
+            tenantId: normalizedTenantId,
+            isPublished: "false",
+          },
+        },
+      });
+
+      const encodedUsdzPath = encodeURIComponent(usdzPath);
+      usdzUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/` +
+        `${encodedUsdzPath}?alt=media&token=${usdzToken}`;
+    }
 
     const adminDb = firebaseAdmin.getAdminDb();
     await adminDb
@@ -196,10 +271,11 @@ export async function finalizeModel(
       .collection("exhibitions")
       .doc(normalizedExhibitId)
       .update({
-        "model.glbUrl": downloadURL,
+        "model.glbUrl": glbUrl,
+        ...(usdzUrl ? { "model.usdzUrl": usdzUrl } : {}),
       });
 
-    return { glbUrl: downloadURL };
+    return { glbUrl, usdzUrl };
   } catch (error: unknown) {
     throw new Error(`Failed to finalize generated model: ${toErrorMessage(error)}`);
   }

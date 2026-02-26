@@ -8,7 +8,7 @@ import {
     useRef,
     useState,
 } from "react";
-
+import { Camera, Sparkles, AlertCircle } from "lucide-react";
 import { checkStatus, finalizeModel, submitImage, type Provider } from "@/app/actions/generate3d";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -27,7 +27,7 @@ type Step =
 interface ModelGeneratorPanelProps {
     tenantId: string;
     exhibitId: string;
-    onModelGenerated?: (glbUrl: string) => void;
+    onModelGenerated?: (glbUrl: string, usdzUrl?: string) => void;
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -250,7 +250,7 @@ export function ModelGeneratorPanel({
                         const finalResult = await finalizeModel(id, tenantId, exhibitId, providerRef.current);
                         setProgress(100);
                         setStep("done");
-                        onModelGenerated?.(finalResult.glbUrl);
+                        onModelGenerated?.(finalResult.glbUrl, finalResult.usdzUrl);
                     } catch (finalizeError: unknown) {
                         const msg =
                             finalizeError instanceof Error
@@ -286,6 +286,7 @@ export function ModelGeneratorPanel({
             const formData = new FormData();
             formData.set("image", selectedFile);
             formData.set("provider", provider);
+            formData.set("exhibitId", exhibitId); // Neu: ID mitgeben
             providerRef.current = provider;
 
             const result = await submitImage(formData);
@@ -307,38 +308,36 @@ export function ModelGeneratorPanel({
     const activeStepIndex = resolveStepIndex(step, progress);
 
     const renderPipelineSteps = () => (
-        <ol className="mt-4 space-y-3">
+        <ol className="mt-4 space-y-4">
             {PIPELINE_STEPS.map((entry, idx) => {
                 const isComplete = idx < activeStepIndex || step === "done";
                 const isCurrent = idx === activeStepIndex && step !== "done" && step !== "error";
 
                 return (
-                    <li key={`${entry.key}-${entry.range[0]}`} className="flex items-center gap-3">
+                    <li key={`${entry.key}-${entry.range[0]}`} className="flex items-center gap-4 group/step">
                         {/* Step indicator */}
-                        <span
-                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-colors ${isComplete
-                                ? "border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
+                        <div
+                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-black transition-all ${isComplete
+                                ? "border-green-500/50 bg-green-500/10 text-green-400"
                                 : isCurrent
-                                    ? "border-blue-300 bg-blue-50 text-blue-600 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-400"
-                                    : "border-zinc-200 bg-zinc-50 text-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-500"
+                                    ? "border-[#00aaff] bg-[#00aaff]/10 text-[#00aaff] scale-110 shadow-[0_0_15px_rgba(0,170,255,0.2)]"
+                                    : "border-white/5 bg-white/5 text-zinc-600"
                                 }`}
                         >
                             {isComplete ? (
-                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                </svg>
+                                <CheckIcon />
                             ) : (
                                 idx + 1
                             )}
-                        </span>
+                        </div>
 
                         {/* Label */}
                         <span
-                            className={`text-sm transition-colors ${isComplete
-                                ? "text-emerald-700 dark:text-emerald-300"
+                            className={`text-[11px] font-bold uppercase tracking-widest transition-colors ${isComplete
+                                ? "text-zinc-400"
                                 : isCurrent
-                                    ? "font-medium text-zinc-800 dark:text-zinc-100"
-                                    : "text-zinc-400 dark:text-zinc-500"
+                                    ? "text-white"
+                                    : "text-zinc-600"
                                 }`}
                         >
                             {entry.label}
@@ -346,7 +345,7 @@ export function ModelGeneratorPanel({
 
                         {/* Spinner for current step */}
                         {isCurrent && (
-                            <span className="ml-auto h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                            <span className="ml-auto h-3 w-3 animate-spin rounded-full border-[1.5px] border-[#00aaff] border-t-transparent" />
                         )}
                     </li>
                 );
@@ -363,46 +362,49 @@ export function ModelGeneratorPanel({
         step === "optimizing";
 
     return (
-        <section className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <section className="rounded-[2.5rem] border border-white/5 bg-zinc-950/80 backdrop-blur-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            {/* Background Ambient Glow */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#00aaff]/10 blur-3xl rounded-full pointer-events-none" />
+
             {/* ── Header ─────────────────────────────────────────────────────── */}
-            <header className="mb-4">
-                <h2 className="text-base font-semibold tracking-tight text-zinc-800 dark:text-zinc-100">
-                    Bild → 3D-Modell
+            <header className="mb-8 text-center relative z-10">
+                <h2 className="text-2xl font-black tracking-tighter text-white">
+                    Neuer <span className="text-[#00aaff]">Snap</span>
                 </h2>
-                <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    KI-generierte 3D-Modelle
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                    Foto zu 3D-Modell in Sekunden
                 </p>
             </header>
 
             {/* ── Provider Toggle ──────────────────────────────────── */}
-            <div className="mb-4 grid grid-cols-2 gap-2">
+            <div className="mb-8 flex bg-black/50 p-1.5 rounded-2xl border border-white/5 relative z-10">
                 <button
                     type="button"
                     onClick={() => setProvider("basic")}
-                    className={`rounded-lg border px-3 py-2.5 text-left transition ${provider === "basic"
-                        ? "border-cyan-400 bg-cyan-500/10 shadow-[0_0_0_1px_rgba(34,211,238,0.2)]"
-                        : "border-zinc-200 bg-zinc-50 hover:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600"
+                    className={`flex-1 rounded-xl py-2.5 text-center transition-all ${provider === "basic"
+                        ? "bg-white/10 text-white shadow-sm"
+                        : "text-zinc-500 hover:text-zinc-300"
                         }`}
                 >
-                    <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Basic</p>
-                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Tripo · Schnell</p>
+                    <p className="text-[11px] font-black uppercase tracking-widest">Schnell</p>
+                    <p className="text-[9px] font-medium opacity-60">1 Credit</p>
                 </button>
                 <button
                     type="button"
                     onClick={() => setProvider("premium")}
-                    className={`rounded-lg border px-3 py-2.5 text-left transition ${provider === "premium"
-                        ? "border-cyan-400 bg-cyan-500/10 shadow-[0_0_0_1px_rgba(34,211,238,0.2)]"
-                        : "border-zinc-200 bg-zinc-50 hover:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600"
+                    className={`flex-1 rounded-xl py-2.5 text-center transition-all ${provider === "premium"
+                        ? "bg-white text-black shadow-md"
+                        : "text-zinc-500 hover:text-zinc-300"
                         }`}
                 >
-                    <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">Premium ✨</p>
-                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Meshy · Hochwertig</p>
+                    <p className="text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-1">Pro <Sparkles size={10} /></p>
+                    <p className="text-[9px] font-medium opacity-60">5 Credits</p>
                 </button>
             </div>
 
             {/* ── IDLE: Drop zone ────────────────────────────────────────────── */}
             {step === "idle" && (
-                <>
+                <div className="flex flex-col items-center">
                     <div
                         role="button"
                         tabIndex={0}
@@ -413,27 +415,35 @@ export function ModelGeneratorPanel({
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
-                        className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 text-center transition-colors ${isDragActive
-                            ? "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/30"
-                            : "border-zinc-300 bg-zinc-50/50 hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/50 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
+                        className={`relative group flex aspect-square w-full max-w-[240px] cursor-pointer flex-col items-center justify-center rounded-[3rem] border-2 border-dashed transition-all ${isDragActive
+                            ? "border-[#00aaff] bg-[#00aaff]/5"
+                            : "border-white/10 bg-white/[0.02] hover:border-[#00aaff]/50 hover:bg-white/[0.05] transition-all"
                             }`}
                     >
                         {previewUrl ? (
                             <img
                                 src={previewUrl}
-                                alt="Vorschau des ausgewählten Bildes"
-                                className="mb-3 max-h-40 rounded-md object-contain"
+                                alt="Vorschau"
+                                className="h-full w-full rounded-[2.8rem] object-cover"
                             />
                         ) : (
-                            <UploadIcon />
+                            <div className="flex flex-col items-center gap-4 text-center p-6">
+                                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#00aaff] to-[#0066ff] text-white shadow-[0_0_40px_rgba(0,170,255,0.3)] transition-transform group-hover:scale-110">
+                                    <Camera size={32} />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-white">Magic Capture</p>
+                                    <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest mt-1">Foto hochladen</p>
+                                </div>
+                            </div>
                         )}
 
-                        <p className="mt-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                            {previewUrl ? "Anderes Bild auswählen" : "Bild hochladen oder hierher ziehen"}
-                        </p>
-                        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                            PNG, JPEG oder WebP · max. 10 MB
-                        </p>
+                        {/* Hover Overlay for change */}
+                        {previewUrl && (
+                            <div className="absolute inset-0 flex items-center justify-center rounded-[2.8rem] bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-white">Bild ändern</p>
+                            </div>
+                        )}
                     </div>
 
                     <input
@@ -450,87 +460,98 @@ export function ModelGeneratorPanel({
                         type="button"
                         disabled={!selectedFile}
                         onClick={handleGenerate}
-                        className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${selectedFile
-                            ? "bg-zinc-900 text-white hover:bg-zinc-800 active:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-                            : "cursor-not-allowed bg-zinc-200 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
+                        className={`mt-8 w-full max-w-[240px] rounded-2xl py-4 text-xs font-black uppercase tracking-[0.2em] transition-all ${selectedFile
+                            ? "bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-95"
+                            : "cursor-not-allowed bg-white/5 text-zinc-600 border border-white/5"
                             }`}
                     >
-                        3D-Modell generieren
+                        <span className="flex items-center justify-center gap-2">
+                            <Sparkles size={14} />
+                            3D Snap starten
+                        </span>
                     </button>
-                </>
+                    
+                    <p className="mt-4 text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
+                        PNG, JPEG oder WebP · max. 10 MB
+                    </p>
+                </div>
             )}
 
             {/* ── PROCESSING: Progress ───────────────────────────────────────── */}
             {isProcessing && (
-                <div>
-                    {/* Progress bar */}
-                    <div className="relative h-2 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
-                        <div
-                            className="absolute inset-y-0 left-0 rounded-full bg-blue-500 transition-all duration-500 ease-out"
-                            style={{ width: `${progress}%` }}
-                        />
+                <div className="flex flex-col items-center py-6 relative z-10">
+                    {/* Pulsing Loading Orb */}
+                    <div className="relative flex h-24 w-24 items-center justify-center mb-8">
+                        <div className="absolute inset-0 rounded-full border border-[#00aaff]/20 animate-ping" />
+                        <div className="absolute inset-2 rounded-full border border-[#00aaff]/40 animate-pulse" />
+                        <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-[#00aaff] via-blue-500 to-purple-600 animate-spin shadow-[0_0_30px_rgba(0,170,255,0.4)]" style={{ animationDuration: '2s' }} />
+                        <div className="absolute inset-0 bg-black/40 rounded-full backdrop-blur-[2px] flex items-center justify-center">
+                            <span className="text-white font-black text-sm tabular-nums">{progress}%</span>
+                        </div>
                     </div>
 
-                    <p className="mt-2 text-right text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
-                        {progress}%
-                    </p>
-
-                    {/* Step list */}
-                    {renderPipelineSteps()}
+                    {/* Step list (Modernized) */}
+                    <div className="w-full max-w-[240px]">
+                        {renderPipelineSteps()}
+                    </div>
 
                     {/* Cancel hint */}
-                    <p className="mt-5 text-center text-xs text-zinc-400 dark:text-zinc-500">
-                        Die Generierung kann bis zu 5 Minuten dauern.
+                    <p className="mt-10 text-center text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                        KI generiert · In Kürze fertig
                     </p>
                 </div>
             )}
 
             {/* ── DONE ───────────────────────────────────────────────────────── */}
             {step === "done" && (
-                <div className="flex flex-col items-center gap-3 py-6 text-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950">
-                        <CheckIcon />
+                <div className="flex flex-col items-center gap-6 py-10 text-center relative z-10">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 shadow-[0_0_40px_rgba(34,197,94,0.2)]">
+                        <div className="h-8 w-8 text-green-400">
+                            <CheckIcon />
+                        </div>
                     </div>
 
-                    <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                        3D-Modell erfolgreich erstellt!
-                    </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                        Das Modell wurde gespeichert und ist bereit zur Anzeige.
-                    </p>
-
-                    <div className="mt-2 flex gap-2">
-                        <button
-                            type="button"
-                            onClick={reset}
-                            className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                        >
-                            Neues Bild
-                        </button>
+                    <div>
+                        <p className="text-lg font-black tracking-tighter text-white uppercase">
+                            Erfolg!
+                        </p>
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                            Dein 3D-Modell ist bereit
+                        </p>
                     </div>
+
+                    <button
+                        type="button"
+                        onClick={reset}
+                        className="mt-4 w-full max-w-[200px] rounded-xl border border-white/10 bg-white/5 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-white/10"
+                    >
+                        Neues Modell
+                    </button>
                 </div>
             )}
 
             {/* ── ERROR ──────────────────────────────────────────────────────── */}
             {step === "error" && (
-                <div className="flex flex-col items-center gap-3 py-6 text-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 dark:bg-red-950">
-                        <ErrorIcon />
+                <div className="flex flex-col items-center gap-6 py-10 text-center relative z-10">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-rose-500/10 border border-rose-500/20 shadow-[0_0_40px_rgba(244,63,94,0.2)]">
+                        <AlertCircle className="h-10 w-10 text-rose-500" />
                     </div>
 
-                    <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-                        Fehler bei der Generierung
-                    </p>
-                    {errorMessage && (
-                        <p className="max-w-xs text-xs text-red-600 dark:text-red-400">
-                            {errorMessage}
+                    <div>
+                        <p className="text-lg font-black tracking-tighter text-white uppercase">
+                            Fehler
                         </p>
-                    )}
+                        {errorMessage && (
+                            <p className="max-w-xs text-[10px] font-bold text-rose-400/80 uppercase tracking-widest mt-2 px-4 leading-relaxed">
+                                {errorMessage}
+                            </p>
+                        )}
+                    </div>
 
                     <button
                         type="button"
                         onClick={reset}
-                        className="mt-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                        className="mt-4 w-full max-w-[200px] rounded-xl bg-white py-3 text-[10px] font-black uppercase tracking-widest text-black transition-all hover:scale-105 active:scale-95"
                     >
                         Erneut versuchen
                     </button>
