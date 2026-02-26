@@ -12,7 +12,16 @@ async function generateTikTokVideo(modelUrl: string, outputDir: string = './outp
 
   console.log(`🚀 Starting TikTok video generation for model: ${modelUrl}`);
   
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ 
+    headless: true,
+    args: [
+      '--disable-web-security',
+      '--use-gl=angle',
+      '--use-angle=gl',
+      '--disable-gpu-sandbox',
+      '--hide-scrollbars'
+    ]
+  });
   const context = await browser.newContext({
     viewport: { width: 1080, height: 1920 }, // TikTok vertical format
     deviceScaleFactor: 2, // High DPI for better quality
@@ -24,8 +33,9 @@ async function generateTikTokVideo(modelUrl: string, outputDir: string = './outp
 
   const page = await context.newPage();
   
-  // Use a local dev server (defaulting to 3000)
-  const recordingUrl = `http://localhost:3000/record-tiktok?modelUrl=${encodeURIComponent(modelUrl)}`;
+  // Use production URL
+  const baseUrl = 'https://www.3d-snap.com';
+  const recordingUrl = `${baseUrl}/record-tiktok?modelUrl=${encodeURIComponent(modelUrl)}`;
   
   console.log(`🔗 Navigating to recording page: ${recordingUrl}`);
   
@@ -35,6 +45,14 @@ async function generateTikTokVideo(modelUrl: string, outputDir: string = './outp
     // Wait for the model to load (canvas should be present)
     await page.waitForSelector('canvas', { timeout: 30000 });
     
+    // Give it 2 seconds to definitely render
+    await page.waitForTimeout(2000);
+    
+    // TAKE DEBUG SCREENSHOT
+    const screenshotPath = `${outputPath}_debug.png`;
+    await page.screenshot({ path: screenshotPath });
+    console.log(`📸 Debug screenshot saved: ${screenshotPath}`);
+
     console.log("🎥 Recording 360° spin (10 seconds)...");
     
     // Record for 10 seconds
@@ -52,9 +70,6 @@ async function generateTikTokVideo(modelUrl: string, outputDir: string = './outp
     }
   } catch (error: any) {
     console.error(`❌ Error during recording: ${error.message}`);
-    if (error.message.includes('ECONNREFUSED')) {
-        console.error("\n💡 TIP: Make sure your dev server is running (npm run dev) before executing this script.");
-    }
   } finally {
     await browser.close();
   }

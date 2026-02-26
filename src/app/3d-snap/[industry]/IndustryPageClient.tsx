@@ -37,7 +37,17 @@ export default function IndustryPageClient({ config, industry }: IndustryPageCli
     "@type": "Service",
     "name": `3D-Snap für ${config.name}`,
     "description": config.description,
-    "provider": { "@type": "Organization", "name": "ExhibitXR" }
+    "provider": { 
+      "@type": "Organization", 
+      "name": "ExhibitXR",
+      "url": "https://3d-snap.com"
+    },
+    "serviceType": "AI 3D Model Generation",
+    "areaServed": "Global",
+    "offers": {
+      "@type": "Offer",
+      "description": "Kostenloser Test-Snap verfügbar"
+    }
   };
 
   return (
@@ -46,8 +56,8 @@ export default function IndustryPageClient({ config, industry }: IndustryPageCli
       
       {/* Top Navigation */}
       <nav className="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-between items-center mix-blend-difference">
-        <Link href="/3d-snap" className="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">
-          <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Zurück zur Übersicht
+        <Link href="/" className="group flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">
+          <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Startseite
         </Link>
         <div className="text-[10px] font-black tracking-[0.5em] uppercase text-zinc-700">ExhibitXR Industry Suite</div>
       </nav>
@@ -55,12 +65,15 @@ export default function IndustryPageClient({ config, industry }: IndustryPageCli
       <main className="max-w-7xl mx-auto px-6 pt-32 pb-24">
         {/* Header Section */}
         <header className="mb-20">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[#00aaff] text-[10px] font-black uppercase tracking-widest mb-6">
+            <Zap size={12} fill="currentColor" /> Branchen-Lösung
+          </div>
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="text-6xl md:text-8xl font-black tracking-tighter mb-6"
           >
-            {config.name.split(' ')[0]}<span className="text-zinc-800">.</span>
+            {config.name.split(' ')[0]}<span className="text-[#00aaff]">.</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -68,7 +81,7 @@ export default function IndustryPageClient({ config, industry }: IndustryPageCli
             transition={{ delay: 0.2 }}
             className="text-xl text-zinc-500 max-w-xl leading-relaxed"
           >
-            {config.description}
+            {config.description} Profitieren Sie von automatisierten Workflows für maximale Conversion-Rates.
           </motion.p>
         </header>
 

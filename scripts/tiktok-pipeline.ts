@@ -28,8 +28,9 @@ async function recordVideo(modelUrl: string, outputDir: string, filename: string
     });
 
     const page = await context.newPage();
-    // Use localhost:3001 where our manual background dev server is running
-    const recordingUrl = `http://localhost:3001/record-tiktok?modelUrl=${encodeURIComponent(modelUrl)}`;
+    // Use production URL for recording
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.3d-snap.com';
+    const recordingUrl = `${baseUrl}/record-tiktok?modelUrl=${encodeURIComponent(modelUrl)}`;
     
     try {
         await page.goto(recordingUrl, { waitUntil: 'networkidle' });

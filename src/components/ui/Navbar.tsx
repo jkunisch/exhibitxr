@@ -28,8 +28,11 @@ export default function Navbar() {
       <div className="container mx-auto px-6 lg:px-10">
         <div className="flex items-center justify-between">
           <div className="flex-shrink-0">
-            <Link href="/" className="text-xl font-black tracking-tighter text-white">
-              3D-SNAP<span className="text-zinc-600 italic">.de</span>
+            <Link href="/" className="flex items-center gap-2">
+              <img src="/logo-clean.png" alt="3D-Snap" className="h-8 w-auto" />
+              <span className="text-xl font-black tracking-tighter text-white">
+                3D-SNAP<span className="text-zinc-600 italic">.com</span>
+              </span>
             </Link>
           </div>
 
