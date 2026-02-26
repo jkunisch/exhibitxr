@@ -247,6 +247,22 @@ export function ModelGeneratorPanel({
         };
     }, [isDragging, handleMouseMove, handleMouseUp]);
 
+    // ── Mouse wheel zoom on crop container ─────────────────────────────
+    useEffect(() => {
+        const container = cropContainerRef.current;
+        if (!container || step !== "cropping") return;
+
+        const handleWheel = (e: WheelEvent) => {
+            e.preventDefault(); // Prevent page scroll while hovering crop area
+            const delta = e.deltaY > 0 ? -0.08 : 0.08; // Scroll down = zoom out
+            setZoom((prev) => Math.min(3, Math.max(1, prev + delta)));
+        };
+
+        // passive: false is required to allow preventDefault on wheel events
+        container.addEventListener('wheel', handleWheel, { passive: false });
+        return () => container.removeEventListener('wheel', handleWheel);
+    }, [step]);
+
     const confirmCrop = async () => {
         if (!imageRef.current || !cropContainerRef.current || !selectedFile) return;
 
