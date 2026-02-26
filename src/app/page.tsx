@@ -3,11 +3,11 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { 
-  Camera, 
-  Palette, 
-  MapPin, 
-  Link2, 
+import {
+  Camera,
+  Palette,
+  MapPin,
+  Link2,
   ArrowUpRight,
   ShieldCheck,
   Globe,
@@ -28,7 +28,7 @@ export default function LandingPage() {
       {/* HERO SECTION */}
       <section className="relative pt-40 pb-20 lg:pt-56 lg:pb-32 overflow-hidden">
         <div className="container mx-auto px-6 relative z-10 text-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-[0.3em] text-[#00aaff] uppercase mb-12 backdrop-blur-md"
@@ -37,7 +37,7 @@ export default function LandingPage() {
             Die Zukunft der 3D-Präsentation
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -46,7 +46,7 @@ export default function LandingPage() {
             REALITÄT <br /> <span className="text-[#00aaff] drop-shadow-[0_0_40px_rgba(0,170,255,0.4)] uppercase tracking-tighter">SNAPPEN</span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -56,7 +56,7 @@ export default function LandingPage() {
             Keine Agentur. Nur pure technologische Effizienz.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -73,14 +73,14 @@ export default function LandingPage() {
           </motion.div>
 
           {/* 3D Snap Module - FLUID BORDER UPGRADE */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             className="relative mx-auto w-full max-w-5xl rounded-[3.5rem] p-[2px] overflow-hidden group shadow-[0_0_100px_rgba(255,255,255,0.1)]"
           >
             {/* Fluid Magic Border (Animated Conic Gradient with Rainbow Hue Shift) */}
-            <motion.div 
+            <motion.div
               className="absolute inset-[-500%] animate-[spin_6s_linear_infinite]"
               animate={{ filter: ["hue-rotate(0deg)", "hue-rotate(360deg)"] }}
               transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
@@ -88,7 +88,7 @@ export default function LandingPage() {
                 background: 'conic-gradient(from 0deg, transparent 0%, transparent 40%, #00aaff 50%, transparent 60%, transparent 100%)',
               }}
             />
-            
+
             <div className="relative rounded-[3.4rem] overflow-hidden border border-white/5 bg-[#050507] backdrop-blur-3xl min-h-[550px]">
               <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-black via-transparent to-transparent" />
               <div className="relative z-10">
@@ -110,7 +110,7 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-end justify-between gap-12 mb-32 text-left">
             <div className="max-w-2xl">
               <h2 className="text-xs font-black uppercase tracking-[0.5em] text-zinc-300 mb-8">Referenzen</h2>
-              <h3 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] uppercase">Branchen<br />Lösungen<span className="text-[#00aaff]">.</span></h3>
+              <h3 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.95] uppercase">Branchen<br />Lösungen<span className="text-[#00aaff]">.</span></h3>
             </div>
             <Link href="/3d-snap" className="group flex items-center gap-6 text-sm font-black uppercase tracking-[0.4em] transition-all hover:gap-8">
               Bibliothek öffnen <ArrowUpRight size={24} className="text-[#00aaff]" />
@@ -119,20 +119,20 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { 
-                title: "Möbel", 
-                desc: "Premium Präsentation", 
-                img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop" 
+              {
+                title: "Möbel",
+                desc: "Premium Präsentation",
+                img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop"
               },
-              { 
-                title: "Industrie", 
-                desc: "Präzision & Technik", 
-                img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop" 
+              {
+                title: "Industrie",
+                desc: "Präzision & Technik",
+                img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop"
               },
-              { 
-                title: "Kreative", 
-                desc: "Builder & Artists", 
-                img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop" 
+              {
+                title: "Kreative",
+                desc: "Builder & Artists",
+                img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop"
               }
             ].map((item, idx) => (
               <div key={idx} className="group relative rounded-[3rem] overflow-hidden aspect-[4/5] md:aspect-[10/14] bg-zinc-100 shadow-xl">
@@ -231,7 +231,7 @@ export default function LandingPage() {
                 3D-SNAP<span className="text-[#00aaff] italic">.de</span>
               </Link>
               <p className="text-zinc-600 text-lg leading-relaxed font-medium">
-                Infrastruktur für automatisierte 3D-Asset-Generierung. 
+                Infrastruktur für automatisierte 3D-Asset-Generierung.
               </p>
             </div>
 
@@ -244,9 +244,9 @@ export default function LandingPage() {
               </div>
               <div className="flex flex-col gap-6">
                 <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Rechtliches</h5>
-                <Link href="#" className="text-zinc-500 hover:text-white text-xs font-bold transition-colors">Impressum</Link>
-                <Link href="#" className="text-zinc-500 hover:text-white text-xs font-bold transition-colors">Datenschutz</Link>
-                <Link href="#" className="text-zinc-500 hover:text-white text-xs font-bold transition-colors">AGB</Link>
+                <Link href="/impressum" className="text-zinc-500 hover:text-white text-xs font-bold transition-colors">Impressum</Link>
+                <Link href="/datenschutz" className="text-zinc-500 hover:text-white text-xs font-bold transition-colors">Datenschutz</Link>
+                <Link href="/agb" className="text-zinc-500 hover:text-white text-xs font-bold transition-colors">AGB</Link>
               </div>
             </div>
           </div>
@@ -254,8 +254,8 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-center border-t border-white/5 pt-12 text-[10px] font-black uppercase tracking-[0.4em] text-zinc-800">
             <span>&copy; 2026 ExhibitXR &middot; Build 0.4.9</span>
             <div className="flex gap-12 mt-8 md:mt-0">
-               <span className="flex items-center gap-3"><ShieldCheck size={14} className="text-[#00aaff]" /> Sicherer Speicher</span>
-               <span className="flex items-center gap-3 tracking-[0.5em]">Berlin &middot; Mannheim</span>
+              <span className="flex items-center gap-3"><ShieldCheck size={14} className="text-[#00aaff]" /> Sicherer Speicher</span>
+              <span className="flex items-center gap-3 tracking-[0.5em]">Berlin &middot; Mannheim</span>
             </div>
           </div>
         </div>
