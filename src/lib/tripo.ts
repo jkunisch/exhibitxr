@@ -13,12 +13,21 @@ const TRIPO_API_BASE = "https://api.tripo3d.ai/v2/openapi";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+// Supports comma-separated keys in TRIPO_API_KEY env var (round-robin).
+let tripoKeyIndex = 0;
+
 function getTripoApiKey(): string {
-    const apiKey = process.env.TRIPO_API_KEY?.trim();
-    if (!apiKey) {
+    const raw = process.env.TRIPO_API_KEY?.trim();
+    if (!raw) {
         throw new Error("Missing TRIPO_API_KEY environment variable.");
     }
-    return apiKey;
+    const keys = raw.split(",").map((k) => k.trim()).filter(Boolean);
+    if (keys.length === 0) {
+        throw new Error("TRIPO_API_KEY contains no valid keys.");
+    }
+    const key = keys[tripoKeyIndex % keys.length]!;
+    tripoKeyIndex = (tripoKeyIndex + 1) % keys.length;
+    return key;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
