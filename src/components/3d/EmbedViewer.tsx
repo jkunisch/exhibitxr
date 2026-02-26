@@ -16,11 +16,19 @@ interface EmbedViewerProps {
   posterUrl?: string;
   title?: string;
   tenantId?: string;
+  autoRotate?: boolean;
 }
 
-export default function EmbedViewer({ modelUrl, posterUrl, title, tenantId }: EmbedViewerProps) {
+export default function EmbedViewer({ modelUrl, posterUrl, title, tenantId, autoRotate = false }: EmbedViewerProps) {
   const [isInteracted, setIsInteracted] = useState(false);
   const [showShare, setShowShare] = useState(false);
+
+  // Auto-interact if autoRotate is enabled (useful for recording)
+  React.useEffect(() => {
+    if (autoRotate) {
+      setIsInteracted(true);
+    }
+  }, [autoRotate]);
 
   // Wir bauen ein minimales ExhibitModel Objekt für den ModelViewer
   const modelConfig = useMemo(() => ({
@@ -67,7 +75,7 @@ export default function EmbedViewer({ modelUrl, posterUrl, title, tenantId }: Em
           </div>
         ) : (
           <div className="absolute inset-0 z-10 bg-zinc-900">
-            <ViewerCanvas bgColor="transparent">
+            <ViewerCanvas bgColor="transparent" autoRotate={autoRotate}>
               <Suspense fallback={null}>
                 <ModelViewer config={modelConfig} />
               </Suspense>

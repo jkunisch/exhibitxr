@@ -19,8 +19,7 @@ export default function AGBPage() {
                         <h2 className="text-xl font-semibold text-white">1. Geltungsbereich</h2>
                         <p>
                             Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung der
-                            Plattform 3D-Snap (3dsnap.de) und aller damit verbundenen Dienste,
-                            betrieben von ExhibitXR.
+                                                         Plattform 3D-Snap (3d-snap.com) und aller damit verbundenen Dienste,                            betrieben von ExhibitXR.
                         </p>
                     </section>
 

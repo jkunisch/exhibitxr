@@ -32,6 +32,8 @@ interface ViewerCanvasProps {
     disableBounds?: boolean;
     /** Restrict horizontal orbit rotation to 180° (front-only view). */
     restrictOrbitToHalfTurn?: boolean;
+    /** Enable automatic 360° rotation (for TikTok/Reels recording). */
+    autoRotate?: boolean;
 }
 
 /**
@@ -58,6 +60,7 @@ export default function ViewerCanvas({
     className,
     disableBounds = false,
     restrictOrbitToHalfTurn = false,
+    autoRotate = false,
 }: ViewerCanvasProps) {
     const [dpr, setDpr] = useState<number | [number, number]>([1, 2]);
     const [degraded, setDegraded] = useState(false);
@@ -174,6 +177,8 @@ export default function ViewerCanvas({
                 {/* ── OrbitControls: optional 180° horizontal limit ─────── */}
                 <OrbitControls
                     makeDefault
+                    autoRotate={autoRotate}
+                    autoRotateSpeed={4}
                     enablePan={false}
                     enableDamping
                     dampingFactor={0.08}

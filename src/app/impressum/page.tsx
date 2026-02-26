@@ -27,8 +27,7 @@ export default function ImpressumPage() {
                     <section>
                         <h2 className="text-xl font-semibold text-white">Kontakt</h2>
                         <p>
-                            E-Mail: kontakt@3dsnap.de
-                        </p>
+                                                         E-Mail: kontakt@3d-snap.com                        </p>
                     </section>
 
                     <section>

@@ -50,8 +50,7 @@ export default function DatenschutzPage() {
                         <p>
                             Sie haben jederzeit das Recht auf Auskunft, Berichtigung, Löschung und
                             Einschränkung der Verarbeitung Ihrer personenbezogenen Daten. Kontaktieren
-                            Sie uns unter kontakt@3dsnap.de.
-                        </p>
+                                                         Sie uns unter kontakt@3d-snap.com.                        </p>
                     </section>
                 </div>
 

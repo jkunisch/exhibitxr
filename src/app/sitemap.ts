@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { industries } from "@/data/industries";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://3dsnap.de"; // Anpassung an die Domain-Strategie
+  const baseUrl = "https://3d-snap.com"; // Anpassung an die Domain-Strategie
 
   const industryRoutes: MetadataRoute.Sitemap = Object.values(industries).map((ind) => ({
     url: `${baseUrl}/3d-snap/${ind.slug}`,

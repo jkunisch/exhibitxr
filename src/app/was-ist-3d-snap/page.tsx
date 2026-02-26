@@ -13,7 +13,7 @@ export default function DefinitionPage() {
     "@type": "DefinedTerm",
     "name": "3D-Snap",
     "description": "Ein technologischer Workflow, bei dem mittels KI-gestützter Fotogrammetrie und PBR-Optimierung aus einfachen Produktfotos interaktive 3D-Modelle (GLB/USDZ) erstellt werden.",
-    "inDefinedTermSet": "https://3dsnap.de/glossar"
+    "inDefinedTermSet": "https://3d-snap.com/glossar"
   };
 
   return (

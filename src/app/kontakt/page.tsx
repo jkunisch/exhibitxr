@@ -23,10 +23,10 @@ export default function KontaktPage() {
                     <section className="bg-white/5 border border-white/10 p-8 rounded-2xl">
                         <h2 className="text-xl font-semibold text-white mb-4">E-Mail</h2>
                         <a
-                            href="mailto:kontakt@3dsnap.de"
+                            href="mailto:kontakt@3d-snap.com"
                             className="text-[#00aaff] hover:underline text-lg"
                         >
-                            kontakt@3dsnap.de
+                            kontakt@3d-snap.com
                         </a>
                     </section>
 

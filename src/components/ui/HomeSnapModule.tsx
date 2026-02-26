@@ -8,9 +8,9 @@ import EmbedViewer from '@/components/3d/EmbedViewer';
 type SnapProvider = 'basic' | 'premium';
 
 export default function HomeSnapModule() {
-  const [status, setStatus] = useState<'IDLE' | 'UPLOADING' | 'PROCESSING' | 'SUCCESS' | 'ERROR'>('SUCCESS');
+  const [status, setStatus] = useState<'IDLE' | 'UPLOADING' | 'PROCESSING' | 'SUCCESS' | 'ERROR'>('IDLE');
   const [progress, setProgress] = useState(0);
-  const [modelUrl, setModelUrl] = useState<string | null>('https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb');
+  const [modelUrl, setModelUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [provider, setProvider] = useState<SnapProvider>('premium');
   const providerRef = useRef<SnapProvider>('premium');
@@ -242,9 +242,9 @@ export default function HomeSnapModule() {
               </div>
               <button
                 onClick={resetState}
-                className="text-xs text-zinc-500 hover:text-white underline transition-colors"
+                className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-sm font-bold rounded-full border border-white/10 transition-all"
               >
-                Anderes Foto probieren
+                ✨ Neues Foto snappen
               </button>
             </div>
           </motion.div>
@@ -271,6 +271,24 @@ export default function HomeSnapModule() {
         )}
 
       </AnimatePresence>
+
+      {/* Demo-Preview: Beispiel-Ergebnis */}
+      {status === 'IDLE' && (
+        <div className="w-full max-w-4xl mx-auto mt-12">
+          <p className="text-center text-xs font-black uppercase tracking-widest text-zinc-500 mb-4">
+            So sieht dein Ergebnis aus ↓
+          </p>
+          <div className="w-full rounded-2xl overflow-hidden border border-white/10 bg-zinc-950" style={{ height: '350px' }}>
+            <EmbedViewer
+              modelUrl="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
+              title="Demo 3D-Snap"
+            />
+          </div>
+          <p className="text-center text-[10px] text-zinc-600 mt-2">
+            Klicken & Drehen zum Interagieren — Demo-Modell
+          </p>
+        </div>
+      )}
     </div>
   );
 }
