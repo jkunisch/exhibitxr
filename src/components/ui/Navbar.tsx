@@ -22,15 +22,15 @@ export default function Navbar() {
     <nav
       className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl transition-all duration-500 ${
         isScrolled 
-          ? "bg-zinc-950/80 backdrop-blur-2xl border border-white/10 py-2 rounded-2xl md:rounded-full shadow-[0_0_50px_rgba(0,0,0,0.5)]" 
-          : "bg-black/20 backdrop-blur-sm border border-white/5 py-3 rounded-2xl md:rounded-[2.5rem]"
+          ? "bg-zinc-950/80 backdrop-blur-2xl border border-white/10 py-3 rounded-2xl md:rounded-full shadow-[0_0_50px_rgba(0,0,0,0.5)]" 
+          : "bg-black/20 backdrop-blur-sm border border-white/5 py-4 rounded-2xl md:rounded-[2.5rem]"
       }`}
     >
       <div className="container mx-auto px-6 lg:px-10">
         <div className="flex items-center justify-between">
           <div className="flex-shrink-0">
             <Link href="/">
-              <Logo className="h-12 md:h-[4.75rem]" />
+              <Logo className="h-20 md:h-32" showText={false} />
             </Link>
           </div>
 

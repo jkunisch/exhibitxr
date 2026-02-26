@@ -7,7 +7,7 @@ interface LogoProps {
 
 export default function Logo({ className = "h-8", showText = true }: LogoProps) {
   return (
-    <div className="flex items-center gap-3 group/logo">
+    <div className={`flex items-center group/logo ${showText ? "gap-3" : ""}`}>
       <div className="relative">
         <img 
           src="/logo-clean.png?v=2" 
