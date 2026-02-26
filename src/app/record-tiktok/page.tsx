@@ -2,11 +2,12 @@
 
 import { useSearchParams } from 'next/navigation';
 import EmbedViewer from '@/components/3d/EmbedViewer';
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
 
 function RecordViewer() {
   const searchParams = useSearchParams();
   const modelUrl = searchParams.get('modelUrl');
+  const [isLoaded, setIsLoaded] = React.useState(false);
 
   if (!modelUrl) {
     return <div className="p-10 text-white">No modelUrl provided.</div>;
@@ -18,7 +19,9 @@ function RecordViewer() {
         modelUrl={modelUrl} 
         autoRotate={true}
         title="TikTok Recording"
+        onLoaded={() => setIsLoaded(true)}
       />
+      {isLoaded && <div id="model-ready" style={{ display: 'none' }} />}
     </div>
   );
 }

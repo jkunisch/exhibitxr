@@ -28,6 +28,8 @@ interface ModelViewerProps {
     isEditor?: boolean;
     /** Whether this model is currently selected in editor mode. */
     isSelected?: boolean;
+    /** Called when the GLB model has been fully loaded and is ready for display. */
+    onLoaded?: () => void;
     /** Called when user clicks this model in editor mode. */
     onSelect?: () => void;
     /** Called when PivotControls drag ends with the new world position. */
@@ -96,6 +98,7 @@ export default function ModelViewer({
     hotspotFontFamily = "system-ui, sans-serif",
     isEditor = false,
     isSelected = false,
+    onLoaded,
     onSelect,
     onTransformEnd,
 }: ModelViewerProps) {
@@ -119,6 +122,7 @@ export default function ModelViewer({
         hotspotFontFamily={hotspotFontFamily}
         isEditor={isEditor}
         isSelected={isSelected}
+        onLoaded={onLoaded}
         onSelect={onSelect}
         onTransformEnd={onTransformEnd}
     />;
@@ -132,10 +136,16 @@ function ModelViewerInner({
     hotspotFontFamily = "system-ui, sans-serif",
     isEditor = false,
     isSelected = false,
+    onLoaded,
     onSelect,
     onTransformEnd,
 }: ModelViewerProps) {
     const groupRef = useRef<THREE.Group>(null);
+
+    // Call onLoaded once the model is ready
+    useEffect(() => {
+        if (onLoaded) onLoaded();
+    }, [onLoaded]);
     
     // Sicherung gegen ungültige URLs
     const isValidUrl = typeof config.glbUrl === 'string' && config.glbUrl.startsWith('http');

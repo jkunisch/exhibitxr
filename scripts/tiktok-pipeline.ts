@@ -34,7 +34,8 @@ async function recordVideo(modelUrl: string, outputDir: string, filename: string
     
     try {
         await page.goto(recordingUrl, { waitUntil: 'networkidle' });
-        await page.waitForSelector('canvas', { timeout: 30000 });
+        await page.waitForSelector('#model-ready', { timeout: 60000 });
+        await page.waitForTimeout(500); // Small buffer for layout stabilization
         console.log("🎥 Recording 10 seconds of 360° spin...");
         await page.waitForTimeout(10000);
         

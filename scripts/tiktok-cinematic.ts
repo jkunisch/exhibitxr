@@ -32,7 +32,8 @@ async function captureSnapshot(modelUrl: string, outputPath: string): Promise<st
     
     try {
         await page.goto(recordingUrl, { waitUntil: 'networkidle' });
-        await page.waitForSelector('canvas', { timeout: 30000 });
+        await page.waitForSelector('#model-ready', { timeout: 60000 });
+        await page.waitForTimeout(500);
         
         // Take a clean snapshot for Veo (Front view)
         await page.screenshot({ path: outputPath });

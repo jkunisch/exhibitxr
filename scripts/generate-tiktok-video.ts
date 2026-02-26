@@ -42,11 +42,12 @@ async function generateTikTokVideo(modelUrl: string, outputDir: string = './outp
   try {
     await page.goto(recordingUrl, { waitUntil: 'networkidle' });
     
-    // Wait for the model to load (canvas should be present)
-    await page.waitForSelector('canvas', { timeout: 30000 });
+    // Wait for the model to load properly
+    console.log("⏳ Waiting for 3D model to load...");
+    await page.waitForSelector('#model-ready', { timeout: 60000 });
     
-    // Give it 2 seconds to definitely render
-    await page.waitForTimeout(2000);
+    // Give it 500ms to stabilize layout
+    await page.waitForTimeout(500);
     
     // TAKE DEBUG SCREENSHOT
     const screenshotPath = `${outputPath}_debug.png`;
