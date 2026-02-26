@@ -368,7 +368,7 @@ export function ModelGeneratorPanel({
     // ── Polling ────────────────────────────────────────────────────────────
 
     useEffect(() => {
-        if (step !== "generating" && step !== "removing-bg") return;
+        if (step !== "generating" && step !== "removing-bg" && step !== "optimizing") return;
 
         const id = taskIdRef.current;
         if (!id) return;
