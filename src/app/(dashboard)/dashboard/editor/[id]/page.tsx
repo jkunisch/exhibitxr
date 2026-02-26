@@ -6,6 +6,7 @@ import { getConciergeStatus } from "@/app/actions/upsell";
 import { getAdminAuth } from "@/lib/firebaseAdmin";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 interface DashboardEditorPageProps {
   params: Promise<{ id: string }>;

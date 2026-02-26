@@ -167,6 +167,8 @@ export function ModelGeneratorPanel({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const taskIdRef = useRef<string | null>(null);
     const providerRef = useRef<Provider>("basic");
+    const finalizingRef = useRef(false);
+    const stepRef = useRef<Step>("idle");
 
     // ── File selection ──────────────────────────────────────────────────────
 
@@ -366,18 +368,42 @@ export function ModelGeneratorPanel({
     }, []);
 
     // ── Polling ────────────────────────────────────────────────────────────
+    // Keep stepRef in sync so the interval closure always reads the latest step.
+    stepRef.current = step;
 
     useEffect(() => {
-        if (step !== "generating" && step !== "removing-bg" && step !== "optimizing") return;
+        const isPollingStep =
+            step === "generating" || step === "removing-bg" || step === "optimizing";
+        if (!isPollingStep) return;
 
         const id = taskIdRef.current;
         if (!id) return;
 
+        // If we're already finalizing (from a previous tick), don't start a new interval.
+        if (finalizingRef.current) return;
+
         const intervalId = setInterval(async () => {
+            // Double-check: if finalization started between ticks, skip.
+            if (finalizingRef.current) return;
+
+            // If step changed out from under us (e.g. user reset), stop.
+            const currentStep = stepRef.current;
+            if (
+                currentStep !== "generating" &&
+                currentStep !== "removing-bg" &&
+                currentStep !== "optimizing"
+            ) {
+                clearInterval(intervalId);
+                return;
+            }
+
             try {
+                console.log("[Snap] polling task", id, "provider", providerRef.current);
                 const result = await checkStatus(id, providerRef.current);
+                console.log("[Snap] poll result:", result.status, "progress:", result.progress);
 
                 if (result.status === "FAILED" || result.status === "EXPIRED") {
+                    clearInterval(intervalId);
                     setErrorMessage(result.error ?? "Die 3D-Generierung ist fehlgeschlagen.");
                     setStep("error");
                     return;
@@ -390,24 +416,41 @@ export function ModelGeneratorPanel({
                 }
 
                 if (result.status === "SUCCEEDED") {
+                    // ── STOP polling immediately & lock finalization ──
+                    clearInterval(intervalId);
+                    finalizingRef.current = true;
+
                     setStep("optimizing");
                     setProgress(95);
 
+                    console.log("[Snap] SUCCEEDED – starting finalizeModel…");
+
                     try {
-                        const finalResult = await finalizeModel(id, tenantId, exhibitId, providerRef.current);
+                        const finalResult = await finalizeModel(
+                            id,
+                            tenantId,
+                            exhibitId,
+                            providerRef.current,
+                        );
+                        console.log("[Snap] finalizeModel done, glbUrl:", finalResult.glbUrl);
                         setProgress(100);
                         setStep("done");
                         onModelGenerated?.(finalResult.glbUrl, finalResult.usdzUrl);
                     } catch (finalizeError: unknown) {
+                        console.error("[Snap] finalizeModel FAILED:", finalizeError);
                         const msg =
                             finalizeError instanceof Error
                                 ? finalizeError.message
                                 : "Fehler beim Speichern des Modells.";
                         setErrorMessage(msg);
                         setStep("error");
+                    } finally {
+                        finalizingRef.current = false;
                     }
                 }
             } catch (pollError: unknown) {
+                clearInterval(intervalId);
+                console.error("[Snap] poll FAILED:", pollError);
                 const msg =
                     pollError instanceof Error
                         ? pollError.message
@@ -418,6 +461,7 @@ export function ModelGeneratorPanel({
         }, POLL_INTERVAL_MS);
 
         return () => clearInterval(intervalId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [step, tenantId, exhibitId, onModelGenerated]);
 
     // ── Generate action ────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 "use server";
 
+
 import { getStorage, type Storage } from "firebase-admin/storage";
 
 import * as firebaseAdmin from "@/lib/firebaseAdmin";
@@ -184,6 +185,7 @@ export async function finalizeModel(
 
     const pollFn = provider === "basic" ? pollTripoTaskStatus : pollMeshy;
     const pollResult = await pollFn(normalizedTaskId);
+    console.log("[finalizeModel] poll status:", pollResult.status, "glbUrl:", pollResult.glbUrl?.substring(0, 60));
     if (pollResult.status !== "SUCCEEDED") {
       throw new Error(`Meshy task is not finished. Current status: ${pollResult.status}.`);
     }
@@ -192,18 +194,22 @@ export async function finalizeModel(
       throw new Error("Meshy task succeeded but no GLB URL was returned.");
     }
 
+    console.log("[finalizeModel] downloading GLB…");
     const glbResponse = await fetch(pollResult.glbUrl, { method: "GET" });
     if (!glbResponse.ok) {
       throw new Error(`Failed to download generated GLB (${glbResponse.status}).`);
     }
 
     const rawBuffer = Buffer.from(await glbResponse.arrayBuffer());
+    console.log("[finalizeModel] GLB downloaded, size:", (rawBuffer.length / 1024 / 1024).toFixed(2), "MB");
     if (rawBuffer.length === 0) {
       throw new Error("Downloaded GLB file is empty.");
     }
 
     // Optimize: dedup, simplify, draco compress (40MB → 2-3MB typically)
+    console.log("[finalizeModel] starting optimization…");
     const glbBuffer = await optimizeGlb(rawBuffer);
+    console.log("[finalizeModel] optimization done, size:", (glbBuffer.length / 1024 / 1024).toFixed(2), "MB");
 
     // ── USDZ Conversion (for Apple AR Quick Look) ────────────────────
     // TEMP FIX: Disabled on server side to prevent Three.js crash in Node.js
