@@ -36,6 +36,11 @@ realistische 3D-Modelle, die als interaktive Web-Showrooms eingebettet werden.
 - Aufgaben immer als Checkbox-Liste fuehren (`- [ ]` / `- [x]`)
 - Fehler immer selbst fixen; wenn blockiert, sauber stoppen
 - Commit-Format: `feat|fix|chore: kurze beschreibung`
+- **Deployment:** Vercel Git-Webhook ist kaputt. Nach `git push` immer manuell deployen:
+  ```bash
+  npx vercel --prod --yes
+  ```
+  Das deployed den aktuellen lokalen Stand direkt auf Production (3d-snap.com).
 
 ## Senior Architektur-Regeln (Strikt)
 - Next.js Middleware ist Edge-Runtime: `firebase-admin` niemals in `middleware.ts`.

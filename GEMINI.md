@@ -19,6 +19,10 @@ Weg vom steifen B2B-SaaS, hin zum schnellen, "geilen" Prosumer-Produkt.
 - Firestore: Daten unter `/tenants/{tenantId}/` (technisch beibehalten).
 - Auth: Google Login + Session Cookies + Custom Claims (`studioId`, `role`).
 - Server Actions für alle Backend-Operationen.
+- **Deployment:** Vercel Git-Webhook ist kaputt. Nach `git push` immer manuell deployen:
+  ```bash
+  npx vercel --prod --yes
+  ```
 
 ## Aktuelle Priorität (Next Steps)
 1. **USDZ Conversion:** Integration in die AI-Pipeline in `generate3d.ts`.
