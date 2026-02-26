@@ -14,6 +14,12 @@ service firebase.storage {
       allow read, write: if false;
     }
 
+    // Public snap previews: anyone can read, only Admin SDK can write
+    match /public/snap-previews/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Tenant-scoped models: Unauth read only if object metadata isPublished is "true"
     match /tenants/{tenantId}/models/{allPaths=**} {
       allow read: if isTenantMember(tenantId) || (resource != null && resource.metadata.get('isPublished', 'false') == "true");
