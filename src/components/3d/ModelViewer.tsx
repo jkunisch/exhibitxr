@@ -340,27 +340,36 @@ function ModelViewerInner({
 
         if (entryAnimation === "drop") {
             api.start({
-                position: config.position as [number, number, number],
+                position: [config.position[0], config.position[1], config.position[2]],
                 scale: config.scale,
                 rotation: [0, 0, 0],
                 config: { mass: 2, tension: 120, friction: 14 },
             });
         } else if (entryAnimation === "spin-in") {
             api.start({
-                position: config.position as [number, number, number],
+                position: [config.position[0], config.position[1], config.position[2]],
                 scale: config.scale,
                 rotation: [0, 0, 0],
                 config: { mass: 1, tension: 100, friction: 20 },
             });
         } else {
             api.start({
-                position: config.position as [number, number, number],
+                position: [config.position[0], config.position[1], config.position[2]],
                 scale: config.scale,
                 rotation: [0, 0, 0],
                 immediate: true,
             });
         }
-    }, [entryAnimation, config.position, config.scale, api, clonedScene]);
+        // Use primitive dependencies to prevent animation loops when parent re-renders
+    }, [
+        entryAnimation,
+        config.position[0],
+        config.position[1],
+        config.position[2],
+        config.scale,
+        api,
+        clonedScene,
+    ]);
 
     // Float Animation
     useFrame((state) => {

@@ -21,7 +21,8 @@ const PLAN_CARDS: PlanCard[] = [
     name: "Free",
     priceLabel: "0€ / Monat",
     highlights: [
-      `${PLAN_LIMITS.free.exhibitions} Projekt`,
+      "10 Free Credits",
+      "Unlimitierte Projekte",
       `${PLAN_LIMITS.free.storageMb} MB Speicher`,
       `${PLAN_LIMITS.free.viewsPerMonth.toLocaleString()} Views/Monat`,
     ],
@@ -29,9 +30,10 @@ const PLAN_CARDS: PlanCard[] = [
   {
     id: "starter",
     name: "Starter",
-    priceLabel: "29€ / Monat",
+    priceLabel: "19€ / Monat",
     highlights: [
-      `${PLAN_LIMITS.starter.exhibitions} Projekte`,
+      "30 Credits / Monat",
+      "Unlimitierte Projekte",
       `${PLAN_LIMITS.starter.storageMb} MB Speicher`,
       `${PLAN_LIMITS.starter.viewsPerMonth.toLocaleString()} Views/Monat`,
     ],
@@ -39,9 +41,11 @@ const PLAN_CARDS: PlanCard[] = [
   {
     id: "pro",
     name: "Pro",
-    priceLabel: "99€ / Monat",
+    priceLabel: "49€ / Monat",
     highlights: [
-      `${PLAN_LIMITS.pro.exhibitions} Projekte`,
+      "80 Credits / Monat",
+      "Unlimitierte Projekte",
+      "Priorisierter Support",
       `${PLAN_LIMITS.pro.storageMb / 1000} GB Speicher`,
       `${PLAN_LIMITS.pro.viewsPerMonth.toLocaleString()} Views/Monat`,
     ],

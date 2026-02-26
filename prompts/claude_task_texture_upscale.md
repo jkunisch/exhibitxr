@@ -8,9 +8,10 @@
 1. **Server Action (`src/app/actions/upscaleTextures.ts`):** 
    - Create a new Next.js server action.
    - It should accept an `exhibitId` and the current `glbUrl`.
-   - Use `@gltf-transform/core` to parse the GLB and extract the base color / normal textures.
-   - **API Integration:** Call an external Image Upscaling API (e.g., Replicate using `replicate` SDK, or Photoroom API). *Note: For this implementation, mock the actual API call with a `setTimeout` and a dummy response if no API key is provided in `.env`.*
-   - Replace the old textures with the upscaled ones, write the new GLB buffer, and upload it to Firebase Storage (e.g., `_upscaled.glb`).
+   - Use `@gltf-transform/core` to parse the GLB and extract the `baseColorTexture` (diffuse map).
+   - **Critical Architecture Note (Timeouts):** Vercel Serverless Functions have a strict timeout (usually 15-60 seconds). Do NOT attempt to upscale every single texture map (roughness, metalness, normal) in a loop, as this will guarantee a timeout crash. Extract and upscale **ONLY the primary `baseColorTexture`**, as this provides 90% of the visual impact.
+   - **API Integration:** Call an external Image Upscaling API (e.g., Replicate using `replicate` SDK, or Photoroom API). *Note: For this implementation, mock the actual API call with a `setTimeout` (max 5 seconds for the mock) and a dummy response if no API key is provided in `.env`.*
+   - Replace the old texture with the upscaled one, ensure the MIME type (`image/jpeg`, `image/png`, or `image/webp`) is correctly handled, write the new GLB buffer, and upload it to Firebase Storage (e.g., `_upscaled.glb`).
    - Deduct 1 Credit from the Tenant's `generationCredits` (use existing Firebase Admin logic).
 2. **UI Integration (`src/components/editor/EditorForm.tsx`):**
    - In the "Modell" or "Varianten" section, add a prominent, premium-styled button: "✨ Texturen auf 4K hochskalieren (1 Credit)".

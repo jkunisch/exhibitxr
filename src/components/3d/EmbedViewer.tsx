@@ -20,6 +20,8 @@ interface EmbedViewerProps {
   tenantId?: string;
   autoRotate?: boolean;
   entryAnimation?: "none" | "float" | "drop" | "spin-in";
+  stageType?: "none" | "pedestal-marble" | "pedestal-wood" | "backdrop-curved";
+  envRotation?: number;
   onLoaded?: () => void;
 }
 
@@ -32,6 +34,8 @@ export default function EmbedViewer({
   tenantId,
   autoRotate = false,
   entryAnimation = "none",
+  stageType = "none",
+  envRotation = 0,
   onLoaded,
 }: EmbedViewerProps) {
   const [isInteracted, setIsInteracted] = useState(false);
@@ -40,7 +44,7 @@ export default function EmbedViewer({
   // ── AR Logic ────────────────────────────────────────────────────────────
   const handleAR = () => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    
+
     if (isIOS && usdzUrl) {
       // Apple Quick Look
       const anchor = document.createElement('a');
@@ -109,7 +113,12 @@ export default function EmbedViewer({
           </div>
         ) : (
           <div className="absolute inset-0 z-10 bg-zinc-900">
-            <ViewerCanvas bgColor="transparent" autoRotate={autoRotate}>
+            <ViewerCanvas
+              bgColor="transparent"
+              autoRotate={autoRotate}
+              stageType={stageType}
+              envRotation={envRotation}
+            >
               <Suspense fallback={null}>
                 <ModelViewer config={modelConfig} entryAnimation={entryAnimation} onLoaded={onLoaded} />
               </Suspense>

@@ -185,6 +185,10 @@ export default async function EmbedPage({ params }: EmbedPageProps) {
       usdzUrl={embedData.config.model.usdzUrl}
       title={embedData.config.title}
       tenantId={embedData.tenantId}
+      autoRotate={embedData.config.autoRotate}
+      entryAnimation={embedData.config.entryAnimation}
+      stageType={embedData.config.stageType}
+      envRotation={embedData.config.envRotation}
     />
   );
 }

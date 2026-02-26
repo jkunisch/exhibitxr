@@ -221,13 +221,13 @@ export default function ViewerCanvas({
 
                 {/* ── Scene Staging (Pedestals & Backdrops) ────────────── */}
                 {stageType === "pedestal-marble" && (
-                    <mesh receiveShadow position={[0, -1.55, 0]}>
+                    <mesh receiveShadow position={[0, -1.50, 0]}>
                         <cylinderGeometry args={[1.5, 1.5, 0.1, 64]} />
                         <meshStandardMaterial color="#f8f9fa" roughness={0.1} metalness={0.2} />
                     </mesh>
                 )}
                 {stageType === "pedestal-wood" && (
-                    <mesh receiveShadow position={[0, -1.55, 0]}>
+                    <mesh receiveShadow position={[0, -1.50, 0]}>
                         <cylinderGeometry args={[1.5, 1.5, 0.1, 64]} />
                         <meshStandardMaterial color="#3e2723" roughness={0.7} metalness={0.0} />
                     </mesh>
@@ -267,7 +267,7 @@ export default function ViewerCanvas({
                 {disableBounds ? (
                     children
                 ) : (
-                    <Bounds fit clip observe margin={1.2}>
+                    <Bounds fit clip margin={1.2}>
                         {children}
                     </Bounds>
                 )}

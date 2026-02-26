@@ -255,7 +255,7 @@ export function ModelGeneratorPanel({
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault(); // Prevent page scroll while hovering crop area
             const delta = e.deltaY > 0 ? -0.08 : 0.08; // Scroll down = zoom out
-            setZoom((prev) => Math.min(3, Math.max(1, prev + delta)));
+            setZoom((prev) => Math.min(3, Math.max(0.1, prev + delta))); // Allow zooming OUT (below 1.0)
         };
 
         // passive: false is required to allow preventDefault on wheel events
@@ -544,7 +544,7 @@ export function ModelGeneratorPanel({
                         </div>
                         <input
                             type="range"
-                            min="1"
+                            min="0.1"
                             max="3"
                             step="0.01"
                             value={zoom}

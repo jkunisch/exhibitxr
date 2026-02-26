@@ -436,7 +436,7 @@ export default function EditorForm({
                         <FieldHint>Stelle dein Produkt auf ein elegantes Podest.</FieldHint>
                         <select
                             value={config.stageType ?? "none"}
-                            onChange={(e) => onChange({ stageType: e.target.value as any })}
+                            onChange={(e) => onChange({ stageType: e.target.value as ExhibitConfig["stageType"] })}
                             className="w-full appearance-none rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30"
                         >
                             <option value="none">Keine Bühne (Freischwebend)</option>
@@ -451,7 +451,7 @@ export default function EditorForm({
                         <FieldHint>Animation beim Laden des 3D-Modells.</FieldHint>
                         <select
                             value={config.entryAnimation ?? "none"}
-                            onChange={(e) => onChange({ entryAnimation: e.target.value as any })}
+                            onChange={(e) => onChange({ entryAnimation: e.target.value as ExhibitConfig["entryAnimation"] })}
                             className="w-full appearance-none rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30"
                         >
                             <option value="none">Keine</option>

@@ -295,6 +295,7 @@ export default function EditorShell({
                         <ViewerCanvas
                             environment={effectiveConfig.environment}
                             envRotation={effectiveConfig.envRotation}
+                            stageType={effectiveConfig.stageType}
                             contactShadows={effectiveConfig.contactShadows}
                             bgColor={effectiveConfig.bgColor}
                             ambientIntensity={ambientIntensity}

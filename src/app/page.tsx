@@ -188,8 +188,8 @@ export default function LandingPage() {
                   19€<span className="ml-2 text-xs text-[#00aaff]">/ MONAT</span>
                 </div>
                 <ul className="space-y-4 text-sm font-semibold text-zinc-100">
-                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> 45 Credits / Monat</li>
-                  <li className="flex items-center gap-3 text-zinc-400"><Check size={16} /> ~15 Premium Snaps</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> 30 Credits / Monat</li>
+                  <li className="flex items-center gap-3 text-zinc-400"><Check size={16} /> ~10 Premium Snaps</li>
                   <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> Unlimitierte Projekte</li>
                   <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> Rollover (Credits verfallen nicht)</li>
                 </ul>
@@ -210,8 +210,8 @@ export default function LandingPage() {
                   49€<span className="ml-2 text-xs text-zinc-500">/ MONAT</span>
                 </div>
                 <ul className="space-y-4 text-sm font-semibold text-zinc-300">
-                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> 150 Credits / Monat</li>
-                  <li className="flex items-center gap-3 text-zinc-600"><Check size={16} /> ~50 Premium Snaps</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> 80 Credits / Monat</li>
+                  <li className="flex items-center gap-3 text-zinc-600"><Check size={16} /> ~26 Premium Snaps</li>
                   <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Unlimitierte Projekte</li>
                   <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Rollover inklusive</li>
                 </ul>
