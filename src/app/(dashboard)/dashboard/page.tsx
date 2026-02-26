@@ -105,7 +105,7 @@ export default async function DashboardPage() {
 
   const [exhibitions, entitlements] = await Promise.all([
     listTenantExhibitions(sessionUser.tenantId),
-    getTenantEntitlementSnapshot(sessionUser.tenantId),
+    getTenantEntitlementSnapshot(sessionUser.tenantId, sessionUser.email),
   ]);
 
   return (

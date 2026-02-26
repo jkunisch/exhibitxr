@@ -35,7 +35,7 @@ export default async function NewExhibitionPage({
 
   const resolvedSearchParams = await searchParams;
   const errorMessage = normalizeError(resolvedSearchParams.error);
-  const entitlements = await getTenantEntitlementSnapshot(sessionUser.tenantId);
+  const entitlements = await getTenantEntitlementSnapshot(sessionUser.tenantId, sessionUser.email);
 
   return (
     <section className="space-y-4">
