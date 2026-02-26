@@ -29,6 +29,14 @@ export const metadata: Metadata = {
         description: "Der einfachste Foto zu 3D Modell Generator.",
         images: ["/og-image.png"],
     },
+    icons: {
+        icon: [
+            { url: "/icon.png", type: "image/png" },
+            { url: "/favicon.ico", sizes: "any" },
+        ],
+        shortcut: ["/favicon.ico"],
+        apple: [{ url: "/apple-icon.png", type: "image/png" }],
+    },
 };
 
 export default function RootLayout({

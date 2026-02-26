@@ -30,7 +30,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           <div className="flex-shrink-0">
             <Link href="/">
-              <Logo className="h-10 md:h-14" />
+              <Logo className="h-12 md:h-[4.75rem]" />
             </Link>
           </div>
 
