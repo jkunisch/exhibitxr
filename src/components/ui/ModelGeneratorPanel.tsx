@@ -15,6 +15,7 @@ import { checkStatus, finalizeModel, submitImage, type Provider } from "@/app/ac
 
 type Step =
     | "idle"
+    | "converting"
     | "cropping"
     | "uploading"
     | "removing-bg"
@@ -33,7 +34,7 @@ interface ModelGeneratorPanelProps {
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const ACCEPTED_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
+const ACCEPTED_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/heic", "image/heif"]);
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const POLL_INTERVAL_MS = 5_000;
 
@@ -50,9 +51,20 @@ const PIPELINE_STEPS: ReadonlyArray<{
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+function isHeicFile(file: File): boolean {
+    return (
+        file.type === "image/heic" ||
+        file.type === "image/heif" ||
+        /\.heic$/i.test(file.name) ||
+        /\.heif$/i.test(file.name)
+    );
+}
+
 function validateFile(file: File): string | null {
-    if (!ACCEPTED_TYPES.has(file.type)) {
-        return "Ungültiges Format. Erlaubt: PNG, JPEG, WebP.";
+    // Also allow files detected as HEIC by extension (some browsers report
+    // HEIC as application/octet-stream or empty MIME)
+    if (!ACCEPTED_TYPES.has(file.type) && !isHeicFile(file)) {
+        return "Ungültiges Format. Erlaubt: PNG, JPEG, WebP, HEIC.";
     }
     if (file.size > MAX_FILE_SIZE) {
         return "Datei ist zu groß. Maximal 10 MB erlaubt.";
@@ -142,6 +154,7 @@ export function ModelGeneratorPanel({
     const [isDragActive, setIsDragActive] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [provider, setProvider] = useState<Provider>("basic");
+    const [isConverting, setIsConverting] = useState(false);
 
     // ── Cropping States ──────────────────────────────────────────────────
     const [cropPosition, setCropPosition] = useState({ x: 0, y: 0 });
@@ -157,7 +170,35 @@ export function ModelGeneratorPanel({
 
     // ── File selection ──────────────────────────────────────────────────────
 
-    const handleFile = useCallback((file: File) => {
+    const handleFile = useCallback(async (file: File) => {
+        // ── HEIC → JPEG conversion (dynamic import to keep bundle small) ──
+        if (isHeicFile(file)) {
+            setIsConverting(true);
+            setErrorMessage(null);
+            try {
+                const heic2any = (await import("heic2any")).default;
+                const converted = await heic2any({
+                    blob: file,
+                    toType: "image/jpeg",
+                    quality: 0.9,
+                });
+                const jpeg = Array.isArray(converted) ? converted[0] : converted;
+                file = new File(
+                    [jpeg],
+                    file.name.replace(/\.hei[cf]$/i, ".jpg"),
+                    { type: "image/jpeg" },
+                );
+            } catch {
+                setIsConverting(false);
+                setErrorMessage(
+                    "Das iPhone-Bild konnte nicht verarbeitet werden, bitte als JPG speichern.",
+                );
+                setStep("error");
+                return;
+            }
+            setIsConverting(false);
+        }
+
         const validationError = validateFile(file);
         if (validationError) {
             setErrorMessage(validationError);
@@ -468,7 +509,7 @@ export function ModelGeneratorPanel({
         step === "optimizing";
 
     return (
-        <section className="rounded-[2.5rem] border border-white/5 bg-zinc-950/80 backdrop-blur-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <section className="rounded-[2.5rem] border border-white/5 bg-zinc-950/80 backdrop-blur-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)]">
             {/* Background Ambient Glow */}
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#00aaff]/10 blur-3xl rounded-full pointer-events-none" />
 
@@ -508,225 +549,240 @@ export function ModelGeneratorPanel({
                 </button>
             </div>
 
-            {/* ── CROPPING: Interactive Adjustment ────────────────────────── */}
-            {step === "cropping" && previewUrl && (
-                <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-300">
-                    <p className="text-xs font-bold text-zinc-400 uppercase tracking-[0.2em] mb-6">Ausschnitt anpassen</p>
+            {/* ── Scrollable Body ─────────────────────────────────────── */}
+            <div className="flex-1 min-h-0 overflow-y-auto">
 
-                    <div
-                        ref={cropContainerRef}
-                        className="relative aspect-square w-full max-w-[280px] rounded-[2.5rem] bg-black border-2 border-[#00aaff]/30 overflow-hidden cursor-move touch-none"
-                        onMouseDown={handleMouseDown}
-                        onTouchStart={handleMouseDown}
-                    >
-                        <img
-                            ref={imageRef}
-                            src={previewUrl}
-                            alt="Crop target"
-                            draggable={false}
-                            className="absolute pointer-events-none origin-top-left"
-                            style={{
-                                transform: `translate(${cropPosition.x}px, ${cropPosition.y}px) scale(${zoom})`,
-                                width: '100%',
-                                height: 'auto'
-                            }}
-                        />
-                        {/* Overlay: Guide Circle */}
-                        <div className="absolute inset-0 border-[40px] border-black/40 pointer-events-none" />
-                        <div className="absolute inset-0 border border-white/20 rounded-full pointer-events-none opacity-50" />
-                    </div>
+                {/* ── CROPPING: Interactive Adjustment ────────────────────────── */}
+                {step === "cropping" && previewUrl && (
+                    <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-300">
+                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-[0.2em] mb-6">Ausschnitt anpassen</p>
 
-                    {/* Zoom Slider */}
-                    <div className="mt-8 w-full max-w-[240px] space-y-3">
-                        <div className="flex justify-between items-center px-1">
-                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Zoom</span>
-                            <span className="text-[10px] font-black text-[#00aaff]">{Math.round(zoom * 100)}%</span>
+                        <div
+                            ref={cropContainerRef}
+                            className="relative aspect-square w-full max-w-[280px] rounded-[2.5rem] bg-black border-2 border-[#00aaff]/30 overflow-hidden cursor-move touch-none"
+                            onMouseDown={handleMouseDown}
+                            onTouchStart={handleMouseDown}
+                        >
+                            <img
+                                ref={imageRef}
+                                src={previewUrl}
+                                alt="Crop target"
+                                draggable={false}
+                                className="absolute pointer-events-none origin-top-left"
+                                style={{
+                                    transform: `translate(${cropPosition.x}px, ${cropPosition.y}px) scale(${zoom})`,
+                                    width: '100%',
+                                    height: 'auto'
+                                }}
+                            />
+                            {/* Overlay: Guide Circle */}
+                            <div className="absolute inset-0 border-[40px] border-black/40 pointer-events-none" />
+                            <div className="absolute inset-0 border border-white/20 rounded-full pointer-events-none opacity-50" />
                         </div>
-                        <input
-                            type="range"
-                            min="0.1"
-                            max="3"
-                            step="0.01"
-                            value={zoom}
-                            onChange={(e) => setZoom(parseFloat(e.target.value))}
-                            className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#00aaff]"
-                        />
-                    </div>
 
-                    <div className="mt-10 flex gap-3 w-full max-w-[280px]">
+                        {/* Zoom Slider */}
+                        <div className="mt-8 w-full max-w-[240px] space-y-3">
+                            <div className="flex justify-between items-center px-1">
+                                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Zoom</span>
+                                <span className="text-[10px] font-black text-[#00aaff]">{Math.round(zoom * 100)}%</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0.1"
+                                max="3"
+                                step="0.01"
+                                value={zoom}
+                                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                                className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#00aaff]"
+                            />
+                        </div>
+
+                        <div className="mt-10 flex gap-3 w-full max-w-[280px]">
+                            <button
+                                type="button"
+                                onClick={reset}
+                                className="flex-1 rounded-2xl py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500 border border-white/5 hover:bg-white/5 transition-all"
+                            >
+                                Abbrechen
+                            </button>
+                            <button
+                                type="button"
+                                onClick={confirmCrop}
+                                className="flex-[2] rounded-2xl bg-[#00aaff] py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-[0_0_30px_rgba(0,170,255,0.3)] hover:scale-[1.02] active:scale-95 transition-all"
+                            >
+                                Snap starten
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* ── CONVERTING: HEIC loading overlay ───────────────────────── */}
+                {isConverting && (
+                    <div className="flex flex-col items-center gap-4 py-10 animate-in fade-in duration-300">
+                        <span className="h-8 w-8 animate-spin rounded-full border-[2px] border-[#00aaff] border-t-transparent" />
+                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                            Konvertiere Apple-Format…
+                        </p>
+                    </div>
+                )}
+
+                {/* ── IDLE: Drop zone ────────────────────────────────────────────── */}
+                {step === "idle" && !isConverting && (
+                    <div className="flex flex-col items-center">
+                        <div
+                            role="button"
+                            tabIndex={0}
+                            onClick={openFilePicker}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") openFilePicker();
+                            }}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                            className={`relative group flex aspect-square w-full max-w-[240px] cursor-pointer flex-col items-center justify-center rounded-[3rem] border-2 border-dashed transition-all ${isDragActive
+                                ? "border-[#00aaff] bg-[#00aaff]/5"
+                                : "border-white/10 bg-white/[0.02] hover:border-[#00aaff]/50 hover:bg-white/[0.05] transition-all"
+                                }`}
+                        >
+                            {previewUrl ? (
+                                <img
+                                    src={previewUrl}
+                                    alt="Vorschau"
+                                    className="h-full w-full rounded-[2.8rem] object-cover"
+                                />
+                            ) : (
+                                <div className="flex flex-col items-center gap-4 text-center p-6">
+                                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#00aaff] to-[#0066ff] text-white shadow-[0_0_40px_rgba(0,170,255,0.3)] transition-transform group-hover:scale-110">
+                                        <Camera size={32} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-white">Magic Capture</p>
+                                        <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest mt-1">Foto hochladen</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Hover Overlay for change */}
+                            {previewUrl && (
+                                <div className="absolute inset-0 flex items-center justify-center rounded-[2.8rem] bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-white">Bild ändern</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*,.heic"
+                            capture="environment"
+                            onChange={handleInputChange}
+                            className="hidden"
+                            aria-label="Bilddatei auswählen"
+                        />
+
+                        {/* Generate button */}
+                        <button
+                            type="button"
+                            disabled={!selectedFile}
+                            onClick={handleGenerate}
+                            className={`mt-8 w-full max-w-[240px] rounded-2xl py-4 text-xs font-black uppercase tracking-[0.2em] transition-all ${selectedFile
+                                ? "bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-95"
+                                : "cursor-not-allowed bg-white/5 text-zinc-600 border border-white/5"
+                                }`}
+                        >
+                            <span className="flex items-center justify-center gap-2">
+                                <Sparkles size={14} />
+                                3D Snap starten
+                            </span>
+                        </button>
+
+                        <p className="mt-4 text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
+                            PNG, JPEG, WebP oder HEIC · max. 10 MB
+                        </p>
+                    </div>
+                )}
+
+                {/* ── PROCESSING: Progress ───────────────────────────────────────── */}
+                {isProcessing && (
+                    <div className="flex flex-col items-center py-6 relative z-10">
+                        {/* Pulsing Loading Orb */}
+                        <div className="relative flex h-24 w-24 items-center justify-center mb-8">
+                            <div className="absolute inset-0 rounded-full border border-[#00aaff]/20 animate-ping" />
+                            <div className="absolute inset-2 rounded-full border border-[#00aaff]/40 animate-pulse" />
+                            <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-[#00aaff] via-blue-500 to-purple-600 animate-spin shadow-[0_0_30px_rgba(0,170,255,0.4)]" style={{ animationDuration: '2s' }} />
+                            <div className="absolute inset-0 bg-black/40 rounded-full backdrop-blur-[2px] flex items-center justify-center">
+                                <span className="text-white font-black text-sm tabular-nums">{progress}%</span>
+                            </div>
+                        </div>
+
+                        {/* Step list (Modernized) */}
+                        <div className="w-full max-w-[240px]">
+                            {renderPipelineSteps()}
+                        </div>
+
+                        {/* Cancel hint */}
+                        <p className="mt-10 text-center text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                            KI generiert · In Kürze fertig
+                        </p>
+                    </div>
+                )}
+
+                {/* ── DONE ───────────────────────────────────────────────────────── */}
+                {step === "done" && (
+                    <div className="flex flex-col items-center gap-6 py-10 text-center relative z-10">
+                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 shadow-[0_0_40px_rgba(34,197,94,0.2)]">
+                            <div className="h-8 w-8 text-green-400">
+                                <CheckIcon />
+                            </div>
+                        </div>
+
+                        <div>
+                            <p className="text-lg font-black tracking-tighter text-white uppercase">
+                                Erfolg!
+                            </p>
+                            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                                Dein 3D-Modell ist bereit
+                            </p>
+                        </div>
+
                         <button
                             type="button"
                             onClick={reset}
-                            className="flex-1 rounded-2xl py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500 border border-white/5 hover:bg-white/5 transition-all"
+                            className="mt-4 w-full max-w-[200px] rounded-xl border border-white/10 bg-white/5 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-white/10"
                         >
-                            Abbrechen
+                            Neues Modell
                         </button>
+                    </div>
+                )}
+
+                {/* ── ERROR ──────────────────────────────────────────────────────── */}
+                {step === "error" && (
+                    <div className="flex flex-col items-center gap-6 py-10 text-center relative z-10">
+                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-rose-500/10 border border-rose-500/20 shadow-[0_0_40px_rgba(244,63,94,0.2)]">
+                            <AlertCircle className="h-10 w-10 text-rose-500" />
+                        </div>
+
+                        <div>
+                            <p className="text-lg font-black tracking-tighter text-white uppercase">
+                                Fehler
+                            </p>
+                            {errorMessage && (
+                                <p className="max-w-xs text-[10px] font-bold text-rose-400/80 uppercase tracking-widest mt-2 px-4 leading-relaxed">
+                                    {errorMessage}
+                                </p>
+                            )}
+                        </div>
+
                         <button
                             type="button"
-                            onClick={confirmCrop}
-                            className="flex-[2] rounded-2xl bg-[#00aaff] py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-[0_0_30px_rgba(0,170,255,0.3)] hover:scale-[1.02] active:scale-95 transition-all"
+                            onClick={reset}
+                            className="mt-4 w-full max-w-[200px] rounded-xl bg-white py-3 text-[10px] font-black uppercase tracking-widest text-black transition-all hover:scale-105 active:scale-95"
                         >
-                            Snap starten
+                            Erneut versuchen
                         </button>
                     </div>
-                </div>
-            )}
-
-            {/* ── IDLE: Drop zone ────────────────────────────────────────────── */}
-            {step === "idle" && (
-                <div className="flex flex-col items-center">
-                    <div
-                        role="button"
-                        tabIndex={0}
-                        onClick={openFilePicker}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") openFilePicker();
-                        }}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                        className={`relative group flex aspect-square w-full max-w-[240px] cursor-pointer flex-col items-center justify-center rounded-[3rem] border-2 border-dashed transition-all ${isDragActive
-                            ? "border-[#00aaff] bg-[#00aaff]/5"
-                            : "border-white/10 bg-white/[0.02] hover:border-[#00aaff]/50 hover:bg-white/[0.05] transition-all"
-                            }`}
-                    >
-                        {previewUrl ? (
-                            <img
-                                src={previewUrl}
-                                alt="Vorschau"
-                                className="h-full w-full rounded-[2.8rem] object-cover"
-                            />
-                        ) : (
-                            <div className="flex flex-col items-center gap-4 text-center p-6">
-                                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#00aaff] to-[#0066ff] text-white shadow-[0_0_40px_rgba(0,170,255,0.3)] transition-transform group-hover:scale-110">
-                                    <Camera size={32} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold text-white">Magic Capture</p>
-                                    <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest mt-1">Foto hochladen</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Hover Overlay for change */}
-                        {previewUrl && (
-                            <div className="absolute inset-0 flex items-center justify-center rounded-[2.8rem] bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-white">Bild ändern</p>
-                            </div>
-                        )}
-                    </div>
-
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        onChange={handleInputChange}
-                        className="hidden"
-                        aria-label="Bilddatei auswählen"
-                    />
-
-                    {/* Generate button */}
-                    <button
-                        type="button"
-                        disabled={!selectedFile}
-                        onClick={handleGenerate}
-                        className={`mt-8 w-full max-w-[240px] rounded-2xl py-4 text-xs font-black uppercase tracking-[0.2em] transition-all ${selectedFile
-                            ? "bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:scale-[1.02] active:scale-95"
-                            : "cursor-not-allowed bg-white/5 text-zinc-600 border border-white/5"
-                            }`}
-                    >
-                        <span className="flex items-center justify-center gap-2">
-                            <Sparkles size={14} />
-                            3D Snap starten
-                        </span>
-                    </button>
-
-                    <p className="mt-4 text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
-                        PNG, JPEG oder WebP · max. 10 MB
-                    </p>
-                </div>
-            )}
-
-            {/* ── PROCESSING: Progress ───────────────────────────────────────── */}
-            {isProcessing && (
-                <div className="flex flex-col items-center py-6 relative z-10">
-                    {/* Pulsing Loading Orb */}
-                    <div className="relative flex h-24 w-24 items-center justify-center mb-8">
-                        <div className="absolute inset-0 rounded-full border border-[#00aaff]/20 animate-ping" />
-                        <div className="absolute inset-2 rounded-full border border-[#00aaff]/40 animate-pulse" />
-                        <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-[#00aaff] via-blue-500 to-purple-600 animate-spin shadow-[0_0_30px_rgba(0,170,255,0.4)]" style={{ animationDuration: '2s' }} />
-                        <div className="absolute inset-0 bg-black/40 rounded-full backdrop-blur-[2px] flex items-center justify-center">
-                            <span className="text-white font-black text-sm tabular-nums">{progress}%</span>
-                        </div>
-                    </div>
-
-                    {/* Step list (Modernized) */}
-                    <div className="w-full max-w-[240px]">
-                        {renderPipelineSteps()}
-                    </div>
-
-                    {/* Cancel hint */}
-                    <p className="mt-10 text-center text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                        KI generiert · In Kürze fertig
-                    </p>
-                </div>
-            )}
-
-            {/* ── DONE ───────────────────────────────────────────────────────── */}
-            {step === "done" && (
-                <div className="flex flex-col items-center gap-6 py-10 text-center relative z-10">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 shadow-[0_0_40px_rgba(34,197,94,0.2)]">
-                        <div className="h-8 w-8 text-green-400">
-                            <CheckIcon />
-                        </div>
-                    </div>
-
-                    <div>
-                        <p className="text-lg font-black tracking-tighter text-white uppercase">
-                            Erfolg!
-                        </p>
-                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1">
-                            Dein 3D-Modell ist bereit
-                        </p>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={reset}
-                        className="mt-4 w-full max-w-[200px] rounded-xl border border-white/10 bg-white/5 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-white/10"
-                    >
-                        Neues Modell
-                    </button>
-                </div>
-            )}
-
-            {/* ── ERROR ──────────────────────────────────────────────────────── */}
-            {step === "error" && (
-                <div className="flex flex-col items-center gap-6 py-10 text-center relative z-10">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-rose-500/10 border border-rose-500/20 shadow-[0_0_40px_rgba(244,63,94,0.2)]">
-                        <AlertCircle className="h-10 w-10 text-rose-500" />
-                    </div>
-
-                    <div>
-                        <p className="text-lg font-black tracking-tighter text-white uppercase">
-                            Fehler
-                        </p>
-                        {errorMessage && (
-                            <p className="max-w-xs text-[10px] font-bold text-rose-400/80 uppercase tracking-widest mt-2 px-4 leading-relaxed">
-                                {errorMessage}
-                            </p>
-                        )}
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={reset}
-                        className="mt-4 w-full max-w-[200px] rounded-xl bg-white py-3 text-[10px] font-black uppercase tracking-widest text-black transition-all hover:scale-105 active:scale-95"
-                    >
-                        Erneut versuchen
-                    </button>
-                </div>
-            )}
+                )}
+            </div>{/* end Scrollable Body */}
         </section>
     );
 }
