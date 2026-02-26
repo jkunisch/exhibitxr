@@ -41,9 +41,9 @@ export default function EmbedViewer({ modelUrl, posterUrl, title, tenantId, auto
     hotspots: []
   }), [modelUrl, title]);
 
-  const embedCodeHtml = `<div style="position:relative;width:100%;"><iframe src="https://3dsnap.de/embed/${tenantId || 'demo'}" width="100%" height="500px" frameborder="0" loading="lazy" title="Interaktives 3D Modell gesnappt mit 3D-Snap" allow="xr-spatial-tracking; fullscreen; autoplay"></iframe><div style="text-align:right;font-size:10px;font-family:sans-serif;margin-top:4px;"><a href="https://3dsnap.de?utm_source=embed&utm_medium=html" target="_blank" rel="ugc noopener" style="color:#888;text-decoration:none;">Interaktives 3D-Modell von <span style="font-weight:bold;color:#555;">3D-Snap</span></a></div></div>`;
+  const embedCodeHtml = `<div style="position:relative;width:100%;"><iframe src="https://3d-snap.com/embed/${tenantId || 'demo'}" width="100%" height="500px" frameborder="0" loading="lazy" title="Interaktives 3D Modell gesnappt mit 3D-Snap" allow="xr-spatial-tracking; fullscreen; autoplay"></iframe><div style="text-align:right;font-size:10px;font-family:sans-serif;margin-top:4px;"><a href="https://3d-snap.com?utm_source=embed&utm_medium=html" target="_blank" rel="ugc noopener" style="color:#888;text-decoration:none;">Interaktives 3D-Modell von <span style="font-weight:bold;color:#555;">3D-Snap</span></a></div></div>`;
 
-  const embedCodeMarkdown = `[![${title || '3D Modell Vorschau'}](${posterUrl || 'https://3dsnap.de/og-image.jpg'})](https://3dsnap.de/embed/${tenantId || 'demo'})\n\n*Interaktives 3D-Modell in 15 Sekunden gesnappt mit [3D-Snap](https://3dsnap.de?utm_source=embed&utm_medium=markdown).*`;
+  const embedCodeMarkdown = `[![${title || '3D Modell Vorschau'}](${posterUrl || 'https://3d-snap.com/og-image.jpg'})](https://3d-snap.com/embed/${tenantId || 'demo'})\n\n*Interaktives 3D-Modell in 15 Sekunden gesnappt mit [3D-Snap](https://3d-snap.com?utm_source=embed&utm_medium=markdown).*`;
 
   const copyHtml = () => {
     navigator.clipboard.writeText(embedCodeHtml);
@@ -88,7 +88,7 @@ export default function EmbedViewer({ modelUrl, posterUrl, title, tenantId, auto
       <div className="h-10 px-3 bg-black/80 border-t border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <a
-            href={`https://3dsnap.de?utm_source=embed&utm_medium=viewer&utm_campaign=${tenantId || 'demo'}`}
+            href={`https://3d-snap.com?utm_source=embed&utm_medium=viewer&utm_campaign=${tenantId || 'demo'}`}
             target="_blank"
             rel="ugc noopener"
             className="group/link flex items-center gap-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 px-2 py-1.5 transition-all duration-300 hover:bg-white/10 hover:border-white/20 shadow-lg"
@@ -150,7 +150,7 @@ export default function EmbedViewer({ modelUrl, posterUrl, title, tenantId, auto
           </div>
 
           <div className="mt-8 pt-8 border-t border-zinc-800 w-full text-xs text-zinc-500">
-            Technologie von <a href="https://3dsnap.de" className="text-white underline">3dsnap.de</a>
+            Technologie von <a href="https://3d-snap.com" className="text-white underline">3d-snap.com</a>
           </div>
         </div>
       )}

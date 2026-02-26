@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Analytics from "@/components/ui/Analytics";
 
 const inter = Inter({
     variable: "--font-inter",
@@ -8,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://3d-snap.com"),
+    metadataBase: new URL("https://3d-snap.com"),
     title: {
         default: "3D-Snap | Foto zu 3D Modell",
         template: "%s | 3D-Snap",
@@ -39,6 +40,7 @@ export default function RootLayout({
         <html lang="de" data-scroll-behavior="smooth">
             <body className={`${inter.variable} antialiased`}>
                 {children}
+                <Analytics />
             </body>
         </html>
     );
