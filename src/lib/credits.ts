@@ -23,16 +23,16 @@ export function isAdminEmail(email: string | undefined | null): boolean {
 
 /** Credits granted when a tenant upgrades to a plan (monthly). */
 const PLAN_MONTHLY_CREDITS: Record<PlanTier, number> = {
-    free: 3,       // 3 free generations to try the product
-    starter: 10,   // 10 generations/month included
-    pro: 50,       // 50 generations/month included
-    enterprise: 200,
+    free: 5,       // 5 free credits to try the product (~1 premium or 5 basic)
+    starter: 20,   // 20 credits/month included (Creator plan)
+    pro: 60,       // 60 credits/month included (Studio plan)
+    enterprise: 200, // 200 credits/month included (Business plan)
 };
 
 /** Credit cost per generation by provider. */
 const GENERATION_COST: Record<string, number> = {
     basic: 1,    // Tripo — fast, ~30s
-    premium: 2,  // Meshy — high quality, 3-5 min
+    premium: 3,  // Meshy — high quality, 3-5 min
 };
 
 // ─── Rate Limiting (anonymous) ──────────────────────────────────────────────

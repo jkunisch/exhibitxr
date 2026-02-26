@@ -156,6 +156,7 @@ export default function LandingPage() {
           <h3 className="mb-20 text-5xl font-black tracking-tighter md:text-7xl lg:text-[6rem]">TARIFE.</h3>
 
           <div className="mx-auto grid max-w-6xl grid-cols-1 items-stretch gap-6 md:grid-cols-3 md:[grid-auto-rows:1fr]">
+            {/* Free / Trial */}
             <StudioCard className="flex h-full flex-col border-white/10 bg-zinc-950/70 p-8 text-left sm:p-10">
               <div className="flex-1">
                 <h4 className="mb-5 text-[10px] font-black uppercase tracking-widest text-zinc-500">Trial</h4>
@@ -163,8 +164,9 @@ export default function LandingPage() {
                   0€<span className="ml-2 text-xs text-zinc-500">/ MONAT</span>
                 </div>
                 <ul className="space-y-4 text-sm font-semibold text-zinc-300">
-                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> 1 AI Snapshot</li>
-                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Standard Viewer</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> 5 Credits inklusive</li>
+                  <li className="flex items-center gap-3 text-zinc-500"><Check size={16} /> ~1 Premium Snap zum Testen</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Unlimitierte Projekte</li>
                 </ul>
               </div>
               <Link
@@ -175,19 +177,21 @@ export default function LandingPage() {
               </Link>
             </StudioCard>
 
+            {/* Creator / Starter */}
             <StudioCard className="relative z-10 flex h-full flex-col border-[#00aaff]/40 bg-[#03111a]/90 p-8 text-left ring-1 ring-[#00aaff]/30 sm:p-10">
               <div className="absolute right-6 top-6 rounded-full bg-[#00aaff] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-white">
-                Professional
+                Creator
               </div>
               <div className="flex-1 pr-16">
                 <h4 className="mb-5 text-[10px] font-black uppercase tracking-widest text-[#00aaff]">Starter</h4>
                 <div className="mb-8 text-5xl font-black tracking-tighter text-white">
-                  29€<span className="ml-2 text-xs text-[#00aaff]">/ MONAT</span>
+                  19€<span className="ml-2 text-xs text-[#00aaff]">/ MONAT</span>
                 </div>
                 <ul className="space-y-4 text-sm font-semibold text-zinc-100">
-                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> 10 Projects / Month</li>
-                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> Analytics Dashboard</li>
-                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> Priority Processing</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> 20 Credits / Monat</li>
+                  <li className="flex items-center gap-3 text-zinc-400"><Check size={16} /> ~6 Premium Snaps</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> Unlimitierte Projekte</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> Kommerzielle Nutzung</li>
                 </ul>
               </div>
               <Link
@@ -198,17 +202,18 @@ export default function LandingPage() {
               </Link>
             </StudioCard>
 
+            {/* Studio / Pro */}
             <StudioCard className="flex h-full flex-col border-white/10 bg-zinc-950/70 p-8 text-left sm:p-10">
               <div className="flex-1">
-                <h4 className="mb-5 text-[10px] font-black uppercase tracking-widest text-zinc-500">PRO</h4>
+                <h4 className="mb-5 text-[10px] font-black uppercase tracking-widest text-zinc-500">Studio</h4>
                 <div className="mb-8 text-5xl font-black tracking-tighter text-white">
-                  99€<span className="ml-2 text-xs text-zinc-500">/ MONAT</span>
+                  49€<span className="ml-2 text-xs text-zinc-500">/ MONAT</span>
                 </div>
                 <ul className="space-y-4 text-sm font-semibold text-zinc-300">
-                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Unlimited Volume</li>
-                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> API Infrastructure</li>
-                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Custom Domain</li>
-                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Support 24/7</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> 60 Credits / Monat</li>
+                  <li className="flex items-center gap-3 text-zinc-600"><Check size={16} /> ~20 Premium Snaps</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Unlimitierte Projekte</li>
+                  <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Priorität & Support</li>
                 </ul>
               </div>
               <Link
@@ -219,6 +224,10 @@ export default function LandingPage() {
               </Link>
             </StudioCard>
           </div>
+          
+          <p className="mt-12 text-xs font-medium text-zinc-500">
+            * 1 Credit = 1 Basic Snap (Tripo AI). 3 Credits = 1 Premium Snap (Meshy AI, PBR & High-Fidelity).
+          </p>
         </div>
       </section>
 

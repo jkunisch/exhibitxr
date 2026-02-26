@@ -2,6 +2,7 @@ import { Timestamp } from "firebase-admin/firestore";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { getCreditBalance } from "@/lib/credits";
 import { getAdminDb } from "@/lib/firebaseAdmin";
 import type { PlanTier } from "@/lib/planLimits";
 import { getSessionUser } from "@/lib/session";
@@ -14,7 +15,8 @@ import {
   History,
   CheckCircle2,
   Clock,
-  Box
+  Box,
+  Zap
 } from "lucide-react";
 import SnapHandoff from "@/components/dashboard/SnapHandoff";
 import { InlineDeleteButton } from "@/components/dashboard/InlineDeleteButton";
@@ -115,9 +117,10 @@ export default async function DashboardPage() {
     redirect("/login?next=/dashboard");
   }
 
-  const [exhibitions, entitlements] = await Promise.all([
+  const [exhibitions, entitlements, creditBalance] = await Promise.all([
     listTenantExhibitions(sessionUser.tenantId),
     getTenantEntitlementSnapshot(sessionUser.tenantId, sessionUser.email),
+    getCreditBalance(sessionUser.tenantId),
   ]);
 
   return (
@@ -133,9 +136,12 @@ export default async function DashboardPage() {
         <div className="flex items-center gap-4">
           <div className="text-right hidden sm:block">
             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Plan: {formatPlanLabel(entitlements.plan)}</p>
-            <p className="text-xs font-bold text-zinc-400">
-              {entitlements.currentExhibitions} / {entitlements.maxExhibitions} Modelle
-            </p>
+            <div className="flex items-center gap-1.5 justify-end mt-1">
+              <Zap size={12} className="text-[#00aaff]" />
+              <p className="text-xs font-bold text-white">
+                {creditBalance.credits} Credits verfügbar
+              </p>
+            </div>
           </div>
 
           {entitlements.canCreateExhibition ? (

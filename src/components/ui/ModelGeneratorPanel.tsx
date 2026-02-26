@@ -264,7 +264,7 @@ export function ModelGeneratorPanel({
 
         // Calculate how the image is rendered relative to the 1024x1024 output
         const scale = size / rect.width;
-        
+
         ctx.fillStyle = "#000000"; // Background black for transparent PNGs
         ctx.fillRect(0, 0, size, size);
 
@@ -282,7 +282,7 @@ export function ModelGeneratorPanel({
             setSelectedFile(croppedFile);
             setPreviewUrl(URL.createObjectURL(croppedFile));
             setStep("uploading");
-            
+
             // Start generation immediately after crop
             await startGeneration(croppedFile);
         }, "image/jpeg", 0.9);
@@ -488,7 +488,7 @@ export function ModelGeneratorPanel({
                         }`}
                 >
                     <p className="text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-1">Pro <Sparkles size={10} /></p>
-                    <p className="text-[9px] font-medium opacity-60">2 Credits</p>
+                    <p className="text-[9px] font-medium opacity-60">3 Credits</p>
                 </button>
             </div>
 
@@ -496,8 +496,8 @@ export function ModelGeneratorPanel({
             {step === "cropping" && previewUrl && (
                 <div className="flex flex-col items-center animate-in fade-in zoom-in-95 duration-300">
                     <p className="text-xs font-bold text-zinc-400 uppercase tracking-[0.2em] mb-6">Ausschnitt anpassen</p>
-                    
-                    <div 
+
+                    <div
                         ref={cropContainerRef}
                         className="relative aspect-square w-full max-w-[280px] rounded-[2.5rem] bg-black border-2 border-[#00aaff]/30 overflow-hidden cursor-move touch-none"
                         onMouseDown={handleMouseDown}
