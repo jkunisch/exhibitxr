@@ -14,10 +14,10 @@ export const metadata: Metadata = {
         default: "3D-Snap | Foto zu 3D Modell",
         template: "%s | 3D-Snap",
     },
-    description: "Der einfachste Foto zu 3D Modell Generator für Creator, Maker und Industrie.",
+    description: "Der einfachste Weg vom Foto zum 3D-Modell.",
     openGraph: {
         title: "3D-Snap | Foto zu 3D Modell",
-        description: "Der einfachste Foto zu 3D Modell Generator für Creator, Maker und Industrie.",
+        description: "Der einfachste Weg vom Foto zum 3D-Modell.",
         siteName: "3D-Snap",
         images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "3D-Snap Logo" }],
         type: "website",
