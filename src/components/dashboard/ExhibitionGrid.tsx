@@ -1,10 +1,12 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState, useCallback, useTransition } from 'react';
 import { motion } from 'framer-motion';
-import { Pencil, Code2, ExternalLink, Box, Sun, Building2, Sunset, Warehouse, type LucideIcon } from 'lucide-react';
+import { Pencil, Code2, ExternalLink, Box, Sun, Building2, Sunset, Warehouse, Trash2, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useToastStore } from '@/components/ui/Toast';
+import { deleteExhibitionAction } from '@/app/actions/exhibitions';
 
 export interface ExhibitionClientData {
     id: string;
@@ -32,8 +34,11 @@ const ENV_ICONS: Record<string, LucideIcon> = {
     default: Box,
 };
 
-const ExhibitionCard = memo(({ exhibition }: { exhibition: ExhibitionClientData }) => {
+const ExhibitionCard = memo(({ exhibition, tenantId }: { exhibition: ExhibitionClientData; tenantId: string }) => {
     const { showToast } = useToastStore();
+    const router = useRouter();
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, startDeleteTransition] = useTransition();
 
     const env = exhibition.environment?.toLowerCase() || 'studio';
     const gradient = ENV_GRADIENTS[env] || ENV_GRADIENTS.default;
@@ -65,7 +70,7 @@ const ExhibitionCard = memo(({ exhibition }: { exhibition: ExhibitionClientData 
                     {env} • {exhibition.variantsCount} variant{exhibition.variantsCount !== 1 ? 's' : ''} • {exhibition.hotspotsCount} hotspot{exhibition.hotspotsCount !== 1 ? 's' : ''}
                 </p>
 
-                <div className="grid grid-cols-3 gap-2 mt-auto">
+                <div className="grid grid-cols-4 gap-2 mt-auto">
                     <Link
                         href={`/dashboard/editor/${exhibition.id}`}
                         aria-label="Edit Exhibition"
@@ -92,16 +97,62 @@ const ExhibitionCard = memo(({ exhibition }: { exhibition: ExhibitionClientData 
                         <ExternalLink className="w-4 h-4" />
                         Share
                     </a>
+                    <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        aria-label="Delete Exhibition"
+                        className="flex items-center justify-center py-2.5 bg-red-500/5 hover:bg-red-500/15 rounded-xl text-sm font-medium text-red-400/60 hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
                 </div>
 
-                <div className="mt-5 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs">
-                    <span className="text-white/40 font-medium">Updated: {formattedDate}</span>
-                    <div className="flex items-center gap-1.5 font-medium">
-                        <span className={`w-2 h-2 rounded-full ${exhibition.isPublished ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-white/20'}`} />
-                        <span className={exhibition.isPublished ? 'text-white/80' : 'text-white/40'}>
-                            {exhibition.isPublished ? 'Published' : 'Draft'}
+                {showDeleteConfirm && (
+                    <div className="mt-3 flex items-center justify-between gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/20 animate-in fade-in zoom-in duration-200">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-red-500/70">
+                            Löschen?
                         </span>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                disabled={isDeleting}
+                                onClick={() => {
+                                    startDeleteTransition(async () => {
+                                        const fd = new FormData();
+                                        fd.set('exhibitionId', exhibition.id);
+                                        fd.set('tenantId', tenantId);
+                                        const result = await deleteExhibitionAction(fd);
+                                        if (result.ok) {
+                                            showToast('Gelöscht ✓');
+                                            router.refresh();
+                                        } else {
+                                            showToast(`Fehler: ${result.error}`);
+                                        }
+                                        setShowDeleteConfirm(false);
+                                    });
+                                }}
+                                className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-[10px] font-black uppercase tracking-widest transition-transform hover:scale-105 disabled:opacity-50"
+                            >
+                                {isDeleting ? '...' : 'Ja'}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="px-4 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors"
+                            >
+                                Nein
+                            </button>
+                        </div>
                     </div>
+                )}
+            </div>
+
+            <div className="mt-5 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs">
+                <span className="text-white/40 font-medium">Updated: {formattedDate}</span>
+                <div className="flex items-center gap-1.5 font-medium">
+                    <span className={`w-2 h-2 rounded-full ${exhibition.isPublished ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-white/20'}`} />
+                    <span className={exhibition.isPublished ? 'text-white/80' : 'text-white/40'}>
+                        {exhibition.isPublished ? 'Published' : 'Draft'}
+                    </span>
                 </div>
             </div>
         </div>
@@ -110,7 +161,7 @@ const ExhibitionCard = memo(({ exhibition }: { exhibition: ExhibitionClientData 
 
 ExhibitionCard.displayName = 'ExhibitionCard';
 
-export function ExhibitionGrid({ exhibitions }: { exhibitions: ExhibitionClientData[] }) {
+export function ExhibitionGrid({ exhibitions, tenantId }: { exhibitions: ExhibitionClientData[]; tenantId: string }) {
     if (exhibitions.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-24 bg-white/[0.02] border border-white/[0.08] border-dashed rounded-2xl text-center">
@@ -132,7 +183,7 @@ export function ExhibitionGrid({ exhibitions }: { exhibitions: ExhibitionClientD
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.05, duration: 0.3 }}
                 >
-                    <ExhibitionCard exhibition={ex} />
+                    <ExhibitionCard exhibition={ex} tenantId={tenantId} />
                 </motion.div>
             ))}
         </div>

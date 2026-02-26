@@ -44,7 +44,6 @@ const exhibitionIdSchema = z
 
 const deleteSchema = z.object({
   exhibitionId: exhibitionIdSchema,
-  confirmTitle: z.string().trim().min(1, "Please type the exhibition title to confirm deletion."),
 });
 
 export type ExhibitionMutationResult =
@@ -228,7 +227,6 @@ export async function deleteExhibitionAction(
 
   const parsedInput = deleteSchema.safeParse({
     exhibitionId: formData.get("exhibitionId"),
-    confirmTitle: formData.get("confirmTitle"),
   });
 
   if (!parsedInput.success) {
@@ -248,19 +246,11 @@ export async function deleteExhibitionAction(
   }
 
   const data = snapshot.data();
-  const exhibitionTitle = typeof data?.title === "string" ? data.title.trim() : "";
   const tenantId =
     data && typeof data.tenantId === "string" ? data.tenantId : sessionUser.tenantId;
 
   if (tenantId !== sessionUser.tenantId) {
     return { ok: false, error: "Tenant mismatch detected." };
-  }
-
-  if (parsedInput.data.confirmTitle !== exhibitionTitle) {
-    return {
-      ok: false,
-      error: "Confirmation text mismatch. Type the exact title to delete.",
-    };
   }
 
   await exhibitionRef.delete();
