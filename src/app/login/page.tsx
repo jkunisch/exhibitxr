@@ -73,8 +73,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </p>
 
         <p className="mt-5 text-xs text-white/60">
-          Beim Login werden Claims mit `await user.getIdToken(true)`
-          aktualisiert, bevor die Session aufgebaut wird.
+          Mit der Anmeldung akzeptierst du unsere Nutzungsbedingungen.
         </p>
       </section>
     </main>

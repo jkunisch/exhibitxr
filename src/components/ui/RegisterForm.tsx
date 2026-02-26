@@ -13,7 +13,7 @@ import {
 
 import {
   createSessionCookieAction,
-  registerTenantFromGoogle,
+  registerStudioFromGoogle,
   type SessionActionResult,
 } from "@/app/actions/auth";
 import { auth } from "@/lib/firebase";
@@ -61,7 +61,7 @@ export function RegisterForm() {
   const completeRegistration = useCallback(
     async (user: User) => {
       const initialToken = await user.getIdToken();
-      const registerResult = await registerTenantFromGoogle(initialToken);
+      const registerResult = await registerStudioFromGoogle(initialToken);
 
       if (!registerResult.ok) {
         setError(registerResult.error);

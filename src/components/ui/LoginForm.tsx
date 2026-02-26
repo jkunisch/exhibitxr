@@ -12,6 +12,7 @@ import {
 
 import {
   createSessionCookieAction,
+  registerStudioFromGoogle,
   type SessionActionResult,
 } from "@/app/actions/auth";
 import { auth } from "@/lib/firebase";
@@ -64,15 +65,27 @@ export function LoginForm({ nextPath }: LoginFormProps) {
     async (user: User) => {
       // Force a token refresh so freshly set custom claims are available.
       await user.getIdToken(true);
-      const tokenResult = await user.getIdTokenResult();
-      const tenantId =
-        typeof tokenResult.claims.tenantId === "string"
-          ? tokenResult.claims.tenantId
-          : null;
+      let tokenResult = await user.getIdTokenResult();
+      let studioId =
+        (tokenResult.claims.studioId || tokenResult.claims.tenantId) as string | undefined;
 
-      if (!tenantId) {
+      // If they don't have a studioId, try to auto-register them
+      if (!studioId) {
+        const registerResult = await registerStudioFromGoogle(tokenResult.token);
+        if (!registerResult.ok) {
+          setError(registerResult.error);
+          return;
+        }
+        
+        // Refresh again after server-side registration
+        await user.getIdToken(true);
+        tokenResult = await user.getIdTokenResult();
+        studioId = (tokenResult.claims.studioId || tokenResult.claims.tenantId) as string | undefined;
+      }
+
+      if (!studioId) {
         setError(
-          "Dieses Konto hat noch keinen Tenant-Claim. Bitte zuerst registrieren.",
+          "Konto konnte nicht mit einem Studio verknüpft werden. Bitte Support kontaktieren.",
         );
         return;
       }

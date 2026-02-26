@@ -34,7 +34,7 @@ export default async function RegisterPage() {
           Mit Google starten
         </h1>
         <p className="mt-2 text-sm text-white/70">
-          Erstelle dein Konto und richte deinen Tenant als Owner ein.
+          Erstelle dein Konto und richte dein Studio ein.
         </p>
 
         <div className="mt-8">
@@ -42,8 +42,7 @@ export default async function RegisterPage() {
         </div>
 
         <p className="mt-5 text-xs text-white/60">
-          Nach dem Setzen der Claims wird das ID-Token aktualisiert und danach
-          das Session-Cookie erstellt.
+          Mit der Anmeldung akzeptierst du unsere Nutzungsbedingungen.
         </p>
       </section>
     </main>
