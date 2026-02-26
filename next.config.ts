@@ -9,6 +9,13 @@ const nextConfig: NextConfig = {
     root: workspaceRoot,
   },
 
+  async redirects() {
+    return [
+      { source: "/privacy", destination: "/datenschutz", permanent: true },
+      { source: "/terms", destination: "/agb", permanent: true },
+    ];
+  },
+
   async headers() {
     return [
       // ── Global security headers ────────────────────────────────────
