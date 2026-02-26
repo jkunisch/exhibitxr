@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState, type ReactNode } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, MousePointerClick } from "lucide-react";
 import type { EditorConfigUpdate } from "@/hooks/useFirestoreExhibit";
 import {
     AMBIENT_INTENSITY_MAX,
@@ -9,6 +9,7 @@ import {
     AMBIENT_INTENSITY_STEP,
 } from "@/lib/lighting";
 import type { ExhibitConfig, ExhibitModel } from "@/types/schema";
+import { useEditorStore } from "@/store/editorStore";
 
 const ENVIRONMENT_PRESETS = [
     "studio",
@@ -170,6 +171,9 @@ export default function EditorForm({
     ambientIntensity,
     onChange,
 }: EditorFormProps) {
+    const pickedMeshName = useEditorStore((s) => s.pickedMeshName);
+    const setPickedMeshName = useEditorStore((s) => s.setPickedMeshName);
+
     const [openSections, setOpenSections] = useState<Record<SectionKey, boolean>>({
         general: true,
         lighting: true,
@@ -191,19 +195,20 @@ export default function EditorForm({
 
     const ambientLabel = useMemo(() => ambientIntensity.toFixed(1), [ambientIntensity]);
 
-    const addVariant = useCallback(() => {
+    const addVariant = useCallback((prefilledTarget?: string) => {
         const nextVariantIndex = config.model.variants.length + 1;
         const nextVariant = {
             id: `variant-${Date.now()}-${nextVariantIndex}`,
             label: `Variante ${nextVariantIndex}`,
-            meshTargets: [],
+            meshTargets: prefilledTarget ? [prefilledTarget] : [],
             color: "#ffffff",
             roughness: 0.5,
             metalness: 0,
         };
 
         updateModel({ variants: [...config.model.variants, nextVariant] });
-    }, [config.model.variants, updateModel]);
+        if (prefilledTarget) setPickedMeshName(null);
+    }, [config.model.variants, updateModel, setPickedMeshName]);
 
     const removeVariant = useCallback((variantId: string) => {
         updateModel({
@@ -372,10 +377,26 @@ export default function EditorForm({
                     isOpen={openSections.variants}
                     onToggle={toggleSection}
                 >
+                    {pickedMeshName && (
+                        <div className="mb-4 rounded-xl border border-cyan-400/30 bg-cyan-500/10 p-3 flex flex-col gap-2">
+                            <div className="flex items-center gap-2 text-cyan-200 text-xs font-semibold">
+                                <MousePointerClick size={14} />
+                                <span>Teil markiert: {pickedMeshName.replace("mesh:", "")}</span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => addVariant(pickedMeshName)}
+                                className="w-full rounded-lg bg-cyan-500 px-3 py-2 text-xs font-bold text-white shadow-md transition hover:bg-cyan-400 active:scale-95"
+                            >
+                                Variante für dieses Teil erstellen
+                            </button>
+                        </div>
+                    )}
+
                     <div className="flex justify-end">
                         <button
                             type="button"
-                            onClick={addVariant}
+                            onClick={() => addVariant()}
                             className="rounded-lg border border-cyan-400/50 bg-cyan-500/15 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
                         >
                             Variante hinzufügen

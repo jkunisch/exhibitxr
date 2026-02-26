@@ -16,6 +16,8 @@ interface EditorState {
     activeHotspotId: string | null;
     /** ID of the model currently selected for PivotControls editing. */
     selectedModelId: string | null;
+    /** The name of the mesh last clicked in the 3D viewer (for quick variant targeting). */
+    pickedMeshName: string | null;
     /** Ambient light intensity for editor + embed lighting control. */
     ambientIntensity: number;
     /** Firestore save status. */
@@ -35,6 +37,8 @@ interface EditorState {
     setActiveHotspot: (hotspotId: string | null) => void;
     /** Select a model for PivotControls editing. */
     setSelectedModel: (modelId: string | null) => void;
+    /** Store the name of a mesh picked in 3D. */
+    setPickedMeshName: (meshName: string | null) => void;
     /** Set ambient light intensity for the viewer. */
     setAmbientIntensity: (value: number) => void;
     /** Update the save status indicator. */
@@ -48,6 +52,7 @@ const initialState = {
     activeVariantId: undefined,
     activeHotspotId: null,
     selectedModelId: null,
+    pickedMeshName: null,
     ambientIntensity: DEFAULT_AMBIENT_INTENSITY,
     saveStatus: "idle" as SaveStatus,
     saveError: null,
@@ -58,11 +63,13 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
     setConfig: (config, ambientIntensity) => {
         const current = get().config;
-        // Only update if content actually changed (avoids re-render loops from own writes)
+        // Prefer config.ambientIntensity if defined
         const nextAmbient =
-            ambientIntensity === undefined
-                ? get().ambientIntensity
-                : sanitizeAmbientIntensity(ambientIntensity);
+            ambientIntensity !== undefined
+                ? sanitizeAmbientIntensity(ambientIntensity)
+                : config.ambientIntensity !== undefined
+                    ? sanitizeAmbientIntensity(config.ambientIntensity)
+                    : get().ambientIntensity;
 
         if (
             current &&
@@ -95,6 +102,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
     setSelectedModel: (modelId) => {
         set({ selectedModelId: modelId });
+    },
+
+    setPickedMeshName: (meshName) => {
+        set({ pickedMeshName: meshName });
     },
 
     setAmbientIntensity: (value) => {

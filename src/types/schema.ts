@@ -75,6 +75,10 @@ export const ExhibitConfigSchema = z.object({
   model: ExhibitModelSchema,
   /** HDRI environment preset (drei). */
   environment: z.string().default("studio"),
+  /** HDRI Rotation in Radianten (0 bis 2*PI). */
+  envRotation: z.number().default(0),
+  /** Umgebungslicht-Intensitaet. */
+  ambientIntensity: z.number().default(0.8),
   /** ContactShadows aktivieren. */
   contactShadows: z.boolean().default(true),
   /** Default-Kameraposition [x, y, z]. */

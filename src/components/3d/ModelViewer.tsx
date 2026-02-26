@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { resolveVariantTargetMeshNames, type VariantMeshDescriptor } from "@/lib/variantTargets";
 import type { ExhibitModel as ExhibitModelType } from "@/types/schema";
 import HotspotMarker from "./HotspotMarker";
+import { useEditorStore } from "@/store/editorStore";
 
 /** Google-hosted Draco decoder for up to 80% smaller GLB payloads. */
 const DRACO_DECODER_PATH =
@@ -141,6 +142,7 @@ function ModelViewerInner({
     onTransformEnd,
 }: ModelViewerProps) {
     const groupRef = useRef<THREE.Group>(null);
+    const setPickedMeshName = useEditorStore((s) => s.setPickedMeshName);
 
     // Call onLoaded once the model is ready
     useEffect(() => {
@@ -291,6 +293,18 @@ function ModelViewerInner({
         [isEditor, onSelect],
     );
 
+    // Advanced Mesh Picker: Catch clicks on specific parts of the 3D model
+    const handlePointerDown = useCallback((e: any) => {
+        if (!isEditor) return;
+        // Don't intercept if clicking the PivotControls gizmo
+        if (isSelected && e.object.parent?.name?.includes("PivotControls")) return;
+        
+        e.stopPropagation(); // Prevent orbit controls from taking over
+        if (e.object && e.object.name) {
+            setPickedMeshName(`mesh:${e.object.name}`);
+        }
+    }, [isEditor, isSelected, setPickedMeshName]);
+
     // PivotControls drag end handler — extracts world position
     const handleDragEnd = useCallback(() => {
         if (groupRef.current && onTransformEnd) {
@@ -305,6 +319,7 @@ function ModelViewerInner({
             position={config.position}
             scale={config.scale}
             onClick={handleClick}
+            onPointerDown={handlePointerDown}
         >
             {clonedScene ? (
                 <primitive object={clonedScene} />

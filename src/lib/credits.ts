@@ -23,10 +23,10 @@ export function isAdminEmail(email: string | undefined | null): boolean {
 
 /** Credits granted when a tenant upgrades to a plan (monthly). */
 const PLAN_MONTHLY_CREDITS: Record<PlanTier, number> = {
-    free: 5,       // 5 free credits to try the product (~1 premium or 5 basic)
-    starter: 20,   // 20 credits/month included (Creator plan)
-    pro: 60,       // 60 credits/month included (Studio plan)
-    enterprise: 200, // 200 credits/month included (Business plan)
+    free: 10,      // 10 free credits to try the product (~3 premium or 10 basic)
+    starter: 45,   // 45 credits/month included (Creator plan)
+    pro: 150,      // 150 credits/month included (Studio plan)
+    enterprise: 500, // 500 credits/month included (Business plan)
 };
 
 /** Credit cost per generation by provider. */
@@ -178,15 +178,52 @@ export async function grantCredits(
 }
 
 /**
- * Grant monthly credits based on plan tier.
+ * Grant monthly credits based on plan tier with a ROLLOVER mechanic.
  * Called from the Stripe webhook on subscription renewal.
+ * 
+ * Rollover Rule: Credits carry over to the next month, but the total balance 
+ * cannot exceed 2x the monthly plan limit to prevent infinite hoarding.
  */
 export async function grantMonthlyCredits(
     tenantId: string,
     plan: PlanTier,
 ): Promise<void> {
-    const amount = PLAN_MONTHLY_CREDITS[plan];
-    await grantCredits(tenantId, amount, `Monthly credits for ${plan} plan`);
+    const monthlyAmount = PLAN_MONTHLY_CREDITS[plan];
+    const maxAllowedBalance = monthlyAmount * 2; // Cap at 2x monthly limit
+
+    const adminDb = getAdminDb();
+    
+    // We run a transaction to ensure we don't blindly add credits
+    await adminDb.runTransaction(async (transaction) => {
+        const tenantRef = adminDb.collection("tenants").doc(tenantId);
+        const tenantDoc = await transaction.get(tenantRef);
+        
+        if (!tenantDoc.exists) return;
+        
+        const currentCredits = typeof tenantDoc.data()?.generationCredits === "number" 
+            ? tenantDoc.data()?.generationCredits 
+            : 0;
+            
+        // Calculate how much we can actually add without breaching the cap
+        let creditsToAdd = monthlyAmount;
+        if (currentCredits + monthlyAmount > maxAllowedBalance) {
+            creditsToAdd = Math.max(0, maxAllowedBalance - currentCredits);
+        }
+
+        if (creditsToAdd > 0) {
+            transaction.update(tenantRef, {
+                generationCredits: FieldValue.increment(creditsToAdd)
+            });
+
+            // Log the grant for audit trail
+            const logRef = tenantRef.collection("credit_log").doc();
+            transaction.set(logRef, {
+                amount: creditsToAdd,
+                reason: `Monthly renewal for ${plan} (Rollover Cap applied)`,
+                createdAt: new Date().toISOString(),
+            });
+        }
+    });
 }
 
 // ─── Anonymous Rate Limiting ────────────────────────────────────────────────

@@ -3,11 +3,13 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Loader2, CheckCircle2, AlertCircle, Camera, Zap, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import EmbedViewer from '@/components/3d/EmbedViewer';
 
 type SnapProvider = 'basic' | 'premium';
 
 export default function HomeSnapModule() {
+  const router = useRouter();
   const [status, setStatus] = useState<'IDLE' | 'UPLOADING' | 'PROCESSING' | 'SUCCESS' | 'ERROR'>('IDLE');
   const [progress, setProgress] = useState(0);
   const [modelUrl, setModelUrl] = useState<string | null>(null);
@@ -229,7 +231,7 @@ export default function HomeSnapModule() {
             <button
               onClick={() => {
                 localStorage.setItem('pending_snap_url', modelUrl);
-                window.location.href = '/dashboard';
+                router.push('/dashboard');
               }}
               className="w-full py-4 bg-[#00aaff] hover:bg-[#0090dd] text-white text-center font-black text-lg rounded-xl transition-all hover:scale-[1.02] shadow-lg shadow-[#00aaff]/30 mb-3"
             >

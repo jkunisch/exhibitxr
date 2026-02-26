@@ -1,63 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createExhibitionAction } from "@/app/actions/exhibitions";
 import { Loader2 } from "lucide-react";
 
 const PENDING_SNAP_KEY = "pending_snap_url";
-const HANDOFF_LOCK_KEY = "pending_snap_handoff_lock";
-const HANDOFF_LOCK_TTL_MS = 120_000;
-
-function acquireHandoffLock(): boolean {
-  try {
-    const now = Date.now();
-    const existingLockRaw = sessionStorage.getItem(HANDOFF_LOCK_KEY);
-    const existingLockTime = existingLockRaw ? Number.parseInt(existingLockRaw, 10) : Number.NaN;
-
-    if (Number.isFinite(existingLockTime) && now - existingLockTime < HANDOFF_LOCK_TTL_MS) {
-      return false;
-    }
-
-    sessionStorage.setItem(HANDOFF_LOCK_KEY, String(now));
-    return true;
-  } catch {
-    // Best effort fallback if sessionStorage is unavailable.
-    return true;
-  }
-}
-
-function releaseHandoffLock() {
-  try {
-    sessionStorage.removeItem(HANDOFF_LOCK_KEY);
-  } catch {
-    // Ignore cleanup errors.
-  }
-}
 
 export default function SnapHandoff() {
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [retryToken, setRetryToken] = useState(0);
+  
+  // Robust lock to prevent double-execution in React Strict Mode
+  const hasImported = useRef(false);
 
   useEffect(() => {
-    let isActive = true;
+    // Only run if there's a pending snap and we haven't already started importing it
+    const pendingUrl = localStorage.getItem(PENDING_SNAP_KEY);
+    if (!pendingUrl || hasImported.current) return;
+    
+    // Lock it immediately
+    hasImported.current = true;
 
     const processPendingSnap = async () => {
-      const pendingUrl = localStorage.getItem(PENDING_SNAP_KEY);
-      if (!pendingUrl) return;
-      if (!acquireHandoffLock()) {
-        if (isActive) {
-          window.setTimeout(() => {
-            if (isActive) {
-              setRetryToken((previous) => previous + 1);
-            }
-          }, 1500);
-        }
-        return;
-      }
-
       setIsProcessing(true);
       setError(null);
 
@@ -70,44 +36,38 @@ export default function SnapHandoff() {
 
         const result = await createExhibitionAction(formData);
 
-        if (result.ok) {
-          const editorUrl = `/dashboard/editor/${result.exhibitionId}`;
-          localStorage.removeItem(PENDING_SNAP_KEY);
-          releaseHandoffLock();
-
-          // In dev strict-mode remounts, success may resolve after unmount.
-          // Always force navigation so handoff never gets "stuck" on dashboard.
-          if (isActive) {
-            router.replace(editorUrl);
-            window.setTimeout(() => {
-              window.location.assign(editorUrl);
-            }, 1200);
-          } else {
-            window.location.assign(editorUrl);
-          }
-        } else {
-          if (!isActive) return;
-          console.error("SnapHandoff Error:", result.error);
+                if (result.ok) {
+                  const editorUrl = `/dashboard/editor/${result.exhibitionId}`;
+                  localStorage.removeItem(PENDING_SNAP_KEY);
+        
+                  // Smooth transition: Transition directly to the editor. 
+                  // The backend path is already revalidated by the server action.
+                  router.replace(editorUrl);
+                } else {          console.error("SnapHandoff Error:", result.error);
           setError(result.error);
+          // Unlock on failure so the user can hit 'retry'
+          hasImported.current = false;
         }
       } catch (error) {
-        if (!isActive) return;
         console.error("SnapHandoff Exception:", error);
         setError("Studio-Import fehlgeschlagen. Bitte erneut versuchen.");
+        hasImported.current = false;
       } finally {
-        releaseHandoffLock();
-        if (isActive) {
-          setIsProcessing(false);
-        }
+        setIsProcessing(false);
       }
     };
 
     processPendingSnap();
 
-    return () => {
-      isActive = false;
-    };
-  }, [retryToken, router]);
+  }, [router]);
+
+  // Clean up: If the user manually retries after an error
+  const handleRetry = () => {
+    hasImported.current = false;
+    setIsProcessing(false);
+    setError(null);
+    // This state change will trigger the useEffect again
+  };
 
   if (!isProcessing && !error) return null;
 
@@ -118,7 +78,7 @@ export default function SnapHandoff() {
         <p className="mt-3 max-w-lg text-center text-zinc-300">{error}</p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <button
-            onClick={() => setRetryToken((previous) => previous + 1)}
+            onClick={handleRetry}
             className="rounded-xl bg-[#00aaff] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#0090dd]"
           >
             Erneut versuchen
@@ -127,6 +87,8 @@ export default function SnapHandoff() {
             onClick={() => {
               localStorage.removeItem(PENDING_SNAP_KEY);
               setError(null);
+              // Unlock so the component hides
+              hasImported.current = false; 
             }}
             className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
           >
@@ -136,7 +98,6 @@ export default function SnapHandoff() {
       </div>
     );
   }
-
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 text-white backdrop-blur-sm">

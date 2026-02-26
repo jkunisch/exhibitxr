@@ -41,7 +41,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com https://r2cdn.perplexity.ai",
               "img-src 'self' data: blob: https://firebasestorage.googleapis.com https://*.r2.dev",
-              "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://api.stripe.com https://api.meshy.ai https://api.tripo3d.ai https://api.groq.com https://openrouter.ai https://api.telegram.org wss://*.firebaseio.com https://raw.githack.com https://raw.githubusercontent.com",
+              "connect-src 'self' blob: https://*.googleapis.com https://*.firebaseio.com https://api.stripe.com https://api.meshy.ai https://api.tripo3d.ai https://api.groq.com https://openrouter.ai https://api.telegram.org wss://*.firebaseio.com https://raw.githack.com https://raw.githubusercontent.com",
               "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
               "media-src 'self' blob:",
             ].join("; "),
