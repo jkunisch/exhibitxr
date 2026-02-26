@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { RegisterForm } from "@/components/ui/RegisterForm";
 import { getSessionUser } from "@/lib/session";
@@ -19,14 +20,21 @@ export default async function RegisterPage() {
       <div className="absolute -bottom-28 right-8 h-72 w-72 rounded-full bg-sky-400/15 blur-3xl" />
 
       <section className="relative z-10 w-full max-w-md rounded-3xl border border-white/15 bg-white/8 p-6 shadow-[0_40px_120px_rgba(15,23,42,0.55)] backdrop-blur-xl sm:p-8">
+        <Link
+          href="/"
+          className="inline-flex text-xs font-medium text-cyan-100/90 underline decoration-cyan-200/45 underline-offset-2 hover:text-cyan-100"
+        >
+          Zurueck zur Startseite
+        </Link>
+
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/80">
-          3D-Snap Onboarding
+          3D-Snap Registrierung
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">
-          Create your tenant
+          Mit Google starten
         </h1>
         <p className="mt-2 text-sm text-white/70">
-          Register your organization and provision your owner account.
+          Erstelle dein Konto und richte deinen Tenant als Owner ein.
         </p>
 
         <div className="mt-8">
@@ -34,8 +42,8 @@ export default async function RegisterPage() {
         </div>
 
         <p className="mt-5 text-xs text-white/60">
-          After claim setup, the flow refreshes ID token and then creates the
-          session cookie.
+          Nach dem Setzen der Claims wird das ID-Token aktualisiert und danach
+          das Session-Cookie erstellt.
         </p>
       </section>
     </main>

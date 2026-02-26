@@ -19,19 +19,65 @@ export type RegisterTenantResult =
 
 // Validation Schemas
 const RegisterSchema = z.object({
-  idToken: z.string().min(1, "ID token is required."),
-  companyName: z.string().trim().min(2, "Company name must be at least 2 characters."),
+  idToken: z.string().min(1, "ID-Token ist erforderlich."),
 });
 
 const SessionSchema = z.object({
-  idToken: z.string().min(1, "ID token is required."),
+  idToken: z.string().min(1, "ID-Token ist erforderlich."),
 });
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof z.ZodError) {
-    return error.issues[0]?.message || "Validation failed";
+    return error.issues[0]?.message || "Validierung fehlgeschlagen.";
   }
   return error instanceof Error && error.message ? error.message : fallback;
+}
+
+const DEFAULT_TENANT_NAME = "Neuer Tenant";
+
+function normalizeTenantName(value: string | null | undefined): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim().slice(0, 80);
+  return normalized.length > 0 ? normalized : null;
+}
+
+function getDomainTenantName(email: string | null): string | null {
+  if (!email) {
+    return null;
+  }
+
+  const parts = email.toLowerCase().split("@");
+  if (parts.length !== 2) {
+    return null;
+  }
+
+  const domain = normalizeTenantName(parts[1]?.replace(/^www\./, ""));
+  return domain;
+}
+
+function getLocalPartTenantName(email: string | null): string | null {
+  if (!email) {
+    return null;
+  }
+
+  const parts = email.split("@");
+  if (parts.length === 0) {
+    return null;
+  }
+
+  return normalizeTenantName(parts[0]);
+}
+
+function deriveTenantName(email: string | null, displayName: string | null): string {
+  return (
+    getDomainTenantName(email) ??
+    normalizeTenantName(displayName) ??
+    getLocalPartTenantName(email) ??
+    DEFAULT_TENANT_NAME
+  );
 }
 
 async function setSessionCookie(idToken: string): Promise<SessionActionResult> {
@@ -61,7 +107,7 @@ async function setSessionCookie(idToken: string): Promise<SessionActionResult> {
 }
 
 /**
- * Creates a tenant, adds the current user as owner member, sets custom claims,
+ * Creates a tenant for a Google-authenticated user, adds the user as owner member, sets custom claims,
  * but does NOT create the final session cookie yet.
  *
  * IMPORTANT HANDOFF DOCUMENTATION:
@@ -72,13 +118,12 @@ async function setSessionCookie(idToken: string): Promise<SessionActionResult> {
  * 4. Finally, Client MUST call `createSessionCookieAction(refreshedToken)` 
  *    to finalize the SSR login.
  */
-export async function registerTenantAndSession(
+export async function registerTenantFromGoogle(
   idToken: string,
-  companyName: string,
 ): Promise<RegisterTenantResult> {
   
   // 1. Input Validation
-  const validation = RegisterSchema.safeParse({ idToken, companyName });
+  const validation = RegisterSchema.safeParse({ idToken });
   if (!validation.success) {
     return { ok: false, error: validation.error.issues[0].message, code: "INVALID_INPUT" };
   }
@@ -89,7 +134,10 @@ export async function registerTenantAndSession(
     const decodedToken = await adminAuth.verifyIdToken(idToken);
 
     const uid = decodedToken.uid;
-    const email = decodedToken.email ?? null;
+    const email =
+      typeof decodedToken.email === "string" ? decodedToken.email : null;
+    const displayName =
+      typeof decodedToken.name === "string" ? decodedToken.name : null;
     const existingTenantId =
       typeof decodedToken.tenantId === "string" ? decodedToken.tenantId : null;
     
@@ -97,18 +145,19 @@ export async function registerTenantAndSession(
     if (existingTenantId) {
       return {
         ok: false,
-        error: "User already has a tenant claim. Use login instead.",
+        error: "Dieses Konto ist bereits einem Tenant zugeordnet. Bitte anmelden.",
         code: "USER_ALREADY_HAS_TENANT"
       };
     }
 
     const tenantId = crypto.randomUUID();
     const role = "owner";
+    const tenantName = deriveTenantName(email, displayName);
 
     // 2. Database Writes (Fail closed if permissions/writes fail)
     await adminDb.collection("tenants").doc(tenantId).set({
       id: tenantId,
-      name: validation.data.companyName,
+      name: tenantName,
       plan: "free",
       createdAt: new Date().toISOString(),
     });
@@ -133,10 +182,18 @@ export async function registerTenantAndSession(
   } catch (error) {
     return {
       ok: false,
-      error: getErrorMessage(error, "Failed to register tenant and session."),
+      error: getErrorMessage(error, "Tenant konnte nicht erstellt werden."),
       code: "INTERNAL_ERROR"
     };
   }
+}
+
+// Backward-compatible alias for existing consumers.
+export async function registerTenantAndSession(
+  idToken: string,
+  _legacyCompanyName?: string,
+): Promise<RegisterTenantResult> {
+  return registerTenantFromGoogle(idToken);
 }
 
 /**
@@ -163,7 +220,7 @@ export async function createSessionCookieAction(
     if (!tenantId) {
       return {
         ok: false,
-        error: "User has no tenant claim. Complete onboarding or contact support.",
+        error: "Kein Tenant-Claim gefunden. Bitte Onboarding abschliessen oder Support kontaktieren.",
         code: "TENANT_CLAIM_MISSING", // Explicit error code for UI
       };
     }

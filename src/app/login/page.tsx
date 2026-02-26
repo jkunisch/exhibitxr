@@ -40,14 +40,22 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <div className="absolute -bottom-28 right-8 h-72 w-72 rounded-full bg-sky-400/15 blur-3xl" />
 
       <section className="relative z-10 w-full max-w-md rounded-3xl border border-white/15 bg-white/8 p-6 shadow-[0_40px_120px_rgba(15,23,42,0.55)] backdrop-blur-xl sm:p-8">
+        <Link
+          href="/"
+          className="inline-flex text-xs font-medium text-cyan-100/90 underline decoration-cyan-200/45 underline-offset-2 hover:text-cyan-100"
+        >
+          Zurueck zur Startseite
+        </Link>
+
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/80">
           3D-Snap Admin
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">
-          Welcome back
+          Willkommen zurueck
         </h1>
         <p className="mt-2 text-sm text-white/70">
-          Sign in to access your tenant dashboard and exhibitions.
+          Melde dich mit Google an, um dein Dashboard und deine Ausstellungen zu
+          oeffnen.
         </p>
 
         <div className="mt-8">
@@ -55,18 +63,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </div>
 
         <p className="mt-4 text-center text-xs text-white/60">
-          New tenant?{" "}
+          Noch kein Konto?{" "}
           <Link
             href="/register"
             className="font-medium text-cyan-200/90 underline decoration-cyan-200/55 underline-offset-2 hover:text-cyan-100"
           >
-            Create an account
+            Jetzt registrieren
           </Link>
         </p>
 
         <p className="mt-5 text-xs text-white/60">
-          Claims are refreshed on login (`await user.getIdToken(true)`) before
-          session handoff.
+          Beim Login werden Claims mit `await user.getIdToken(true)`
+          aktualisiert, bevor die Session aufgebaut wird.
         </p>
       </section>
     </main>
