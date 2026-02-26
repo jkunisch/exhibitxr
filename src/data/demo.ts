@@ -58,7 +58,10 @@ export const demoConfig: ExhibitConfig = {
         ],
     },
     environment: "city",
+    envRotation: 0,
+    ambientIntensity: 0.8,
     contactShadows: true,
+    autoRotate: false,
     cameraPosition: [0, 0.5, 3],
     bgColor: "#0a0a0f",
 };
@@ -100,7 +103,10 @@ export const industrialDemoConfig: ExhibitConfig = {
         ],
     },
     environment: "warehouse",
+    envRotation: 0,
+    ambientIntensity: 0.8,
     contactShadows: true,
+    autoRotate: false,
     cameraPosition: [0, 0.5, 2.5],
     bgColor: "#111111",
 };
@@ -133,7 +139,10 @@ export const automotiveDemoConfig: ExhibitConfig = {
         ],
     },
     environment: "studio",
+    envRotation: 0,
+    ambientIntensity: 0.8,
     contactShadows: true,
+    autoRotate: false,
     cameraPosition: [0, 1.5, 4],
     bgColor: "#1a1a1a",
 };

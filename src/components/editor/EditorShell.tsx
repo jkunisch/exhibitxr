@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Camera, ExternalLink, Settings, SlidersHorizontal, Sparkles, X, Download, Loader2 } from "lucide-react";
 import ViewerCanvas from "@/components/3d/ViewerCanvas";
 import ModelViewer from "@/components/3d/ModelViewer";
@@ -189,7 +189,10 @@ export default function EditorShell({
             hotspots: [],
         },
         environment: "studio",
+        envRotation: 0,
+        ambientIntensity: 0.8,
         contactShadows: true,
+        autoRotate: false,
         cameraPosition: [0, 1.5, 4] as [number, number, number],
         bgColor: "#111111",
     } : null);
@@ -207,26 +210,26 @@ export default function EditorShell({
 
     const handleDownload = async () => {
         if (!effectiveConfig.model.glbUrl || isDownloading) return;
-        
+
         setIsDownloading(true);
         try {
             const response = await fetch(effectiveConfig.model.glbUrl);
             if (!response.ok) throw new Error("Download failed");
-            
+
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
-            
+
             const a = document.createElement("a");
             a.style.display = "none";
             a.href = url;
-            
+
             const rawTitle = effectiveConfig.title || "Mein_3D_Snap";
             const safeTitle = rawTitle.replace(/[^a-zA-Z0-9_-]/g, "_");
             a.download = `${safeTitle}.glb`;
-            
+
             document.body.appendChild(a);
             a.click();
-            
+
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
         } catch (error) {
@@ -289,6 +292,7 @@ export default function EditorShell({
                     <div className="relative min-h-0 md:row-start-1 md:row-end-2 lg:col-start-2 lg:row-start-1">
                         <ViewerCanvas
                             environment={effectiveConfig.environment}
+                            envRotation={effectiveConfig.envRotation}
                             contactShadows={effectiveConfig.contactShadows}
                             bgColor={effectiveConfig.bgColor}
                             ambientIntensity={ambientIntensity}
@@ -296,6 +300,7 @@ export default function EditorShell({
                             className="h-full w-full"
                             disableBounds={selectedModelId !== null}
                             restrictOrbitToHalfTurn={restrictOrbitToHalfTurn}
+                            autoRotate={effectiveConfig.autoRotate}
                         >
                             <ModelViewer
                                 config={effectiveConfig.model}
@@ -410,6 +415,7 @@ export default function EditorShell({
                                 <EditorForm
                                     config={effectiveConfig}
                                     ambientIntensity={ambientIntensity}
+                                    exhibitId={exhibitId}
                                     onChange={handleConfigChange}
                                 />
                             </div>

@@ -81,6 +81,8 @@ export const ExhibitConfigSchema = z.object({
   ambientIntensity: z.number().default(0.8),
   /** ContactShadows aktivieren. */
   contactShadows: z.boolean().default(true),
+  /** Turntable-Animation: Modell dreht sich automatisch. */
+  autoRotate: z.boolean().default(false),
   /** Default-Kameraposition [x, y, z]. */
   cameraPosition: z.tuple([z.number(), z.number(), z.number()]).default([0, 1.5, 4]),
   /** Hintergrundfarbe (CSS). */

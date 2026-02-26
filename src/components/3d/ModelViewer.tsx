@@ -2,6 +2,7 @@
 
 import { useRef, useMemo, useEffect, useCallback } from "react";
 import { useGLTF, PivotControls } from "@react-three/drei";
+import type { ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import { resolveVariantTargetMeshNames, type VariantMeshDescriptor } from "@/lib/variantTargets";
 import type { ExhibitModel as ExhibitModelType } from "@/types/schema";
@@ -294,7 +295,7 @@ function ModelViewerInner({
     );
 
     // Advanced Mesh Picker: Catch clicks on specific parts of the 3D model
-    const handlePointerDown = useCallback((e: any) => {
+    const handlePointerDown = useCallback((e: ThreeEvent<PointerEvent>) => {
         if (!isEditor) return;
         // Don't intercept if clicking the PivotControls gizmo
         if (isSelected && e.object.parent?.name?.includes("PivotControls")) return;

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useState, type ReactNode } from "react";
-import { ChevronDown, ChevronRight, MousePointerClick } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, MousePointerClick, Zap } from "lucide-react";
+import { optimizeModelAction } from "@/app/actions/optimizeModel";
 import type { EditorConfigUpdate } from "@/hooks/useFirestoreExhibit";
 import {
     AMBIENT_INTENSITY_MAX,
@@ -40,9 +41,27 @@ const ENVIRONMENT_THUMBNAILS: Record<EnvironmentPreset, string> = {
     lobby: "from-amber-100/60 via-amber-300/40 to-slate-700/55",
 };
 
+interface MaterialPreset {
+    label: string;
+    icon: string;
+    color?: string; // If undefined, we keep the user's current color
+    roughness: number;
+    metalness: number;
+    className: string;
+}
+
+const MATERIAL_PRESETS: MaterialPreset[] = [
+    { label: "Matte", icon: "🌫️", roughness: 0.9, metalness: 0, className: "bg-zinc-800 text-zinc-300 border-zinc-700" },
+    { label: "Plastik", icon: "🧱", roughness: 0.35, metalness: 0, className: "bg-blue-900/40 text-blue-300 border-blue-800/50" },
+    { label: "Chrom", icon: "✨", color: "#e0e0e0", roughness: 0.05, metalness: 1.0, className: "bg-slate-300 text-slate-900 border-slate-400" },
+    { label: "Gold", icon: "🏆", color: "#ffd700", roughness: 0.15, metalness: 1.0, className: "bg-amber-400 text-amber-950 border-amber-500" },
+    { label: "Cyberpunk", icon: "🔮", color: "#ff003c", roughness: 0.2, metalness: 0.8, className: "bg-rose-900/60 text-rose-300 border-rose-700" },
+];
+
 interface EditorFormProps {
     config: ExhibitConfig;
     ambientIntensity: number;
+    exhibitId: string;
     onChange: (partial: EditorConfigUpdate) => void;
 }
 
@@ -162,6 +181,93 @@ function formatVariantTargets(targets: string[]): string {
     return targets.join(", ");
 }
 
+// ── Pro Optimize Button ──────────────────────────────────────────────────────
+// Self-contained component with loading, error, and success states.
+
+function OptimizeButton({
+    exhibitId,
+    glbUrl,
+    onChange,
+}: {
+    exhibitId: string;
+    glbUrl: string;
+    onChange: (partial: EditorConfigUpdate) => void;
+}) {
+    const [isOptimizing, setIsOptimizing] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [result, setResult] = useState<{
+        originalSizeKB: number;
+        optimizedSizeKB: number;
+        reductionPercent: number;
+    } | null>(null);
+
+    const handleOptimize = useCallback(async () => {
+        if (isOptimizing || !glbUrl) return;
+
+        setIsOptimizing(true);
+        setError(null);
+        setResult(null);
+
+        try {
+            const res = await optimizeModelAction(exhibitId, glbUrl);
+
+            if (res.ok) {
+                setResult({
+                    originalSizeKB: res.originalSizeKB,
+                    optimizedSizeKB: res.optimizedSizeKB,
+                    reductionPercent: res.reductionPercent,
+                });
+                // Update the editor store with the new optimized URL
+                onChange({ model: { glbUrl: res.glbUrl } as ExhibitModel });
+            } else {
+                setError(res.error);
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Unbekannter Fehler.");
+        } finally {
+            setIsOptimizing(false);
+        }
+    }, [exhibitId, glbUrl, isOptimizing, onChange]);
+
+    return (
+        <div className="border-t border-white/10 pt-4">
+            <button
+                type="button"
+                disabled={isOptimizing || !glbUrl}
+                onClick={handleOptimize}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-400/50 bg-emerald-500/15 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                {isOptimizing ? (
+                    <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Optimierung läuft…
+                    </>
+                ) : (
+                    <>
+                        <Zap className="h-4 w-4" />
+                        Modell optimieren &amp; komprimieren
+                    </>
+                )}
+            </button>
+
+            {result && (
+                <div className="mt-2 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">
+                    <p className="font-semibold">
+                        ✓ Optimiert: {result.originalSizeKB} KB → {result.optimizedSizeKB} KB
+                        <span className="ml-1 text-emerald-300">(↓{result.reductionPercent}%)</span>
+                    </p>
+                </div>
+            )}
+
+            {error && (
+                <div className="mt-2 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
+                    {error}
+                </div>
+            )}
+        </div>
+    );
+}
+
 /**
  * Editor form panel — edits ExhibitConfig + extended editor controls and
  * calls onChange with strictly typed partial updates.
@@ -169,6 +275,7 @@ function formatVariantTargets(targets: string[]): string {
 export default function EditorForm({
     config,
     ambientIntensity,
+    exhibitId,
     onChange,
 }: EditorFormProps) {
     const pickedMeshName = useEditorStore((s) => s.pickedMeshName);
@@ -295,7 +402,28 @@ export default function EditorForm({
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+                    <div className="border-t border-white/10 pt-4">
+                        <div className="mb-2 flex items-center justify-between">
+                            <FieldLabel>Licht-Rotation (HDRI)</FieldLabel>
+                            <span className="text-xs font-semibold text-cyan-200">
+                                {Math.round(((config.envRotation || 0) * 180) / Math.PI)}°
+                            </span>
+                        </div>
+                        <input
+                            type="range"
+                            min={0}
+                            max={Math.PI * 2}
+                            step={0.05}
+                            value={config.envRotation || 0}
+                            onChange={(e) =>
+                                onChange({ envRotation: parseFloat(e.target.value) || 0 })
+                            }
+                            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/15 accent-cyan-400"
+                        />
+                        <FieldHint>Drehe die Lichtquelle, um Spiegelungen perfekt zu setzen.</FieldHint>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] border-t border-white/10 pt-4 mt-4">
                         <div>
                             <FieldLabel>Hintergrundfarbe</FieldLabel>
                             <FieldHint>Hex-Farbcode für den Szenenhintergrund.</FieldHint>
@@ -334,6 +462,30 @@ export default function EditorForm({
                             />
                         </button>
                     </div>
+
+                    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
+                        <div>
+                            <p className="text-sm font-medium text-white">Turntable Animation</p>
+                            <p className="text-xs text-white/55">
+                                Modell dreht sich automatisch — pausiert bei Interaktion.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={config.autoRotate}
+                            onClick={() => onChange({ autoRotate: !config.autoRotate })}
+                            className={`relative h-7 w-12 rounded-full border transition ${config.autoRotate
+                                ? "border-cyan-400/60 bg-cyan-500/25"
+                                : "border-white/20 bg-white/10"
+                                }`}
+                        >
+                            <span
+                                className={`absolute top-0.5 h-[22px] w-[22px] rounded-full bg-white shadow transition ${config.autoRotate ? "left-6" : "left-0.5"
+                                    }`}
+                            />
+                        </button>
+                    </div>
                 </Section>
 
                 <Section
@@ -368,6 +520,13 @@ export default function EditorForm({
                             />
                         </div>
                     </div>
+
+                    {/* ── Pro Optimize (Decimation) ──────────────────── */}
+                    <OptimizeButton
+                        exhibitId={exhibitId}
+                        glbUrl={config.model.glbUrl}
+                        onChange={onChange}
+                    />
                 </Section>
 
                 <Section
@@ -467,7 +626,36 @@ export default function EditorForm({
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            {/* ── Quick Style Presets ──────────────────────────────── */}
+                            <div className="pt-2">
+                                <FieldLabel>Style Presets</FieldLabel>
+                                <div className="flex flex-wrap gap-2">
+                                    {MATERIAL_PRESETS.map((preset) => (
+                                        <button
+                                            key={preset.label}
+                                            type="button"
+                                            onClick={() => {
+                                                const variants = [...config.model.variants];
+                                                variants[vi] = {
+                                                    ...variant,
+                                                    roughness: preset.roughness,
+                                                    metalness: preset.metalness,
+                                                    // Only overwrite color if the preset strictly dictates one
+                                                    ...(preset.color ? { color: preset.color } : {}),
+                                                };
+                                                updateModel({ variants });
+                                            }}
+                                            className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition hover:scale-105 active:scale-95 ${preset.className}`}
+                                        >
+                                            <span>{preset.icon}</span>
+                                            {preset.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            {/* ──────────────────────────────────────────────────────── */}
+
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-2 border-t border-white/5">
                                 <div>
                                     <FieldLabel>Roughness</FieldLabel>
                                     <NumberInput

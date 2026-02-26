@@ -24,8 +24,8 @@ export function isAdminEmail(email: string | undefined | null): boolean {
 /** Credits granted when a tenant upgrades to a plan (monthly). */
 const PLAN_MONTHLY_CREDITS: Record<PlanTier, number> = {
     free: 10,      // 10 free credits to try the product (~3 premium or 10 basic)
-    starter: 45,   // 45 credits/month included (Creator plan)
-    pro: 150,      // 150 credits/month included (Studio plan)
+    starter: 30,   // 30 credits/month included (Creator plan)
+    pro: 80,       // 80 credits/month included (Studio plan)
     enterprise: 500, // 500 credits/month included (Business plan)
 };
 
