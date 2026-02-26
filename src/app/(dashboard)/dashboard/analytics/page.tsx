@@ -90,7 +90,13 @@ export default async function AnalyticsPage() {
                        <div>
                           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Monatliche Views</p>
                           <h5 className="text-2xl font-black text-white">
-                             {Object.values(exhibit.monthlyViews).reduce((a: any, b: any) => a + b, 0).toLocaleString()}
+                             {Object.values(exhibit.monthlyViews)
+                               .reduce<number>(
+                                 (sum, views) =>
+                                   typeof views === "number" ? sum + views : sum,
+                                 0,
+                               )
+                               .toLocaleString()}
                           </h5>
                        </div>
                     </StudioCard>

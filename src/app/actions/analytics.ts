@@ -3,6 +3,63 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminDb } from "@/lib/firebaseAdmin";
 
+type AnalyticsEvent = {
+  type: string;
+  data?: Record<string, unknown>;
+  timestamp: string;
+};
+
+type AnalyticsEventInput = {
+  type: string;
+  data?: unknown;
+  timestamp: string;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normalizeEventData(data: unknown): Record<string, unknown> | undefined {
+  if (typeof data === "undefined") {
+    return undefined;
+  }
+
+  if (isRecord(data)) {
+    return data;
+  }
+
+  return { value: data };
+}
+
+function normalizeIncomingEvent(event: AnalyticsEventInput): AnalyticsEvent {
+  const normalizedData = normalizeEventData(event.data);
+  return {
+    type: event.type,
+    timestamp: event.timestamp,
+    ...(normalizedData ? { data: normalizedData } : {}),
+  };
+}
+
+function normalizeStoredEvent(value: unknown): AnalyticsEvent | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const type = value.type;
+  const timestamp = value.timestamp;
+
+  if (typeof type !== "string" || typeof timestamp !== "string") {
+    return null;
+  }
+
+  const normalizedData = normalizeEventData(value.data);
+  return {
+    type,
+    timestamp,
+    ...(normalizedData ? { data: normalizedData } : {}),
+  };
+}
+
 /**
  * Record a view for an exhibition and its tenant.
  * Updates global tenant stats and per-exhibition stats.
@@ -64,7 +121,7 @@ export async function recordEvents(
   exhibitId: string,
   tenantId: string,
   sessionId: string,
-  events: { type: string; data?: any; timestamp: string }[]
+  events: AnalyticsEventInput[]
 ): Promise<void> {
   if (events.length === 0) return;
 
@@ -76,11 +133,12 @@ export async function recordEvents(
     .doc(exhibitId)
     .collection("analytics")
     .doc(sessionId);
+  const normalizedEvents = events.map(normalizeIncomingEvent);
 
   try {
     await sessionRef.set(
       {
-        events: FieldValue.arrayUnion(...events),
+        events: FieldValue.arrayUnion(...normalizedEvents),
         lastUpdated: FieldValue.serverTimestamp(),
       },
       { merge: true }
@@ -149,11 +207,18 @@ export async function getExhibitionAnalytics(exhibitId: string, tenantId: string
       .collection("analytics")
       .get();
     
-    const allEvents: { type: string; data?: Record<string, unknown>; timestamp: string }[] = [];
+    const allEvents: AnalyticsEvent[] = [];
     analyticsSnapshot.forEach((doc) => {
       const data = doc.data();
-      if (Array.isArray(data.events)) {
-        allEvents.push(...data.events);
+      const rawEvents = data.events;
+
+      if (Array.isArray(rawEvents)) {
+        rawEvents.forEach((eventValue) => {
+          const normalized = normalizeStoredEvent(eventValue);
+          if (normalized) {
+            allEvents.push(normalized);
+          }
+        });
       }
     });
     

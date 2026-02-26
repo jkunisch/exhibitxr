@@ -16,6 +16,14 @@ import { uploadGlbFile } from '@/lib/storage';
 
 type PathType = 'photo' | 'upload' | 'demo';
 
+function getErrorMessage(error: unknown, fallback: string): string {
+    if (error instanceof Error && error.message) {
+        return error.message;
+    }
+
+    return fallback;
+}
+
 // --- State Machine Typisierung ---
 type OnboardingState =
     | { step: 'welcome' }
@@ -100,9 +108,9 @@ export function OnboardingFlow({ tenantId, onDismiss }: { tenantId: string; onDi
             if (!result.ok) throw new Error(result.error);
 
             dispatch({ type: 'CREATED', exhibitionId: result.exhibitionId });
-        } catch (error) {
+        } catch (error: unknown) {
             console.error(error);
-            alert("Fehler beim Erstellen der Ausstellung: " + error);
+            alert(`Fehler beim Erstellen der Ausstellung: ${getErrorMessage(error, "Unbekannter Fehler")}`);
         } finally {
             setIsCreating(false);
         }
@@ -310,8 +318,12 @@ function ProcessingStep({ path, exhibitionId, tenantId, title, environment, onCo
                         onComplete(finalGlbUrl);
                     }
                 }
-            } catch (err: any) {
-                if (!isCancelled) setError(err.message || "Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
+            } catch (err: unknown) {
+                if (!isCancelled) {
+                    setError(
+                        getErrorMessage(err, "Ein Fehler ist aufgetreten. Bitte versuche es erneut."),
+                    );
+                }
             }
         };
 
@@ -395,7 +407,7 @@ function ChecklistStep({ exhibitionId, title, environment, glbUrl, onDismiss }: 
             fd.append("isPublished", "on"); // Sets it to published
             await updateExhibitionAction(fd);
             setPublished(true);
-        } catch (e) {
+        } catch (e: unknown) {
             console.error(e);
             alert("Fehler beim Veröffentlichen");
         } finally {

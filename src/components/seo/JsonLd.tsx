@@ -1,7 +1,10 @@
 import React from 'react';
 
+type JsonLdPrimitive = string | number | boolean | null;
+type JsonLdValue = JsonLdPrimitive | JsonLdValue[] | { [key: string]: JsonLdValue };
+
 interface JsonLdProps {
-  data: Record<string, any>;
+  data: { [key: string]: JsonLdValue };
 }
 
 export default function JsonLd({ data }: JsonLdProps) {

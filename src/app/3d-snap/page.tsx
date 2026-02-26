@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { industries } from "@/data/industries";
 import JsonLd from "@/components/seo/JsonLd";
+import type { LucideIcon } from 'lucide-react';
 import { 
   ChevronRight, 
   Box, 
@@ -16,7 +17,7 @@ import {
   Sparkles 
 } from 'lucide-react';
 
-const industryIcons: Record<string, any> = {
+const industryIcons: Record<string, LucideIcon> = {
   moebel: Box,
   schmuck: Watch,
   elektronik: Smartphone,

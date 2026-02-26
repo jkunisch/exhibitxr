@@ -6,12 +6,45 @@ const path = require('path');
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
-const SA_PATH = 'C:/Users/jonat/Documents/ExhibitXR/secrets/firebase-adminsdk.json';
 const ENV_PATH = path.join(__dirname, '..', '.env.local');
 
-const envContent = fs.readFileSync(ENV_PATH, 'utf8');
-const saLine = envContent.split('\n').find(l => l.startsWith('FIREBASE_SERVICE_ACCOUNT_KEY='));
-const sa = JSON.parse(saLine.slice('FIREBASE_SERVICE_ACCOUNT_KEY='.length));
+function loadServiceAccountFromEnv() {
+    if (!fs.existsSync(ENV_PATH)) {
+        throw new Error(`.env.local not found at: ${ENV_PATH}`);
+    }
+
+    const envContent = fs.readFileSync(ENV_PATH, 'utf8');
+    const serviceAccountLine = envContent
+        .split('\n')
+        .find((line) => line.startsWith('FIREBASE_SERVICE_ACCOUNT_KEY='));
+
+    if (!serviceAccountLine) {
+        throw new Error(
+            "FIREBASE_SERVICE_ACCOUNT_KEY is missing in .env.local. Add the full Firebase Admin JSON to this variable.",
+        );
+    }
+
+    const rawServiceAccount = serviceAccountLine
+        .slice('FIREBASE_SERVICE_ACCOUNT_KEY='.length)
+        .trim();
+
+    if (!rawServiceAccount) {
+        throw new Error(
+            "FIREBASE_SERVICE_ACCOUNT_KEY in .env.local is empty. Paste the full Firebase Admin JSON value.",
+        );
+    }
+
+    try {
+        return JSON.parse(rawServiceAccount);
+    } catch (error) {
+        throw new Error(
+            `FIREBASE_SERVICE_ACCOUNT_KEY is not valid JSON: ${error instanceof Error ? error.message : 'unknown parse error'}`,
+        );
+    }
+}
+
+// Credentials are loaded from .env.local via FIREBASE_SERVICE_ACCOUNT_KEY.
+const sa = loadServiceAccountFromEnv();
 
 const app = initializeApp({ credential: cert(sa) }, 'test-exhibition-setup');
 const db = getFirestore(app);
