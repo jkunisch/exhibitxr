@@ -180,6 +180,7 @@ export default async function EmbedPage({ params }: EmbedPageProps) {
 
   return (
     <EmbedViewer
+      exhibitionId={id}
       modelUrl={embedData.config.model.glbUrl}
       title={embedData.config.title}
       tenantId={embedData.tenantId}

@@ -5,6 +5,23 @@ import { submitImageToTripo } from '@/lib/tripo';
 import { notifyModelGeneration } from '@/lib/telegram';
 import { checkRateLimit } from '@/lib/rateLimit';
 
+function getClientIp(request: NextRequest): string {
+  // Prefer Cloudflare's normalized client IP header when present.
+  const cfIp = request.headers.get('cf-connecting-ip')?.trim();
+  if (cfIp) return cfIp;
+
+  const realIp = request.headers.get('x-real-ip')?.trim();
+  if (realIp) return realIp;
+
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) {
+    const firstHop = forwarded.split(',')[0]?.trim();
+    if (firstHop) return firstHop;
+  }
+
+  return 'unknown';
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -18,9 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Rate limit: 5 generations per IP per hour ────────────────────
-    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-      ?? request.headers.get('x-real-ip')
-      ?? 'unknown';
+    const clientIp = getClientIp(request);
     const rateCheck = checkRateLimit(clientIp, 5, 60 * 60 * 1000);
     if (!rateCheck.allowed) {
       const retryMin = Math.ceil(rateCheck.retryAfterMs / 60000);
@@ -50,8 +65,7 @@ export async function POST(request: NextRequest) {
       : await submitImageTo3D(buffer, filename);
 
     // Telegram notification for anonymous users (fire-and-forget)
-    const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip');
-    notifyModelGeneration({ provider, ip }).catch(() => { });
+    notifyModelGeneration({ provider, ip: clientIp }).catch(() => { });
 
     return NextResponse.json({ taskId: result.taskId, provider });
   } catch (error) {

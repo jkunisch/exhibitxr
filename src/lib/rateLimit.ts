@@ -10,9 +10,9 @@ import "server-only";
  * @security-note This in-memory limiter resets on each cold start and
  * is not shared across isolates. In a Cloudflare Workers / serverless
  * environment, attackers can bypass it by hitting different isolates.
- * For production hardening, use Cloudflare WAF Rate Limiting rules or
- * a KV/D1-backed counter instead.
- * TODO: Migrate to Cloudflare WAF Rate Limiting for /api/snap-preview
+ * For production, Cloudflare WAF rate limiting must be the primary guard
+ * for /api/snap-preview. This limiter stays as best-effort defense in depth.
+ * If app-level shared quotas are needed, add a KV/D1-backed counter.
  */
 
 interface WindowEntry {

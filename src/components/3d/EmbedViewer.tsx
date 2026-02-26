@@ -15,11 +15,21 @@ interface EmbedViewerProps {
   modelUrl: string;
   posterUrl?: string;
   title?: string;
+  exhibitionId?: string;
   tenantId?: string;
   autoRotate?: boolean;
+  onLoaded?: () => void;
 }
 
-export default function EmbedViewer({ modelUrl, posterUrl, title, tenantId, autoRotate = false }: EmbedViewerProps) {
+export default function EmbedViewer({
+  modelUrl,
+  posterUrl,
+  title,
+  exhibitionId,
+  tenantId,
+  autoRotate = false,
+  onLoaded,
+}: EmbedViewerProps) {
   const [isInteracted, setIsInteracted] = useState(false);
   const [showShare, setShowShare] = useState(false);
 
@@ -41,9 +51,10 @@ export default function EmbedViewer({ modelUrl, posterUrl, title, tenantId, auto
     hotspots: []
   }), [modelUrl, title]);
 
-  const embedCodeHtml = `<div style="position:relative;width:100%;"><iframe src="https://3d-snap.com/embed/${tenantId || 'demo'}" width="100%" height="500px" frameborder="0" loading="lazy" title="Interaktives 3D Modell gesnappt mit 3D-Snap" allow="xr-spatial-tracking; fullscreen; autoplay"></iframe><div style="text-align:right;font-size:10px;font-family:sans-serif;margin-top:4px;"><a href="https://3d-snap.com?utm_source=embed&utm_medium=html" target="_blank" rel="ugc noopener" style="color:#888;text-decoration:none;">Interaktives 3D-Modell von <span style="font-weight:bold;color:#555;">3D-Snap</span></a></div></div>`;
+  const shareId = exhibitionId ?? 'demo';
+  const embedCodeHtml = `<div style="position:relative;width:100%;"><iframe src="https://3d-snap.com/embed/${shareId}" width="100%" height="500px" frameborder="0" loading="lazy" title="Interaktives 3D Modell gesnappt mit 3D-Snap" allow="xr-spatial-tracking; fullscreen; autoplay"></iframe><div style="text-align:right;font-size:10px;font-family:sans-serif;margin-top:4px;"><a href="https://3d-snap.com?utm_source=embed&utm_medium=html" target="_blank" rel="ugc noopener" style="color:#888;text-decoration:none;">Interaktives 3D-Modell von <span style="font-weight:bold;color:#555;">3D-Snap</span></a></div></div>`;
 
-  const embedCodeMarkdown = `[![${title || '3D Modell Vorschau'}](${posterUrl || 'https://3d-snap.com/og-image.jpg'})](https://3d-snap.com/embed/${tenantId || 'demo'})\n\n*Interaktives 3D-Modell in 15 Sekunden gesnappt mit [3D-Snap](https://3d-snap.com?utm_source=embed&utm_medium=markdown).*`;
+  const embedCodeMarkdown = `[![${title || '3D Modell Vorschau'}](${posterUrl || 'https://3d-snap.com/og-image.jpg'})](https://3d-snap.com/embed/${shareId})\n\n*Interaktives 3D-Modell in 15 Sekunden gesnappt mit [3D-Snap](https://3d-snap.com?utm_source=embed&utm_medium=markdown).*`;
 
   const copyHtml = () => {
     navigator.clipboard.writeText(embedCodeHtml);
@@ -77,7 +88,7 @@ export default function EmbedViewer({ modelUrl, posterUrl, title, tenantId, auto
           <div className="absolute inset-0 z-10 bg-zinc-900">
             <ViewerCanvas bgColor="transparent" autoRotate={autoRotate}>
               <Suspense fallback={null}>
-                <ModelViewer config={modelConfig} />
+                <ModelViewer config={modelConfig} onLoaded={onLoaded} />
               </Suspense>
             </ViewerCanvas>
           </div>
