@@ -44,6 +44,8 @@ interface ViewerCanvasProps {
     environment?: string;
     /** HDRI Rotation in Radiants (0..2PI). */
     envRotation?: number;
+    /** The type of stage/pedestal to render under the model. */
+    stageType?: "none" | "pedestal-marble" | "pedestal-wood" | "backdrop-curved";
     /** Show contact shadows beneath the model. */
     contactShadows?: boolean;
     /** Background color (CSS value). */
@@ -101,6 +103,7 @@ export default function ViewerCanvas({
     children,
     environment = "studio",
     envRotation = 0,
+    stageType = "none",
     contactShadows = true,
     bgColor = "#111111",
     ambientIntensity = DEFAULT_AMBIENT_INTENSITY,
@@ -215,6 +218,26 @@ export default function ViewerCanvas({
                     />
                     <EnvRotator rotationY={envRotation} />
                 </Suspense>
+
+                {/* ── Scene Staging (Pedestals & Backdrops) ────────────── */}
+                {stageType === "pedestal-marble" && (
+                    <mesh receiveShadow position={[0, -1.55, 0]}>
+                        <cylinderGeometry args={[1.5, 1.5, 0.1, 64]} />
+                        <meshStandardMaterial color="#f8f9fa" roughness={0.1} metalness={0.2} />
+                    </mesh>
+                )}
+                {stageType === "pedestal-wood" && (
+                    <mesh receiveShadow position={[0, -1.55, 0]}>
+                        <cylinderGeometry args={[1.5, 1.5, 0.1, 64]} />
+                        <meshStandardMaterial color="#3e2723" roughness={0.7} metalness={0.0} />
+                    </mesh>
+                )}
+                {stageType === "backdrop-curved" && (
+                    <mesh receiveShadow position={[0, 0, -2]} rotation={[0, 0, 0]}>
+                        <cylinderGeometry args={[4, 4, 6, 64, 1, true, Math.PI + 0.5, Math.PI - 1]} />
+                        <meshStandardMaterial color="#ffffff" side={THREE.DoubleSide} roughness={0.9} />
+                    </mesh>
+                )}
 
                 {/* ── Ground Contact Shadows (Apple / Spline style) ──────
                      Mobile: reduced blur (1.5 vs 2.5) and scale (10 vs 20)

@@ -19,6 +19,7 @@ interface EmbedViewerProps {
   exhibitionId?: string;
   tenantId?: string;
   autoRotate?: boolean;
+  entryAnimation?: "none" | "float" | "drop" | "spin-in";
   onLoaded?: () => void;
 }
 
@@ -30,6 +31,7 @@ export default function EmbedViewer({
   exhibitionId,
   tenantId,
   autoRotate = false,
+  entryAnimation = "none",
   onLoaded,
 }: EmbedViewerProps) {
   const [isInteracted, setIsInteracted] = useState(false);
@@ -109,7 +111,7 @@ export default function EmbedViewer({
           <div className="absolute inset-0 z-10 bg-zinc-900">
             <ViewerCanvas bgColor="transparent" autoRotate={autoRotate}>
               <Suspense fallback={null}>
-                <ModelViewer config={modelConfig} onLoaded={onLoaded} />
+                <ModelViewer config={modelConfig} entryAnimation={entryAnimation} onLoaded={onLoaded} />
               </Suspense>
             </ViewerCanvas>
           </div>

@@ -189,6 +189,8 @@ export default function EditorShell({
             hotspots: [],
         },
         environment: "studio",
+        stageType: "none" as const,
+        entryAnimation: "none" as const,
         envRotation: 0,
         ambientIntensity: 0.8,
         contactShadows: true,
@@ -304,6 +306,7 @@ export default function EditorShell({
                         >
                             <ModelViewer
                                 config={effectiveConfig.model}
+                                entryAnimation={effectiveConfig.entryAnimation}
                                 activeVariantId={activeVariantId}
                                 onHotspotClick={handleHotspotClick}
                                 isEditor

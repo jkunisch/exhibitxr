@@ -1,8 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState, type ReactNode } from "react";
-import { ChevronDown, ChevronRight, Loader2, MousePointerClick, Zap } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { ChevronDown, ChevronRight, Loader2, MousePointerClick, Zap, Sparkles } from "lucide-react";
 import { optimizeModelAction } from "@/app/actions/optimizeModel";
+import { upscaleTexturesAction } from "@/app/actions/upscaleTextures";
+import { getMyCredits } from "@/app/actions/credits";
 import type { EditorConfigUpdate } from "@/hooks/useFirestoreExhibit";
 import {
     AMBIENT_INTENSITY_MAX,
@@ -268,6 +270,96 @@ function OptimizeButton({
     );
 }
 
+// ── Premium Upscale Button ───────────────────────────────────────────────────
+
+function UpscaleButton({
+    exhibitId,
+    glbUrl,
+    onChange,
+}: {
+    exhibitId: string;
+    glbUrl: string;
+    onChange: (partial: EditorConfigUpdate) => void;
+}) {
+    const [isUpscaling, setIsUpscaling] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
+    const [credits, setCredits] = useState<number | null>(null);
+
+    // Fetch credits on mount
+    useEffect(() => {
+        getMyCredits()
+            .then((res) => setCredits(res.credits))
+            .catch((err) => console.error("Could not fetch credits", err));
+    }, []);
+
+    const handleUpscale = useCallback(async () => {
+        if (isUpscaling || !glbUrl || (credits !== null && credits < 1)) return;
+
+        setIsUpscaling(true);
+        setError(null);
+        setSuccess(false);
+
+        try {
+            const res = await upscaleTexturesAction(exhibitId, glbUrl);
+
+            if (res.ok) {
+                setSuccess(true);
+                // Update credits locally
+                setCredits((prev) => (prev !== null ? prev - 1 : null));
+                onChange({ model: { glbUrl: res.glbUrl } as ExhibitModel });
+            } else {
+                setError(res.error);
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Unbekannter Fehler.");
+        } finally {
+            setIsUpscaling(false);
+        }
+    }, [exhibitId, glbUrl, isUpscaling, credits, onChange]);
+
+    return (
+        <div className="border-t border-white/10 pt-4">
+            <button
+                type="button"
+                disabled={isUpscaling || !glbUrl || (credits !== null && credits < 1)}
+                onClick={handleUpscale}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-amber-500/15 px-4 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                {isUpscaling ? (
+                    <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Texturen werden hochskaliert…
+                    </>
+                ) : (
+                    <>
+                        <Sparkles className="h-4 w-4" />
+                        Texturen auf 4K hochskalieren (1 Credit)
+                    </>
+                )}
+            </button>
+
+            {credits !== null && credits < 1 && (
+                <p className="mt-2 text-center text-xs text-rose-300/80">
+                    Nicht genügend Credits für dieses Premium-Feature.
+                </p>
+            )}
+
+            {success && (
+                <div className="mt-2 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">
+                    <p className="font-semibold">✓ Texturen erfolgreich hochskaliert!</p>
+                </div>
+            )}
+
+            {error && (
+                <div className="mt-2 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
+                    {error}
+                </div>
+            )}
+        </div>
+    );
+}
+
 /**
  * Editor form panel — edits ExhibitConfig + extended editor controls and
  * calls onChange with strictly typed partial updates.
@@ -337,6 +429,36 @@ export default function EditorForm({
                         <FieldLabel>Titel</FieldLabel>
                         <FieldHint>Name der Ausstellung — wird im Dashboard und Embed angezeigt.</FieldHint>
                         <TextInput value={config.title} onChange={(v) => onChange({ title: v })} />
+                    </div>
+
+                    <div className="border-t border-white/10 pt-4">
+                        <FieldLabel>Bühne & Set</FieldLabel>
+                        <FieldHint>Stelle dein Produkt auf ein elegantes Podest.</FieldHint>
+                        <select
+                            value={config.stageType ?? "none"}
+                            onChange={(e) => onChange({ stageType: e.target.value as any })}
+                            className="w-full appearance-none rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30"
+                        >
+                            <option value="none">Keine Bühne (Freischwebend)</option>
+                            <option value="pedestal-marble">Podest (Glänzender Marmor)</option>
+                            <option value="pedestal-wood">Podest (Mattes Holz)</option>
+                            <option value="backdrop-curved">Fotostudio (Hohlkehle)</option>
+                        </select>
+                    </div>
+
+                    <div className="border-t border-white/10 pt-4">
+                        <FieldLabel>Start-Animation</FieldLabel>
+                        <FieldHint>Animation beim Laden des 3D-Modells.</FieldHint>
+                        <select
+                            value={config.entryAnimation ?? "none"}
+                            onChange={(e) => onChange({ entryAnimation: e.target.value as any })}
+                            className="w-full appearance-none rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30"
+                        >
+                            <option value="none">Keine</option>
+                            <option value="float">Sanftes Schweben</option>
+                            <option value="drop">Drop-In</option>
+                            <option value="spin-in">Spin</option>
+                        </select>
                     </div>
 
                     <div className="border-t border-white/10 pt-4">
@@ -523,6 +645,13 @@ export default function EditorForm({
 
                     {/* ── Pro Optimize (Decimation) ──────────────────── */}
                     <OptimizeButton
+                        exhibitId={exhibitId}
+                        glbUrl={config.model.glbUrl}
+                        onChange={onChange}
+                    />
+
+                    {/* ── Premium Upscale (Textures) ──────────────────── */}
+                    <UpscaleButton
                         exhibitId={exhibitId}
                         glbUrl={config.model.glbUrl}
                         onChange={onChange}

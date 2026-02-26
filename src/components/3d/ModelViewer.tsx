@@ -2,7 +2,8 @@
 
 import { useRef, useMemo, useEffect, useCallback } from "react";
 import { useGLTF, PivotControls } from "@react-three/drei";
-import type { ThreeEvent } from "@react-three/fiber";
+import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import { useSpring, animated } from "@react-spring/three";
 import * as THREE from "three";
 import { resolveVariantTargetMeshNames, type VariantMeshDescriptor } from "@/lib/variantTargets";
 import type { ExhibitModel as ExhibitModelType } from "@/types/schema";
@@ -18,6 +19,8 @@ const VAR_PREFIX = "VAR__";
 
 interface ModelViewerProps {
     config: ExhibitModelType;
+    /** Start-Animation beim Laden des Modells. */
+    entryAnimation?: "none" | "float" | "drop" | "spin-in";
     /** ID of the currently active variant (optional). */
     activeVariantId?: string;
     /** Callback when a hotspot is clicked. */
@@ -94,6 +97,7 @@ function applyVariantToMaterial(
  */
 export default function ModelViewer({
     config,
+    entryAnimation = "none",
     activeVariantId,
     onHotspotClick,
     hotspotColor = "#00aaff",
@@ -118,6 +122,7 @@ export default function ModelViewer({
 
     return <ModelViewerInner
         config={config}
+        entryAnimation={entryAnimation}
         activeVariantId={activeVariantId}
         onHotspotClick={onHotspotClick}
         hotspotColor={hotspotColor}
@@ -132,6 +137,7 @@ export default function ModelViewer({
 
 function ModelViewerInner({
     config,
+    entryAnimation = "none",
     activeVariantId,
     onHotspotClick,
     hotspotColor = "#00aaff",
@@ -283,28 +289,26 @@ function ModelViewerInner({
     // rotate freely) and causes Bounds to re-fit every frame (flickering).
     // The user rotates the model via mouse/touch through CameraControls.
 
-    // Click handler for editor selection
+    // Click handler for editor selection & mesh picking
     const handleClick = useCallback(
-        (e: { stopPropagation: () => void }) => {
-            if (isEditor && onSelect) {
-                e.stopPropagation();
+        (e: ThreeEvent<MouseEvent>) => {
+            if (!isEditor) return;
+
+            // Don't intercept if clicking the PivotControls gizmo
+            if (isSelected && e.object.parent?.name?.includes("PivotControls")) return;
+
+            e.stopPropagation(); // Stop propagation so we don't trigger background clicks
+
+            if (onSelect) {
                 onSelect();
             }
-        },
-        [isEditor, onSelect],
-    );
 
-    // Advanced Mesh Picker: Catch clicks on specific parts of the 3D model
-    const handlePointerDown = useCallback((e: ThreeEvent<PointerEvent>) => {
-        if (!isEditor) return;
-        // Don't intercept if clicking the PivotControls gizmo
-        if (isSelected && e.object.parent?.name?.includes("PivotControls")) return;
-        
-        e.stopPropagation(); // Prevent orbit controls from taking over
-        if (e.object && e.object.name) {
-            setPickedMeshName(`mesh:${e.object.name}`);
-        }
-    }, [isEditor, isSelected, setPickedMeshName]);
+            if (e.object && e.object.name) {
+                setPickedMeshName(`mesh:${e.object.name}`);
+            }
+        },
+        [isEditor, isSelected, onSelect, setPickedMeshName],
+    );
 
     // PivotControls drag end handler — extracts world position
     const handleDragEnd = useCallback(() => {
@@ -314,13 +318,64 @@ function ModelViewerInner({
         }
     }, [onTransformEnd]);
 
+    // Spring Animation Setup (Drop & Spin-in)
+    const [springProps, api] = useSpring(() => {
+        const isDrop = entryAnimation === "drop";
+        const isSpin = entryAnimation === "spin-in";
+        return {
+            position: [
+                config.position[0],
+                isDrop ? config.position[1] + 5 : config.position[1],
+                config.position[2]
+            ] as [number, number, number],
+            scale: isSpin ? 0 : config.scale,
+            rotation: [0, isSpin ? Math.PI * 2 : 0, 0] as [number, number, number],
+            config: { mass: 1, tension: 170, friction: 26 },
+        };
+    }, [config.position, config.scale, entryAnimation]);
+
+    // Trigger initial animations if model is cloned/ready
+    useEffect(() => {
+        if (!clonedScene) return;
+
+        if (entryAnimation === "drop") {
+            api.start({
+                position: config.position as [number, number, number],
+                scale: config.scale,
+                rotation: [0, 0, 0],
+                config: { mass: 2, tension: 120, friction: 14 },
+            });
+        } else if (entryAnimation === "spin-in") {
+            api.start({
+                position: config.position as [number, number, number],
+                scale: config.scale,
+                rotation: [0, 0, 0],
+                config: { mass: 1, tension: 100, friction: 20 },
+            });
+        } else {
+            api.start({
+                position: config.position as [number, number, number],
+                scale: config.scale,
+                rotation: [0, 0, 0],
+                immediate: true,
+            });
+        }
+    }, [entryAnimation, config.position, config.scale, api, clonedScene]);
+
+    // Float Animation
+    useFrame((state) => {
+        if (entryAnimation === "float" && groupRef.current && (!isEditor || !isSelected)) {
+            groupRef.current.position.y = config.position[1] + Math.sin(state.clock.elapsedTime * 1.5) * 0.05;
+        }
+    });
+
     const modelContent = (
-        <group
+        <animated.group
             ref={groupRef}
-            position={config.position}
-            scale={config.scale}
+            position={springProps.position as any}
+            scale={springProps.scale as any}
+            rotation={springProps.rotation as any}
             onClick={handleClick}
-            onPointerDown={handlePointerDown}
         >
             {clonedScene ? (
                 <primitive object={clonedScene} />
@@ -341,7 +396,7 @@ function ModelViewerInner({
                     fontFamily={hotspotFontFamily}
                 />
             ))}
-        </group>
+        </animated.group>
     );
 
     // In editor mode + selected: wrap with visual 3D gizmos

@@ -33,6 +33,7 @@ const PLAN_MONTHLY_CREDITS: Record<PlanTier, number> = {
 const GENERATION_COST: Record<string, number> = {
     basic: 1,    // Tripo — fast, ~30s
     premium: 3,  // Meshy — high quality, 3-5 min
+    upscale: 1,  // Texture upscaling to 4K
 };
 
 // ─── Rate Limiting (anonymous) ──────────────────────────────────────────────

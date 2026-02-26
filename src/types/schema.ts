@@ -75,8 +75,12 @@ export const ExhibitConfigSchema = z.object({
   model: ExhibitModelSchema,
   /** HDRI environment preset (drei). */
   environment: z.string().default("studio"),
+  /** Bühnen- und Set-Auswahl. */
+  stageType: z.enum(["none", "pedestal-marble", "pedestal-wood", "backdrop-curved"]).default("none"),
   /** HDRI Rotation in Radianten (0 bis 2*PI). */
   envRotation: z.number().default(0),
+  /** Start-Animation beim Laden des Modells. */
+  entryAnimation: z.enum(["none", "float", "drop", "spin-in"]).default("none"),
   /** Umgebungslicht-Intensitaet. */
   ambientIntensity: z.number().default(0.8),
   /** ContactShadows aktivieren. */
