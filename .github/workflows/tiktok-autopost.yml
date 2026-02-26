@@ -1,0 +1,40 @@
+name: TikTok Auto-Poster Pipeline
+
+on:
+  schedule:
+    # Jeden Tag um 18:00 UTC (19:00 / 20:00 DE)
+    - cron: '0 18 * * *'
+  workflow_dispatch: # Erlaubt manuelles Starten aus dem GitHub Dashboard
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run TikTok Pipeline
+        env:
+          # Firebase Server-side Key für Firestore Zugriff (als JSON String im GitHub Secret)
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+          # TikTok App Credentials
+          TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          NEXT_PUBLIC_APP_URL: https://www.3d-snap.com
+          # Groq KI (für Caption/Vibe Generierung)
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          echo "Starting TikTok Pipeline..."
+          npx tsx scripts/tiktok-pipeline.ts

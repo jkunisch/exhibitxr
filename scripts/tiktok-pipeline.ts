@@ -7,6 +7,7 @@ dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
 import { getAdminDb } from '../src/lib/firebaseAdmin';
 import { generateTikTokCreative } from '../src/lib/groq';
+import { postToTikTok } from '../src/lib/tiktok';
 import { chromium } from '@playwright/test';
 
 /**
@@ -14,6 +15,7 @@ import { chromium } from '@playwright/test';
  * 1. Fetch recent UGC (User Generated Content) from Firestore.
  * 2. Generate Creative (Caption, Vibe, Music Choice) via Groq.
  * 3. Record 360° Spin Video via Playwright.
+ * 4. Auto-Post to TikTok using self-healing tokens.
  */
 
 async function recordVideo(modelUrl: string, outputDir: string, filename: string): Promise<string> {
@@ -116,6 +118,13 @@ async function runPipeline() {
                 const metaPath = `${videoPath}.json`;
                 fs.writeFileSync(metaPath, JSON.stringify({ ...creative, exhibitionId: doc.id }, null, 2));
                 console.log(`📄 Metadata saved: ${metaPath}`);
+
+                // 4. Auto-Post to TikTok (using Self-Healing Tokens)
+                try {
+                    await postToTikTok(videoPath, creative.caption, creative.hashtags || []);
+                } catch (postErr: any) {
+                    console.error(`❌ TikTok Auto-Post failed: ${postErr.message}`);
+                }
             }
 
         } catch (err: any) {
