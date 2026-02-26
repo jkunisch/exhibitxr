@@ -17,6 +17,7 @@ import {
   Box
 } from "lucide-react";
 import SnapHandoff from "@/components/dashboard/SnapHandoff";
+import { InlineDeleteButton } from "@/components/dashboard/InlineDeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -197,6 +198,7 @@ export default async function DashboardPage() {
                       >
                         <Settings size={16} />
                       </Link>
+                      <InlineDeleteButton exhibitionId={item.id} tenantId={sessionUser.tenantId} />
                       <div className="p-3 rounded-full bg-white text-black transition-transform hover:scale-110">
                         <ExternalLink size={16} />
                       </div>
