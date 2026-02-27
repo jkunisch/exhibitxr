@@ -273,7 +273,7 @@ export default function ViewerCanvas({
                 {disableBounds ? (
                     children
                 ) : (
-                    <Bounds fit clip margin={1.2}>
+                    <Bounds fit clip observe margin={1.2}>
                         {children}
                     </Bounds>
                 )}

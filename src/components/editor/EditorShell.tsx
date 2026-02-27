@@ -173,6 +173,21 @@ export default function EditorShell({
         [config, handleConfigChange]
     );
 
+    // ── Auth Loading Gate ─────────────────────────────────────────────────
+    // Block the entire editor while Firebase custom token sign-in is pending.
+    // Without this, the editor renders with config=null → shows loading →
+    // then re-renders with data, causing a visible "double load" flash.
+    if (!authReady) {
+        return (
+            <div className="flex h-[calc(100dvh-10rem)] items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-white/60">
+                <div className="text-center">
+                    <div className="mb-3 text-2xl">⏳</div>
+                    <p className="text-sm">Editor wird vorbereitet…</p>
+                </div>
+            </div>
+        );
+    }
+
     // Build an effective config: use the real one from Firestore, or a fallback
     // for exhibitions whose data is incomplete/invalid.
     const effectiveConfig = config ?? (saveStatus === "error" ? {

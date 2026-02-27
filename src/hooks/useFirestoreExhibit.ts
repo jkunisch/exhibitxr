@@ -39,6 +39,10 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string, authRea
     useEffect(() => {
         if (!authReady) return;
 
+        // Immediately clear stale config from a previous exhibit so the
+        // editor doesn't briefly flash old data while the new snapshot loads.
+        reset();
+
         isMounted.current = true;
 
         const docRef = doc(db, "tenants", tenantId, "exhibitions", exhibitId);
