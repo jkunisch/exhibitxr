@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const provider = request.nextUrl.searchParams.get('provider') || 'premium';
+    const provider = request.nextUrl.searchParams.get('provider') || 'basic';
 
     // Use the correct poll function based on provider
     const pollFn = provider === 'basic' ? pollTripoTaskStatus : pollTaskStatus;

@@ -47,7 +47,7 @@ function getAdminStorage(): Storage {
 export async function submitImage(formData: FormData): Promise<GenerateResult> {
   try {
     const rawImage = formData.get("image");
-    const provider = (formData.get("provider") as Provider) ?? "premium";
+    const provider = (formData.get("provider") as Provider) ?? "basic";
     const exhibitId = formData.get("exhibitId") as string | null; // Neu: exhibitId extrahieren
 
     if (!(rawImage instanceof File)) {

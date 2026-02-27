@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const image = formData.get('image');
-    const provider = (formData.get('provider') as string) || 'premium';
+    const provider = (formData.get('provider') as string) || 'basic';
 
     // SAFE MOCK MODE FOR DEVELOPMENT
     if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_MOCK_3D_API === 'true') {
