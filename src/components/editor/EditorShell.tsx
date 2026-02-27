@@ -88,6 +88,7 @@ export default function EditorShell({
     const [sidebarTab, setSidebarTab] = useState<SidebarTab>("settings");
     const [authReady, setAuthReady] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [boundsFitKey, setBoundsFitKey] = useState(0);
     const { saveToFirestore } = useFirestoreExhibit(tenantId, exhibitId, authReady);
 
     // Sign in with custom token to establish client-side Firebase Auth
@@ -156,10 +157,10 @@ export default function EditorShell({
     const handleTransformEnd = useCallback(
         (position: [number, number, number]) => {
             handleConfigChange({
-                model: { ...config!.model, position },
+                model: { position } as any,
             });
         },
-        [config, handleConfigChange]
+        [handleConfigChange]
     );
 
     const handleModelGenerated = useCallback(
@@ -304,6 +305,7 @@ export default function EditorShell({
                             disableBounds={selectedModelId !== null}
                             restrictOrbitToHalfTurn={restrictOrbitToHalfTurn}
                             autoRotate={effectiveConfig.autoRotate}
+                            boundsFitKey={boundsFitKey}
                         >
                             <ModelViewer
                                 config={effectiveConfig.model}
@@ -314,6 +316,7 @@ export default function EditorShell({
                                 isSelected={selectedModelId === effectiveConfig.model.id}
                                 onSelect={handleModelSelect}
                                 onTransformEnd={handleTransformEnd}
+                                onLoaded={() => setBoundsFitKey((k) => k + 1)}
                             />
                         </ViewerCanvas>
 

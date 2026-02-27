@@ -89,7 +89,17 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     updateConfig: (partial) => {
         const current = get().config;
         if (!current) return;
-        set({ config: { ...current, ...partial } });
+        // Deep-merge `model` to prevent partial updates (e.g. { model: { glbUrl } })
+        // from wiping other model fields (position, scale, variants, hotspots).
+        set({
+            config: {
+                ...current,
+                ...partial,
+                model: partial.model
+                    ? { ...current.model, ...partial.model }
+                    : current.model,
+            },
+        });
     },
 
     setActiveVariant: (variantId) => {

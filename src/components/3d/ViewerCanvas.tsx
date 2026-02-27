@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, Suspense, useEffect } from "react";
+import { useState, useCallback, Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import {
     Environment,
@@ -8,6 +8,7 @@ import {
     OrbitControls,
     PerformanceMonitor,
     Bounds,
+    useBounds,
     Preload,
     Backdrop,
 } from "@react-three/drei";
@@ -59,10 +60,35 @@ interface ViewerCanvasProps {
     className?: string;
     /** Disable Bounds auto-fit (e.g. when using PivotControls in editor). */
     disableBounds?: boolean;
+    /** Trigger key for manual camera fit (increment to refit, e.g. after model load). */
+    boundsFitKey?: string | number;
     /** Restrict horizontal orbit rotation to 180° (front-only view). */
     restrictOrbitToHalfTurn?: boolean;
     /** Enable automatic 360° rotation (for TikTok/Reels recording). */
     autoRotate?: boolean;
+}
+
+/**
+ * Manual Bounds fitter — triggers camera fit only when `fitKey` changes
+ * (e.g. after model load), not on every children re-render.
+ */
+function BoundsFitter({ fitKey, enabled }: { fitKey: string | number; enabled: boolean }) {
+    const api = useBounds();
+    const enabledRef = useRef(enabled);
+
+    useEffect(() => {
+        enabledRef.current = enabled;
+    }, [enabled]);
+
+    useEffect(() => {
+        if (!enabledRef.current) return;
+        // Wait one frame so Suspense-loaded children are in the scene graph
+        requestAnimationFrame(() => {
+            api.refresh().clip().fit();
+        });
+    }, [api, fitKey]);
+
+    return null;
 }
 
 function EnvRotator({ rotationY }: { rotationY: number }) {
@@ -111,6 +137,7 @@ export default function ViewerCanvas({
     cameraPosition = [0, 1.5, 4],
     className,
     disableBounds = false,
+    boundsFitKey = 0,
     restrictOrbitToHalfTurn = false,
     autoRotate = false,
 }: ViewerCanvasProps) {
@@ -144,6 +171,25 @@ export default function ViewerCanvas({
     // On high-density small screens, aliasing is barely visible.
     const antialias = !isMobile;
 
+    // Memoize GL and camera configs to prevent Canvas recreation on re-renders
+    const glConfig = useMemo(
+        () => ({
+            antialias,
+            alpha: false,
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.15,
+            preserveDrawingBuffer: false,
+            powerPreference: "high-performance" as const,
+        }),
+        [antialias],
+    );
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const cameraConfig = useMemo(
+        () => ({ position: cameraPosition, fov: 45, near: 0.1, far: 100 }),
+        [cameraPosition[0], cameraPosition[1], cameraPosition[2]],
+    );
+
     // Shadow map: 2048² on desktop for crisp shadows, 512² on mobile to
     // avoid GPU stalls on Mali/Adreno chipsets.
     const shadowMapSize = isMobile ? 512 : 2048;
@@ -159,15 +205,9 @@ export default function ViewerCanvas({
         >
             <Canvas
                 shadows
-                camera={{ position: cameraPosition, fov: 45, near: 0.1, far: 100 }}
+                camera={cameraConfig}
                 dpr={dpr}
-                gl={{
-                    antialias,
-                    alpha: false,
-                    toneMapping: THREE.ACESFilmicToneMapping,
-                    toneMappingExposure: 1.15,
-                    preserveDrawingBuffer: true,
-                }}
+                gl={glConfig}
             >
                 <color attach="background" args={[bgColor]} />
 
@@ -269,14 +309,11 @@ export default function ViewerCanvas({
                     <shadowMaterial transparent opacity={0.1} />
                 </mesh>
 
-                {/* ── Model Container ──────────────────────────────────── */}
-                {disableBounds ? (
-                    children
-                ) : (
-                    <Bounds fit clip margin={1.2}>
-                        {children}
-                    </Bounds>
-                )}
+                {/* ── Model Container (Bounds always in tree, manual fit) ── */}
+                <Bounds margin={1.2}>
+                    <BoundsFitter fitKey={boundsFitKey} enabled={!disableBounds} />
+                    {children}
+                </Bounds>
 
                 {/* ── Preload all assets eagerly ───────────────────────── */}
                 <Preload all />

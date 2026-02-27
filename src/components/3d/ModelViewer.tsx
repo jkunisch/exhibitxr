@@ -150,14 +150,8 @@ function ModelViewerInner({
 }: ModelViewerProps) {
     const groupRef = useRef<THREE.Group>(null);
     const setPickedMeshName = useEditorStore((s) => s.setPickedMeshName);
-    // Counter to force-remount PivotControls after each drag, resetting its
-    // internal matrix so it doesn't compound offsets.
-    const [pivotKey, setPivotKey] = useState(0);
-
-    // Call onLoaded once the model is ready
-    useEffect(() => {
-        if (onLoaded) onLoaded();
-    }, [onLoaded]);
+    // Fire onLoaded once per GLB URL when we actually have a cloned scene
+    const notifiedLoadedForUrl = useRef<string | null>(null);
 
     // Sicherung gegen ungültige URLs
     const isValidUrl = typeof config.glbUrl === 'string' && config.glbUrl.startsWith('http');
@@ -190,6 +184,31 @@ function ModelViewerInner({
         });
         return clone;
     }, [isValidUrl, scene]);
+
+    // Fire onLoaded once per GLB URL change (not every re-render)
+    useEffect(() => {
+        if (!onLoaded) return;
+        if (!clonedScene) return;
+        if (notifiedLoadedForUrl.current === config.glbUrl) return;
+        notifiedLoadedForUrl.current = config.glbUrl;
+        onLoaded();
+    }, [onLoaded, clonedScene, config.glbUrl]);
+
+    // ── Origin correction: center X/Z + put bottom on Y=0 ────────────────
+    // AI-generated models (Meshy/Tripo) often have off-center origins.
+    // This internal offset ensures the model sits correctly on the pedestal.
+    const [originOffset, setOriginOffset] = useState<[number, number, number]>([0, 0, 0]);
+    useEffect(() => {
+        if (!clonedScene) return;
+        const box = new THREE.Box3().setFromObject(clonedScene);
+        if (box.isEmpty()) {
+            setOriginOffset([0, 0, 0]);
+            return;
+        }
+        const center = new THREE.Vector3();
+        box.getCenter(center);
+        setOriginOffset([-center.x, -box.min.y, -center.z]);
+    }, [clonedScene]);
 
     // Discover meshes with VAR__ prefix for automatic variant targeting
     const configurableMeshNames = useMemo(() => {
@@ -313,25 +332,34 @@ function ModelViewerInner({
         [isEditor, isSelected, onSelect, setPickedMeshName],
     );
 
-    // Track whether we just finished a drag to suppress the spring snap-back
-    const justDraggedRef = useRef(false);
+    // ── Controlled PivotControls matrix (no remount needed) ─────────────
+    const pivotMatrix = useMemo(() => new THREE.Matrix4(), []);
+    const tmpPos = useMemo(() => new THREE.Vector3(), []);
+    const tmpQuat = useMemo(() => new THREE.Quaternion(), []);
+    const tmpScale = useMemo(() => new THREE.Vector3(), []);
 
-    // PivotControls drag end handler — extracts world position from the
-    // PivotControls wrapper matrix (not from groupRef which still holds
-    // the old spring-animated value).
-    const handleDragEnd = useCallback(() => {
+    // Keep pivot matrix in sync with persisted config position
+    useEffect(() => {
+        pivotMatrix.identity();
+        pivotMatrix.setPosition(
+            config.position[0],
+            config.position[1],
+            config.position[2],
+        );
+    }, [pivotMatrix, config.position[0], config.position[1], config.position[2]]);
+
+    const handlePivotDrag = useCallback(
+        (localMatrix: THREE.Matrix4) => {
+            pivotMatrix.copy(localMatrix);
+        },
+        [pivotMatrix],
+    );
+
+    const handlePivotDragEnd = useCallback(() => {
         if (!onTransformEnd) return;
-        // The PivotControls wrapper applies a matrix to its container group.
-        // We need to get the world position of our model group after the drag.
-        if (groupRef.current) {
-            const worldPos = new THREE.Vector3();
-            groupRef.current.getWorldPosition(worldPos);
-            justDraggedRef.current = true;
-            onTransformEnd([worldPos.x, worldPos.y, worldPos.z]);
-            // Force-remount PivotControls to reset its internal drag matrix
-            setPivotKey((k) => k + 1);
-        }
-    }, [onTransformEnd]);
+        pivotMatrix.decompose(tmpPos, tmpQuat, tmpScale);
+        onTransformEnd([tmpPos.x, tmpPos.y, tmpPos.z]);
+    }, [onTransformEnd, pivotMatrix, tmpPos, tmpQuat, tmpScale]);
 
     // Spring Animation Setup (Drop & Spin-in)
     const [springProps, api] = useSpring(() => {
@@ -350,23 +378,8 @@ function ModelViewerInner({
     }, [config.position, config.scale, entryAnimation]);
 
     // Trigger initial animations if model is cloned/ready.
-    // Skip spring re-animation if position was just changed by PivotControls
-    // drag (justDraggedRef), to prevent snap-back before Firestore round-trip.
     useEffect(() => {
         if (!clonedScene) return;
-
-        // After a drag, the config position updates from Firestore.
-        // We apply it immediately (no animation) and reset the flag.
-        if (justDraggedRef.current) {
-            justDraggedRef.current = false;
-            api.start({
-                position: [config.position[0], config.position[1], config.position[2]],
-                scale: config.scale,
-                rotation: [0, 0, 0],
-                immediate: true,
-            });
-            return;
-        }
 
         if (entryAnimation === "drop") {
             api.start({
@@ -383,6 +396,7 @@ function ModelViewerInner({
                 config: { mass: 1, tension: 100, friction: 20 },
             });
         } else {
+            // No animation or editor mode — jump to target immediately
             api.start({
                 position: [config.position[0], config.position[1], config.position[2]],
                 scale: config.scale,
@@ -390,7 +404,6 @@ function ModelViewerInner({
                 immediate: true,
             });
         }
-        // Use primitive dependencies to prevent animation loops when parent re-renders
     }, [
         entryAnimation,
         config.position[0],
@@ -408,14 +421,9 @@ function ModelViewerInner({
         }
     });
 
-    const modelContent = (
-        <animated.group
-            ref={groupRef}
-            position={springProps.position as any}
-            scale={springProps.scale as any}
-            rotation={springProps.rotation as any}
-            onClick={handleClick}
-        >
+    // Inner model content with origin correction
+    const modelInner = (
+        <group position={originOffset as any}>
             {clonedScene ? (
                 <primitive object={clonedScene} />
             ) : (
@@ -424,8 +432,6 @@ function ModelViewerInner({
                     <meshStandardMaterial color="#1a1a1a" wireframe />
                 </mesh>
             )}
-
-            {/* Hotspot markers (3D, not 2D overlay) */}
             {config.hotspots.map((hotspot) => (
                 <HotspotMarker
                     key={hotspot.id}
@@ -435,21 +441,44 @@ function ModelViewerInner({
                     fontFamily={hotspotFontFamily}
                 />
             ))}
+        </group>
+    );
+
+    const modelContent = (
+        <animated.group
+            ref={groupRef}
+            position={springProps.position as any}
+            scale={springProps.scale as any}
+            rotation={springProps.rotation as any}
+            onClick={handleClick}
+        >
+            {modelInner}
         </animated.group>
     );
 
-    // In editor mode + selected: wrap with visual 3D gizmos
+    // In editor mode + selected: use controlled PivotControls (no remount)
     if (isEditor && isSelected) {
         return (
             <PivotControls
-                key={pivotKey}
                 anchor={[0, -1, 0]}
                 depthTest={false}
                 lineWidth={3}
                 scale={0.75}
-                onDragEnd={handleDragEnd}
+                disableRotations
+                disableScaling
+                autoTransform={false}
+                matrix={pivotMatrix}
+                onDrag={handlePivotDrag}
+                onDragEnd={handlePivotDragEnd}
             >
-                {modelContent}
+                <group
+                    ref={groupRef}
+                    onClick={handleClick}
+                >
+                    <group scale={config.scale}>
+                        {modelInner}
+                    </group>
+                </group>
             </PivotControls>
         );
     }
