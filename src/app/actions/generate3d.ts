@@ -1,5 +1,7 @@
 "use server";
 
+export const maxDuration = 300;
+
 
 import { getStorage, type Storage } from "firebase-admin/storage";
 
@@ -206,10 +208,22 @@ export async function finalizeModel(
       throw new Error("Downloaded GLB file is empty.");
     }
 
-    // Optimize: dedup, simplify, draco compress (40MB → 2-3MB typically)
+    // Optimize with timeout safety — if optimization hangs, use raw GLB
+    // (better an unoptimized model than a crashed request)
     console.log("[finalizeModel] starting optimization…");
-    const glbBuffer = await optimizeGlb(rawBuffer);
-    console.log("[finalizeModel] optimization done, size:", (glbBuffer.length / 1024 / 1024).toFixed(2), "MB");
+    let glbBuffer: Buffer;
+    try {
+      glbBuffer = await Promise.race([
+        optimizeGlb(rawBuffer),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Optimization timeout after 120s")), 120_000)
+        ),
+      ]);
+      console.log("[finalizeModel] optimization done, size:", (glbBuffer.length / 1024 / 1024).toFixed(2), "MB");
+    } catch (optError) {
+      console.warn("[finalizeModel] optimization failed/timed out, using raw GLB:", optError);
+      glbBuffer = rawBuffer;
+    }
 
     // ── USDZ Conversion (for Apple AR Quick Look) ────────────────────
     // TEMP FIX: Disabled on server side to prevent Three.js crash in Node.js
