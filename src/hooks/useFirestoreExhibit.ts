@@ -48,6 +48,15 @@ export function useFirestoreExhibit(tenantId: string, exhibitId: string, authRea
             (snapshot) => {
                 if (!isMounted.current) return;
 
+                // While a debounced write is in flight, the onSnapshot will
+                // fire with STALE data (the pre-write version). Applying it
+                // would overwrite the optimistic local state and cause the
+                // model to visibly snap back to its old position.
+                const currentSaveStatus = useEditorStore.getState().saveStatus;
+                if (currentSaveStatus === "saving") {
+                    return;
+                }
+
                 if (!snapshot.exists()) {
                     setSaveStatus("error", "Exhibition document not found.");
                     return;
