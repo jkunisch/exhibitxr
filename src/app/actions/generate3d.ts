@@ -1,8 +1,5 @@
 "use server";
 
-export const maxDuration = 300;
-
-
 import { getStorage, type Storage } from "firebase-admin/storage";
 
 import * as firebaseAdmin from "@/lib/firebaseAdmin";
