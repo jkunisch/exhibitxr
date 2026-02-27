@@ -37,7 +37,10 @@ export function getAdminApp(): App {
   }
 
   const serviceAccount = readServiceAccount();
-  cachedAdminApp = initializeApp({ credential: cert(serviceAccount) });
+  cachedAdminApp = initializeApp({
+    credential: cert(serviceAccount),
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  });
 
   return cachedAdminApp;
 }
