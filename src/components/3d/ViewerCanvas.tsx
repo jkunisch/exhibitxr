@@ -66,6 +66,8 @@ interface ViewerCanvasProps {
     restrictOrbitToHalfTurn?: boolean;
     /** Enable automatic 360° rotation (for TikTok/Reels recording). */
     autoRotate?: boolean;
+    /** Called when the user clicks/taps on empty space (no 3D hit). */
+    onPointerMissed?: () => void;
 }
 
 /**
@@ -140,6 +142,7 @@ export default function ViewerCanvas({
     boundsFitKey = 0,
     restrictOrbitToHalfTurn = false,
     autoRotate = false,
+    onPointerMissed,
 }: ViewerCanvasProps) {
     const isMobile = useIsMobile();
 
@@ -208,6 +211,7 @@ export default function ViewerCanvas({
                 camera={cameraConfig}
                 dpr={dpr}
                 gl={glConfig}
+                onPointerMissed={onPointerMissed}
             >
                 <color attach="background" args={[bgColor]} />
 

@@ -332,34 +332,13 @@ function ModelViewerInner({
         [isEditor, isSelected, onSelect, setPickedMeshName],
     );
 
-    // ── Controlled PivotControls matrix (no remount needed) ─────────────
-    const pivotMatrix = useMemo(() => new THREE.Matrix4(), []);
-    const tmpPos = useMemo(() => new THREE.Vector3(), []);
-    const tmpQuat = useMemo(() => new THREE.Quaternion(), []);
-    const tmpScale = useMemo(() => new THREE.Vector3(), []);
-
-    // Keep pivot matrix in sync with persisted config position
-    useEffect(() => {
-        pivotMatrix.identity();
-        pivotMatrix.setPosition(
-            config.position[0],
-            config.position[1],
-            config.position[2],
-        );
-    }, [pivotMatrix, config.position[0], config.position[1], config.position[2]]);
-
-    const handlePivotDrag = useCallback(
-        (localMatrix: THREE.Matrix4) => {
-            pivotMatrix.copy(localMatrix);
-        },
-        [pivotMatrix],
-    );
-
-    const handlePivotDragEnd = useCallback(() => {
-        if (!onTransformEnd) return;
-        pivotMatrix.decompose(tmpPos, tmpQuat, tmpScale);
-        onTransformEnd([tmpPos.x, tmpPos.y, tmpPos.z]);
-    }, [onTransformEnd, pivotMatrix, tmpPos, tmpQuat, tmpScale]);
+    // ── PivotControls drag handler ────────────────────────────────────────
+    const handleDragEnd = useCallback(() => {
+        if (!onTransformEnd || !groupRef.current) return;
+        const worldPos = new THREE.Vector3();
+        groupRef.current.getWorldPosition(worldPos);
+        onTransformEnd([worldPos.x, worldPos.y, worldPos.z]);
+    }, [onTransformEnd]);
 
     // Spring Animation Setup (Drop & Spin-in)
     const [springProps, api] = useSpring(() => {
@@ -396,7 +375,7 @@ function ModelViewerInner({
                 config: { mass: 1, tension: 100, friction: 20 },
             });
         } else {
-            // No animation or editor mode — jump to target immediately
+            // No animation — jump to target immediately
             api.start({
                 position: [config.position[0], config.position[1], config.position[2]],
                 scale: config.scale,
@@ -456,7 +435,7 @@ function ModelViewerInner({
         </animated.group>
     );
 
-    // In editor mode + selected: use controlled PivotControls (no remount)
+    // In editor mode + selected: wrap with PivotControls gizmo
     if (isEditor && isSelected) {
         return (
             <PivotControls
@@ -466,19 +445,9 @@ function ModelViewerInner({
                 scale={0.75}
                 disableRotations
                 disableScaling
-                autoTransform={false}
-                matrix={pivotMatrix}
-                onDrag={handlePivotDrag}
-                onDragEnd={handlePivotDragEnd}
+                onDragEnd={handleDragEnd}
             >
-                <group
-                    ref={groupRef}
-                    onClick={handleClick}
-                >
-                    <group scale={config.scale}>
-                        {modelInner}
-                    </group>
-                </group>
+                {modelContent}
             </PivotControls>
         );
     }

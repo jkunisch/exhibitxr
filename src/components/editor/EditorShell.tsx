@@ -6,6 +6,7 @@ import { Camera, ExternalLink, Settings, SlidersHorizontal, Sparkles, X, Downloa
 import ViewerCanvas from "@/components/3d/ViewerCanvas";
 import ModelViewer from "@/components/3d/ModelViewer";
 import EditorForm from "@/components/editor/EditorForm";
+import ControlsLegend from "@/components/ui/ControlsLegend";
 import dynamic from "next/dynamic";
 const ModelGeneratorPanel = dynamic(
     () => import("@/components/ui/ModelGeneratorPanel").then((mod) => mod.ModelGeneratorPanel),
@@ -115,6 +116,7 @@ export default function EditorShell({
     const setActiveVariant = useEditorStore((s) => s.setActiveVariant);
     const setActiveHotspot = useEditorStore((s) => s.setActiveHotspot);
     const setSelectedModel = useEditorStore((s) => s.setSelectedModel);
+    const setPickedMeshName = useEditorStore((s) => s.setPickedMeshName);
     const saveStatus = useEditorStore((s) => s.saveStatus);
     const saveError = useEditorStore((s) => s.saveError);
 
@@ -139,6 +141,23 @@ export default function EditorShell({
         },
         [activeHotspotId, setActiveHotspot]
     );
+
+    // ── Deselect all viewer state (model, hotspot, picked mesh) ──────────
+    const clearViewerSelection = useCallback(() => {
+        setSelectedModel(null);
+        setActiveHotspot(null);
+        setPickedMeshName(null);
+    }, [setSelectedModel, setActiveHotspot, setPickedMeshName]);
+
+    // ESC: deselect model + close hotspot focus
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key !== "Escape") return;
+            clearViewerSelection();
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, [clearViewerSelection]);
 
     const handleConfigChange = useCallback(
         (partial: EditorConfigUpdate) => {
@@ -306,6 +325,7 @@ export default function EditorShell({
                             restrictOrbitToHalfTurn={restrictOrbitToHalfTurn}
                             autoRotate={effectiveConfig.autoRotate}
                             boundsFitKey={boundsFitKey}
+                            onPointerMissed={clearViewerSelection}
                         >
                             <ModelViewer
                                 config={effectiveConfig.model}
@@ -358,6 +378,11 @@ export default function EditorShell({
                             <SlidersHorizontal className="h-3.5 w-3.5" />
                             Form
                         </button>
+
+                        {/* ── Controls Legend Overlay ─────────────── */}
+                        <ControlsLegend
+                            isModelSelected={selectedModelId === effectiveConfig.model.id}
+                        />
                     </div>
 
                     <div
