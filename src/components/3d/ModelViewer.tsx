@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo, useEffect, useCallback } from "react";
+import { useRef, useMemo, useEffect, useCallback, useState } from "react";
 import { useGLTF, PivotControls } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { useSpring, animated } from "@react-spring/three";
@@ -150,15 +150,18 @@ function ModelViewerInner({
 }: ModelViewerProps) {
     const groupRef = useRef<THREE.Group>(null);
     const setPickedMeshName = useEditorStore((s) => s.setPickedMeshName);
+    // Counter to force-remount PivotControls after each drag, resetting its
+    // internal matrix so it doesn't compound offsets.
+    const [pivotKey, setPivotKey] = useState(0);
 
     // Call onLoaded once the model is ready
     useEffect(() => {
         if (onLoaded) onLoaded();
     }, [onLoaded]);
-    
+
     // Sicherung gegen ungültige URLs
     const isValidUrl = typeof config.glbUrl === 'string' && config.glbUrl.startsWith('http');
-    
+
     // Wir rufen useGLTF nur auf, wenn wir eine valide URL haben.
     // Falls nicht, nutzen wir null.
     const { scene } = useGLTF(isValidUrl ? config.glbUrl : '/fallback.glb', DRACO_DECODER_PATH);
@@ -192,7 +195,7 @@ function ModelViewerInner({
     const configurableMeshNames = useMemo(() => {
         const names: string[] = [];
         if (!clonedScene) return names;
-        
+
         clonedScene.traverse((child) => {
             if (child instanceof THREE.Mesh && child.name.startsWith(VAR_PREFIX)) {
                 names.push(child.name);
@@ -310,11 +313,23 @@ function ModelViewerInner({
         [isEditor, isSelected, onSelect, setPickedMeshName],
     );
 
-    // PivotControls drag end handler — extracts world position
+    // Track whether we just finished a drag to suppress the spring snap-back
+    const justDraggedRef = useRef(false);
+
+    // PivotControls drag end handler — extracts world position from the
+    // PivotControls wrapper matrix (not from groupRef which still holds
+    // the old spring-animated value).
     const handleDragEnd = useCallback(() => {
-        if (groupRef.current && onTransformEnd) {
-            const pos = groupRef.current.position;
-            onTransformEnd([pos.x, pos.y, pos.z]);
+        if (!onTransformEnd) return;
+        // The PivotControls wrapper applies a matrix to its container group.
+        // We need to get the world position of our model group after the drag.
+        if (groupRef.current) {
+            const worldPos = new THREE.Vector3();
+            groupRef.current.getWorldPosition(worldPos);
+            justDraggedRef.current = true;
+            onTransformEnd([worldPos.x, worldPos.y, worldPos.z]);
+            // Force-remount PivotControls to reset its internal drag matrix
+            setPivotKey((k) => k + 1);
         }
     }, [onTransformEnd]);
 
@@ -334,9 +349,24 @@ function ModelViewerInner({
         };
     }, [config.position, config.scale, entryAnimation]);
 
-    // Trigger initial animations if model is cloned/ready
+    // Trigger initial animations if model is cloned/ready.
+    // Skip spring re-animation if position was just changed by PivotControls
+    // drag (justDraggedRef), to prevent snap-back before Firestore round-trip.
     useEffect(() => {
         if (!clonedScene) return;
+
+        // After a drag, the config position updates from Firestore.
+        // We apply it immediately (no animation) and reset the flag.
+        if (justDraggedRef.current) {
+            justDraggedRef.current = false;
+            api.start({
+                position: [config.position[0], config.position[1], config.position[2]],
+                scale: config.scale,
+                rotation: [0, 0, 0],
+                immediate: true,
+            });
+            return;
+        }
 
         if (entryAnimation === "drop") {
             api.start({
@@ -412,6 +442,7 @@ function ModelViewerInner({
     if (isEditor && isSelected) {
         return (
             <PivotControls
+                key={pivotKey}
                 anchor={[0, -1, 0]}
                 depthTest={false}
                 lineWidth={3}
