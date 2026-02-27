@@ -7,7 +7,7 @@ import { getStorage, type Storage } from "firebase-admin/storage";
 
 import * as firebaseAdmin from "@/lib/firebaseAdmin";
 import { type GenerateResult, pollTaskStatus as pollMeshy, type PollResult, submitImageTo3D as submitMeshy } from "@/lib/meshy";
-import { submitImageToTripo, pollTripoTaskStatus } from "@/lib/tripo";
+import { submitImageToTripo, pollTripoTaskStatus, convertTripoToUsdz } from "@/lib/tripo";
 import { optimizeGlb } from "@/lib/glbOptimizer";
 import { getSessionUser } from "@/lib/session";
 import { deductCredits, getGenerationCost, getCreditBalance, isAdminEmail, refundCredits } from "@/lib/credits";
@@ -225,16 +225,42 @@ export async function finalizeModel(
       glbBuffer = rawBuffer;
     }
 
-    // ── USDZ Conversion (for Apple AR Quick Look) ────────────────────
-    // TEMP FIX: Disabled on server side to prevent Three.js crash in Node.js
+    // ── USDZ via Provider API (non-blocking) ─────────────────────────────
+    // Tripo: convert_model endpoint (GLB → USDZ server-side)
+    // Meshy: USDZ URL already in poll response (model_urls.usdz)
     let usdzBuffer: Buffer | null = null;
-    /* 
     try {
-      usdzBuffer = await convertGlbToUsdz(glbBuffer);
+      let usdzDownloadUrl: string | undefined;
+
+      if (provider === "basic") {
+        // Tripo: request USDZ conversion via their API
+        usdzDownloadUrl = await convertTripoToUsdz(normalizedTaskId);
+      } else {
+        // Meshy: USDZ URL may already be in the poll result
+        usdzDownloadUrl = pollResult.usdzUrl;
+      }
+
+      if (usdzDownloadUrl) {
+        console.log("[finalizeModel] downloading USDZ from API...");
+        const usdzResponse = await fetch(usdzDownloadUrl, { method: "GET" });
+        if (usdzResponse.ok) {
+          const usdzRaw = Buffer.from(await usdzResponse.arrayBuffer());
+          if (usdzRaw.length > 0) {
+            usdzBuffer = usdzRaw;
+            console.log("[finalizeModel] USDZ downloaded, size:", (usdzRaw.length / 1024 / 1024).toFixed(2), "MB");
+          } else {
+            console.warn("[finalizeModel] USDZ download returned empty file.");
+          }
+        } else {
+          console.warn(`[finalizeModel] USDZ download failed (${usdzResponse.status}), proceeding without USDZ.`);
+        }
+      } else {
+        console.log("[finalizeModel] No USDZ URL available from provider, skipping.");
+      }
     } catch (usdzError) {
-      console.warn("[generate3d] USDZ conversion failed, proceeding with GLB only:", usdzError);
+      // Non-blocking: USDZ failure should never prevent GLB delivery
+      console.warn("[finalizeModel] USDZ conversion/download failed, proceeding with GLB only:", usdzError);
     }
-    */
 
     const timestamp = Date.now();
     const storage = getAdminStorage();

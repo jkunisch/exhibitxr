@@ -2,11 +2,19 @@
 
 import React, { useState, Suspense, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { Share2, Maximize2, Box } from 'lucide-react';
+import { Share2, Maximize2, Box, Smartphone, ExternalLink } from 'lucide-react';
 import ViewerCanvas from './ViewerCanvas';
+import { useARSupport } from '@/hooks/useARSupport';
 
 // Wir laden den schweren ModelViewer nur client-seitig und bei Bedarf
 const ModelViewer = dynamic(() => import('./ModelViewer'), {
+  ssr: false,
+  loading: () => null
+});
+
+// model-viewer Fallback: nur auf Mobile geladen wenn kein USDZ vorhanden
+// Generiert USDZ on-the-fly aus GLB für iOS AR Quick Look
+const ModelViewerFallback = dynamic(() => import('./ModelViewerFallback'), {
   ssr: false,
   loading: () => null
 });
@@ -40,25 +48,13 @@ export default function EmbedViewer({
 }: EmbedViewerProps) {
   const [isInteracted, setIsInteracted] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const arSupport = useARSupport();
 
-  // ── AR Logic ────────────────────────────────────────────────────────────
-  const handleAR = () => {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-    if (isIOS && usdzUrl) {
-      // Apple Quick Look
-      const anchor = document.createElement('a');
-      anchor.setAttribute('rel', 'ar');
-      anchor.setAttribute('href', usdzUrl);
-      const img = document.createElement('img');
-      anchor.appendChild(img);
-      anchor.click();
-    } else {
-      // Android Scene Viewer
-      const sceneViewerUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end`;
-      window.location.href = sceneViewerUrl;
-    }
-  };
+  // On mobile without pre-generated USDZ, use <model-viewer> which auto-generates USDZ
+  const useMobileModelViewer = arSupport.ready
+    && (arSupport.isIOS || arSupport.isAndroid)
+    && !usdzUrl
+    && !arSupport.isWKWebView;
 
   // Auto-interact if autoRotate is enabled (useful for recording)
   React.useEffect(() => {
@@ -78,6 +74,23 @@ export default function EmbedViewer({
     hotspots: []
   }), [modelUrl, title]);
 
+  // ── Android Scene Viewer URL ──────────────────────────────────────
+  const androidARUrl = useMemo(() => {
+    return `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end`;
+  }, [modelUrl]);
+
+  // ── USDZ URL with Apple Quick Look parameters ─────────────────────
+  const quickLookUrl = useMemo(() => {
+    if (!usdzUrl) return null;
+    const embedPageUrl = exhibitionId
+      ? `https://3d-snap.com/embed/${exhibitionId}`
+      : window?.location?.href ?? '';
+    return `${usdzUrl}#canonicalWebPageURL=${encodeURIComponent(embedPageUrl)}&allowsContentScaling=false`;
+  }, [usdzUrl, exhibitionId]);
+
+  // ── Use a 1×1 transparent pixel as the fallback <img> for Quick Look ─
+  const arThumbnail = posterUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
   const shareId = exhibitionId ?? 'demo';
   const embedCodeHtml = `<div style="position:relative;width:100%;"><iframe src="https://3d-snap.com/embed/${shareId}" width="100%" height="500px" frameborder="0" loading="lazy" title="Interaktives 3D Modell gesnappt mit 3D-Snap" allow="xr-spatial-tracking; fullscreen; autoplay"></iframe><div style="text-align:right;font-size:10px;font-family:sans-serif;margin-top:4px;"><a href="https://3d-snap.com?utm_source=embed&utm_medium=html" target="_blank" rel="ugc noopener" style="color:#888;text-decoration:none;">Interaktives 3D-Modell von <span style="font-weight:bold;color:#555;">3D-Snap</span></a></div></div>`;
 
@@ -91,6 +104,95 @@ export default function EmbedViewer({
   const copyMarkdown = () => {
     navigator.clipboard.writeText(embedCodeMarkdown);
     alert('Markdown-Snippet kopiert!');
+  };
+
+  // ── Determine which AR button to show ─────────────────────────────
+  const renderARButton = () => {
+    if (!arSupport.ready) return null;
+
+    // WKWebView (Facebook, Instagram, etc.) — show Safari hint
+    if (arSupport.isWKWebView) {
+      return (
+        <button
+          onClick={() => {
+            // Try to open in Safari via a native prompt
+            const currentUrl = window.location.href;
+            window.open(currentUrl, '_blank');
+          }}
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 transition-all text-[10px] font-black uppercase tracking-widest"
+          title="AR nur in Safari verfügbar"
+        >
+          <ExternalLink size={14} />
+          <span>In Safari öffnen</span>
+        </button>
+      );
+    }
+
+    // iOS + AR Quick Look supported + USDZ available
+    if (arSupport.supportsQuickLook && quickLookUrl) {
+      return (
+        // APPLE REQUIREMENT: <a rel="ar"> with <img> as FIRST child element.
+        // - No target="_blank" (shows ugly intermediate thumbnail)
+        // - Must be triggered by user tap (no programmatic .click())
+        // - First child MUST be <img> — Apple ignores the link otherwise
+        <a
+          rel="ar"
+          href={quickLookUrl}
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00aaff]/10 border border-[#00aaff]/20 text-[#00aaff] hover:bg-[#00aaff]/20 transition-all text-[10px] font-black uppercase tracking-widest cursor-pointer"
+        >
+          {/* CRITICAL: First child MUST be <img> for AR Quick Look */}
+          <img
+            src={arThumbnail}
+            alt="In AR ansehen"
+            width={14}
+            height={14}
+            className="w-3.5 h-3.5 object-cover rounded-sm"
+          />
+          <span>📱 AR</span>
+        </a>
+      );
+    }
+
+    // iOS but no USDZ — show disabled state
+    if (arSupport.isIOS && !usdzUrl) {
+      return (
+        <button
+          disabled
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800/50 border border-zinc-700/30 text-zinc-600 text-[10px] font-black uppercase tracking-widest cursor-not-allowed"
+          title="AR Vorschau wird vorbereitet..."
+        >
+          <Box size={14} />
+          <span>AR</span>
+        </button>
+      );
+    }
+
+    // Android — Scene Viewer (works directly with GLB, no USDZ needed!)
+    if (arSupport.supportsSceneViewer) {
+      return (
+        <a
+          href={androidARUrl}
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00aaff]/10 border border-[#00aaff]/20 text-[#00aaff] hover:bg-[#00aaff]/20 transition-all text-[10px] font-black uppercase tracking-widest cursor-pointer"
+        >
+          <Smartphone size={14} />
+          <span>📱 AR</span>
+        </a>
+      );
+    }
+
+    // Desktop — subtle AR button (non-functional, promotional)
+    return (
+      <button
+        onClick={() => {
+          alert('AR-Vorschau ist auf iOS Safari und Android Chrome verfügbar. Öffne diesen Link auf deinem Smartphone!');
+        }}
+        className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-500 hover:text-zinc-300 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest"
+        title="AR ansehen (nur auf Mobilgeräten)"
+      >
+        <Box size={14} />
+        <span>AR</span>
+      </button>
+    );
   };
 
   return (
@@ -110,6 +212,16 @@ export default function EmbedViewer({
               </div>
               <p className="mt-4 text-xs font-medium tracking-widest text-white/60 uppercase">Klicken zum Interagieren</p>
             </div>
+          </div>
+        ) : useMobileModelViewer ? (
+          // Mobile fallback: <model-viewer> auto-generates USDZ from GLB
+          <div className="absolute inset-0 z-10 bg-zinc-900">
+            <ModelViewerFallback
+              glbUrl={modelUrl}
+              usdzUrl={usdzUrl}
+              posterUrl={posterUrl}
+              autoRotate={autoRotate}
+            />
           </div>
         ) : (
           <div className="absolute inset-0 z-10 bg-zinc-900">
@@ -152,14 +264,7 @@ export default function EmbedViewer({
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleAR}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00aaff]/10 border border-[#00aaff]/20 text-[#00aaff] hover:bg-[#00aaff]/20 transition-all text-[10px] font-black uppercase tracking-widest"
-            title="In AR ansehen (iOS/Android)"
-          >
-            <Box size={14} />
-            <span>AR</span>
-          </button>
+          {renderARButton()}
           <button
             onClick={() => setShowShare(!showShare)}
             className="text-zinc-500 hover:text-white transition-colors"

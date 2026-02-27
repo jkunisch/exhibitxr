@@ -222,3 +222,110 @@ export async function pollTripoTaskStatus(
         throw new Error("Failed to poll Tripo task: Unknown error.");
     }
 }
+
+// ─── USDZ Conversion via Tripo convert_model ────────────────────────────────
+
+/** Maximum time (ms) to wait for USDZ conversion before giving up. */
+const USDZ_CONVERSION_TIMEOUT_MS = 120_000;
+/** Poll interval (ms) between conversion status checks. */
+const USDZ_POLL_INTERVAL_MS = 3_000;
+
+/**
+ * Poll a Tripo conversion task until it completes or times out.
+ * Returns the USDZ download URL on success.
+ */
+async function pollTripoConversion(
+    conversionTaskId: string,
+    timeoutMs: number = USDZ_CONVERSION_TIMEOUT_MS,
+): Promise<string> {
+    const deadline = Date.now() + timeoutMs;
+
+    while (Date.now() < deadline) {
+        const result = await tripoFetch(
+            `/task/${encodeURIComponent(conversionTaskId)}`,
+            { method: "GET" },
+        );
+
+        if (!isRecord(result) || !isRecord(result.data)) {
+            throw new Error("Tripo USDZ conversion poll returned invalid data.");
+        }
+
+        const data = result.data as Record<string, unknown>;
+        const status = String(data.status).toLowerCase();
+
+        if (status === "success") {
+            // Extract USDZ URL from output
+            if (isRecord(data.output)) {
+                const output = data.output as Record<string, unknown>;
+                // Tripo convert_model puts the result in output.model
+                const model = output.model;
+                if (typeof model === "string" && model.length > 0) {
+                    return model;
+                }
+                if (isRecord(model) && typeof (model as Record<string, unknown>).url === "string") {
+                    return (model as Record<string, unknown>).url as string;
+                }
+            }
+            throw new Error("Tripo USDZ conversion succeeded but no download URL found in output.");
+        }
+
+        if (status === "failed" || status === "cancelled") {
+            const errorMsg = typeof data.error === "string" ? data.error : "Unknown conversion error";
+            throw new Error(`Tripo USDZ conversion failed: ${errorMsg}`);
+        }
+
+        // Still running — wait before next poll
+        await new Promise((resolve) => setTimeout(resolve, USDZ_POLL_INTERVAL_MS));
+    }
+
+    throw new Error(`Tripo USDZ conversion timed out after ${timeoutMs / 1000}s.`);
+}
+
+/**
+ * Convert an existing Tripo 3D task output to USDZ format.
+ *
+ * Uses Tripo's `convert_model` task type:
+ * - Creates a new task with `type: "convert_model"` and `format: "USDZ"`
+ * - Polls until the conversion completes
+ * - Returns the USDZ download URL
+ *
+ * @param originalTaskId - The task_id of the original image_to_model task
+ * @returns Download URL for the USDZ file
+ */
+export async function convertTripoToUsdz(
+    originalTaskId: string,
+): Promise<string> {
+    if (originalTaskId.trim().length === 0) {
+        throw new Error("Missing original task ID for Tripo USDZ conversion.");
+    }
+
+    console.log(`[Tripo] Starting USDZ conversion for task ${originalTaskId}`);
+
+    // Step 1: Create the conversion task
+    const conversionResult = await tripoFetch("/task", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            type: "convert_model",
+            format: "USDZ",
+            original_model_task_id: originalTaskId,
+        }),
+    });
+
+    if (!isRecord(conversionResult) || !isRecord(conversionResult.data)) {
+        throw new Error("Tripo USDZ conversion task creation returned invalid data.");
+    }
+
+    const conversionTaskId = (conversionResult.data as Record<string, unknown>).task_id;
+    if (typeof conversionTaskId !== "string" || conversionTaskId.length === 0) {
+        throw new Error("Tripo did not return a valid conversion task_id.");
+    }
+
+    console.log(`[Tripo] USDZ conversion task created: ${conversionTaskId}`);
+
+    // Step 2: Poll until conversion completes
+    const usdzUrl = await pollTripoConversion(conversionTaskId);
+    console.log(`[Tripo] USDZ conversion complete: ${usdzUrl.substring(0, 80)}...`);
+
+    return usdzUrl;
+}

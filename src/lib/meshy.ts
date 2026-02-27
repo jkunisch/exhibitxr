@@ -2,7 +2,7 @@ export interface MeshyTask {
   id: string;
   status: "PENDING" | "IN_PROGRESS" | "SUCCEEDED" | "FAILED" | "EXPIRED";
   progress: number;
-  model_urls?: { glb: string; fbx: string; obj: string };
+  model_urls?: { glb: string; fbx: string; obj: string; usdz?: string };
   texture_urls?: string[];
   error?: string;
 }
@@ -15,6 +15,7 @@ export interface PollResult {
   status: MeshyTask["status"];
   progress: number;
   glbUrl?: string;
+  usdzUrl?: string;
   error?: string;
 }
 
@@ -179,6 +180,9 @@ function parseTask(taskPayload: unknown, fallbackTaskId: string): MeshyTask {
       glb: typeof modelUrlsRaw.glb === "string" ? modelUrlsRaw.glb : "",
       fbx: typeof modelUrlsRaw.fbx === "string" ? modelUrlsRaw.fbx : "",
       obj: typeof modelUrlsRaw.obj === "string" ? modelUrlsRaw.obj : "",
+      usdz: typeof modelUrlsRaw.usdz === "string" && modelUrlsRaw.usdz.length > 0
+        ? modelUrlsRaw.usdz
+        : undefined,
     }
     : undefined;
 
@@ -314,6 +318,7 @@ export async function pollTaskStatus(taskId: string): Promise<PollResult> {
       status: task.status,
       progress: task.progress,
       glbUrl: task.model_urls?.glb || undefined,
+      usdzUrl: task.model_urls?.usdz || undefined,
       error: task.error,
     };
   } catch (error: unknown) {
