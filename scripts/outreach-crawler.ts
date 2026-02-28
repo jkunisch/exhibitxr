@@ -43,6 +43,13 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
 
 import * as cheerio from 'cheerio';
 import { randomUUID } from 'crypto';
+import {
+  loadContacts,
+  updateContactStatus,
+  getBufferSize,
+  getStats,
+  type Contact,
+} from '../src/lib/contacts';
 import { FieldValue } from 'firebase-admin/firestore';
 import { Resend } from 'resend';
 import { getAdminDb } from '../src/lib/firebaseAdmin';
@@ -135,12 +142,16 @@ type CliOptions = {
   input: string;
   dryRun: boolean;
   limit: number;
+  contactsMode: boolean;
+  autoResearch: boolean;
 };
 
 function parseCli(argv: string[]): CliOptions {
   let input: string | undefined;
   let dryRun = false;
   let limit = DEFAULT_BATCH_LIMIT;
+  let contactsMode = false;
+  let autoResearch = false;
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -170,6 +181,16 @@ function parseCli(argv: string[]): CliOptions {
       continue;
     }
 
+    if (a === '--contacts') {
+      contactsMode = true;
+      continue;
+    }
+
+    if (a === '--auto-research') {
+      autoResearch = true;
+      continue;
+    }
+
     if (a.startsWith('-')) {
       err(`Unbekannte Option: ${a}`);
       printUsage(1);
@@ -181,12 +202,12 @@ function parseCli(argv: string[]): CliOptions {
     }
   }
 
-  if (!input) {
-    err('Bitte gib eine URL oder eine targets.txt Datei an.');
+  if (!input && !contactsMode) {
+    err('Bitte gib eine URL, eine targets.txt Datei, oder --contacts an.');
     printUsage(1);
   }
 
-  return { input: input!, dryRun, limit };
+  return { input: input ?? '', dryRun, limit, contactsMode, autoResearch };
 }
 
 function isSingleUrlArg(input: string): boolean {
@@ -685,8 +706,95 @@ async function main(): Promise<void> {
 
   const urls: string[] = [];
   const input = opts.input;
+  let markdownOut = `# 📧 Outreach E-Mails\n\n`;
+  const rows: CsvRow[] = [];
 
-  if (isSingleUrlArg(input)) {
+  // ── Contacts-Mode: read from contacts.json ──────────────────
+  if (opts.contactsMode) {
+    const contacts = loadContacts();
+    const researched = contacts.filter(c => c.status === 'researched');
+    const capped = researched.slice(0, opts.limit);
+
+    if (capped.length === 0) {
+      warn('Keine researched Contacts gefunden.');
+      if (opts.autoResearch) {
+        info('Starte Research Agent um neue Leads zu finden...');
+        const { execSync } = require('child_process');
+        execSync('npx tsx scripts/research-agent.ts --limit 10', { stdio: 'inherit', cwd: process.cwd() });
+        const refreshed = loadContacts().filter(c => c.status === 'researched');
+        if (refreshed.length === 0) {
+          warn('Research Agent hat keine neuen Leads gefunden. Beende.');
+          return;
+        }
+        capped.push(...refreshed.slice(0, opts.limit));
+      } else {
+        info('Tipp: Starte zuerst den Research Agent: npx tsx scripts/research-agent.ts');
+        info('Oder nutze --auto-research für automatische Nachrecherche.');
+        return;
+      }
+    }
+
+    info(`Contacts-Modus: ${capped.length} researched Contacts → verarbeite.`);
+
+    for (let i = 0; i < capped.length; i++) {
+      const contact = capped[i];
+      console.log(`\n${ANSI.bold}========================================================${ANSI.reset}`);
+      console.log(`${ANSI.bold}🔄 Verarbeite Contact ${i + 1}/${capped.length}:${ANSI.reset} ${contact.shopName} (${contact.email})`);
+      console.log(`${ANSI.bold}========================================================${ANSI.reset}`);
+
+      try {
+        // Use product URL from contact, or fall back to shop URL
+        const targetUrl = contact.productUrl ?? contact.shopUrl;
+        const scraped = await scrapeShop(targetUrl);
+
+        if (opts.dryRun) {
+          await downloadImage(scraped.imageUrl);
+          ok(`Dry-Run fertig: ${contact.shopName}`);
+          rows.push({ shop_name: contact.shopName, product_name: scraped.productName, url: targetUrl, embed_link: '', email_sent: '', status: 'DRY_RUN_OK', error: '' });
+          continue;
+        }
+
+        // Live pipeline: 3D → DB → Email → Send
+        const imageBuffer = await downloadImage(scraped.imageUrl);
+        const glbUrl = await generate3D(imageBuffer, scraped.productName);
+        const embedUrl = await saveToDatabase(scraped.productName, glbUrl);
+
+        // Update contact status: model_generated
+        updateContactStatus(contact.id, 'model_generated', { embedUrl });
+        ok(`3D Model + Embed gespeichert: ${embedUrl}`);
+
+        // Generate + send email
+        const emailText = await generateEmail(contact.shopName, scraped.productName, embedUrl);
+        const subject = extractSubject(emailText, scraped.productName);
+        const htmlBody = emailToHtml(emailText, embedUrl);
+
+        const emailSentId = await sendEmail(contact.email, subject, htmlBody);
+
+        if (emailSentId) {
+          updateContactStatus(contact.id, 'sent', { emailSentAt: new Date().toISOString() });
+          ok(`Email gesendet an ${contact.email} (${emailSentId})`);
+        } else {
+          updateContactStatus(contact.id, 'failed');
+          warn(`Email-Versand fehlgeschlagen für ${contact.email}`);
+        }
+
+        rows.push({ shop_name: contact.shopName, product_name: scraped.productName, url: targetUrl, embed_link: embedUrl, email_sent: emailSentId ?? '', status: 'OK', error: '' });
+        ok(`✅ Fertig: ${contact.shopName}`);
+      } catch (e) {
+        const message = formatError(e);
+        err(`Fehler bei ${contact.shopName}: ${message}`);
+        updateContactStatus(contact.id, 'failed');
+        rows.push({ shop_name: contact.shopName, product_name: '', url: contact.productUrl ?? '', embed_link: '', email_sent: '', status: 'FEHLER', error: message });
+      }
+    }
+
+    // Show buffer status after processing
+    const stats = getStats();
+    console.log(`\n📊 Buffer: ${stats.researched} researched, ${stats.sent} sent, ${stats.failed} failed`);
+    if (stats.researched === 0 && opts.autoResearch) {
+      info('Buffer leer → Research Agent wird beim nächsten Lauf automatisch gestartet.');
+    }
+  } else if (isSingleUrlArg(input)) {
     urls.push(input.trim());
     info('Einzel-URL-Modus: 1 URL wird verarbeitet.');
   } else {
@@ -697,18 +805,14 @@ async function main(): Promise<void> {
 
     const all = await readUrlsFromFile(input);
     if (all.length === 0) {
-      err('Keine gültigen URLs in der Datei gefunden. (Tipp: Jede Zeile eine URL, Kommentare mit #)');
+      err('Keine gültigen URLs in der Datei gefunden.');
       process.exit(1);
     }
 
     const capped = all.slice(0, opts.limit);
     urls.push(...capped);
-
     info(`Batch-Modus: ${all.length} URLs gefunden → verarbeite ${urls.length} (limit=${opts.limit}).`);
   }
-
-  let markdownOut = `# 📧 Outreach E-Mails\n\n`;
-  const rows: CsvRow[] = [];
 
   for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
