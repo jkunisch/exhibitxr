@@ -410,8 +410,8 @@ async function ensureTenantExists(): Promise<void> {
   tenantChecked = true;
 }
 
-async function saveToDatabase(productName: string, glbUrl: string): Promise<string> {
-  console.log('💾 Speichere in Firebase (Firestore)...');
+async function saveToDatabase(productName: string, meshyGlbUrl: string): Promise<string> {
+  console.log('💾 Speichere in Firebase (Firestore + Storage)...');
 
   // shopifyI4: Tenant-Guard
   await ensureTenantExists();
@@ -419,6 +419,42 @@ async function saveToDatabase(productName: string, glbUrl: string): Promise<stri
   const db = getAdminDb();
   const exhibitionId = randomUUID();
   const modelId = randomUUID();
+
+  // ── Download GLB from Meshy (server-side, no CORS issue) ───────────
+  console.log('  ⬇️  Lade GLB von Meshy herunter...');
+  const glbResponse = await fetch(meshyGlbUrl, { method: 'GET' });
+  if (!glbResponse.ok) {
+    throw new Error(`GLB-Download fehlgeschlagen: HTTP ${glbResponse.status}`);
+  }
+  const glbBuffer = Buffer.from(await glbResponse.arrayBuffer());
+  const glbSizeKB = Math.round(glbBuffer.length / 1024);
+  ok(`  GLB heruntergeladen: ${glbSizeKB}KB`);
+
+  // ── Upload to Firebase Storage (CORS-safe) ───────────────────────
+  console.log('  ☁️  Upload zu Firebase Storage...');
+  const { getStorage } = await import('firebase-admin/storage');
+  const { getAdminApp } = await import('../src/lib/firebaseAdmin');
+  const storage = getStorage(getAdminApp());
+  const bucket = storage.bucket();
+  const downloadToken = randomUUID();
+  const storagePath = `tenants/${OUTREACH_TENANT_ID}/models/${exhibitionId}.glb`;
+  const storageFile = bucket.file(storagePath);
+
+  await storageFile.save(glbBuffer, {
+    resumable: false,
+    metadata: {
+      contentType: 'model/gltf-binary',
+      metadata: {
+        firebaseStorageDownloadTokens: downloadToken,
+        tenantId: OUTREACH_TENANT_ID,
+        source: 'outreach-crawler',
+      },
+    },
+  });
+
+  const encodedPath = encodeURIComponent(storagePath);
+  const glbUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodedPath}?alt=media&token=${downloadToken}`;
+  ok(`  Firebase Storage URL erstellt`);
 
   await db
     .collection('tenants')

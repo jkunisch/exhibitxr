@@ -226,7 +226,7 @@ export default function EmbedViewer({
         ) : (
           <div className="absolute inset-0 z-10 bg-zinc-900">
             <ViewerCanvas
-              bgColor="transparent"
+              bgColor="#09090b"
               autoRotate={autoRotate}
               stageType={stageType}
               envRotation={envRotation}
