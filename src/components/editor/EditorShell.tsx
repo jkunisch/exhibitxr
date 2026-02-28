@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Camera, ExternalLink, Settings, SlidersHorizontal, Sparkles, X, Download, Loader2 } from "lucide-react";
 import ViewerCanvas from "@/components/3d/ViewerCanvas";
 import ModelViewer from "@/components/3d/ModelViewer";
-import { ScreenshotCapture } from "@/components/embed/ScreenshotCapture";
+import { ScreenshotGatherer, ScreenshotCaptureUI } from "@/components/embed/ScreenshotCapture";
 import { ModelStatsGatherer, ModelInfoOverlayHUD } from "@/components/3d/ModelInfoOverlay";
 import EditorForm from "@/components/editor/EditorForm";
 import ControlsLegend from "@/components/ui/ControlsLegend";
@@ -370,9 +370,10 @@ export default function EditorShell({
                                 onTransformEnd={handleTransformEnd}
                                 onLoaded={() => setBoundsFitKey((k) => k + 1)}
                             />
-                            <ScreenshotCapture title={effectiveConfig.title || "3D-Snap"} />
+                            <ScreenshotGatherer />
                             <ModelStatsGatherer />
                         </ViewerCanvas>
+                        <ScreenshotCaptureUI title={effectiveConfig.title || "3D-Snap"} />
                         <ModelInfoOverlayHUD />
 
                         {effectiveConfig.model.variants.length > 0 && (
