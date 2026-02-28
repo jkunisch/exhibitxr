@@ -41,6 +41,10 @@ let meshyKeyIndex = 0;
 let meshyKeys: string[] | null = null;
 const taskKeyMap = new Map<string, string>();
 
+// Separator used to encode the API key index into the task ID.
+// Format: "meshyTaskId::keyIndex" — survives serverless cold starts.
+const KEY_INDEX_SEP = "::";
+
 function loadMeshyKeys(): string[] {
   if (meshyKeys !== null) return meshyKeys;
 
@@ -70,12 +74,31 @@ function getNextMeshyApiKey(): string {
   return key;
 }
 
-/** Get the key that was used to create a specific task. Falls back to first key. */
+/** Get the key that was used to create a specific task.
+ *  Priority: 1) in-memory map, 2) key index encoded in task ID, 3) first key. */
 function getMeshyApiKeyForTask(taskId: string): string {
-  const saved = taskKeyMap.get(taskId);
+  // 1) Check in-memory map (works within the same serverless instance)
+  const rawId = taskId.includes(KEY_INDEX_SEP) ? taskId.split(KEY_INDEX_SEP)[0] : taskId;
+  const saved = taskKeyMap.get(rawId);
   if (saved) return saved;
-  // Fallback: if we don't know which key created it, use the first one
+
+  // 2) Extract encoded key index from composite task ID
+  if (taskId.includes(KEY_INDEX_SEP)) {
+    const parts = taskId.split(KEY_INDEX_SEP);
+    const idx = parseInt(parts[1], 10);
+    const keys = loadMeshyKeys();
+    if (!isNaN(idx) && idx >= 0 && idx < keys.length) {
+      return keys[idx];
+    }
+  }
+
+  // 3) Fallback: first key
   return loadMeshyKeys()[0];
+}
+
+/** Strip the encoded key index from a composite task ID to get the raw Meshy ID. */
+function stripKeyIndex(taskId: string): string {
+  return taskId.includes(KEY_INDEX_SEP) ? taskId.split(KEY_INDEX_SEP)[0] : taskId;
 }
 
 function parseMeshyStatus(value: unknown): MeshyTask["status"] {
@@ -241,6 +264,7 @@ export async function submitImageTo3D(
     let lastError: Error | null = null;
     let successfulTaskId = "";
     let successfulApiKey = "";
+    let successfulKeyIndex = 0;
 
     for (let i = 0; i < keys.length; i++) {
       const apiKey = getNextMeshyApiKey();
@@ -271,6 +295,7 @@ export async function submitImageTo3D(
 
       successfulTaskId = payload.result;
       successfulApiKey = apiKey;
+      successfulKeyIndex = i;
       break;
     }
 
@@ -281,7 +306,9 @@ export async function submitImageTo3D(
     // Track which key created this task so polling uses the same one
     taskKeyMap.set(successfulTaskId, successfulApiKey);
 
-    return { taskId: successfulTaskId };
+    // Encode key index into the task ID so it survives serverless cold starts
+    const compositeTaskId = `${successfulTaskId}${KEY_INDEX_SEP}${successfulKeyIndex}`;
+    return { taskId: compositeTaskId };
   } catch (error: unknown) {
     if (error instanceof Error) {
       throw new Error(`Failed to submit image to Meshy: ${error.message}`);
@@ -296,12 +323,15 @@ export async function pollTaskStatus(taskId: string): Promise<PollResult> {
       throw new Error("Missing task id for Meshy polling.");
     }
 
+    const rawTaskId = stripKeyIndex(taskId);
+    const apiKey = getMeshyApiKeyForTask(taskId);
+
     const response = await fetch(
-      `${MESHY_IMAGE_TO_3D_ENDPOINT}/${encodeURIComponent(taskId)}`,
+      `${MESHY_IMAGE_TO_3D_ENDPOINT}/${encodeURIComponent(rawTaskId)}`,
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${getMeshyApiKeyForTask(taskId)}`,
+          Authorization: `Bearer ${apiKey}`,
         },
       },
     );
