@@ -44,6 +44,7 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
 import * as cheerio from 'cheerio';
 import { randomUUID } from 'crypto';
 import { FieldValue } from 'firebase-admin/firestore';
+import { Resend } from 'resend';
 import { getAdminDb } from '../src/lib/firebaseAdmin';
 import { submitImageTo3D, pollTaskStatus } from '../src/lib/meshy';
 import type { PollResult } from '../src/lib/meshy';
@@ -56,6 +57,11 @@ const EMBED_BASE_URL: string = process.env.EMBED_BASE_URL ?? `${APP_URL}/embed`;
 
 const OPENROUTER_API_KEY: string | undefined = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL ?? 'minimax/minimax-m2.5';
+
+// Resend email configuration
+const RESEND_API_KEY: string | undefined = process.env.RESEND_API_KEY;
+const RESEND_FROM: string = process.env.RESEND_FROM ?? 'onboarding@resend.dev';
+const RESEND_REPLY_TO: string = process.env.RESEND_REPLY_TO ?? 'jonatankunisch@gmail.com';
 
 const DEFAULT_BATCH_LIMIT = 10;
 const FETCH_TIMEOUT_MS = 30_000;
@@ -247,6 +253,7 @@ type ScrapeResult = {
   shopName: string;
   productName: string;
   imageUrl: string;
+  contactEmail: string | null;
 };
 
 async function scrapeShop(url: string): Promise<ScrapeResult> {
@@ -285,7 +292,21 @@ async function scrapeShop(url: string): Promise<ScrapeResult> {
   ok(`Produkt: ${productName}`);
   ok(`Bild: ${imageUrl}`);
 
-  return { shopName, productName, imageUrl };
+  // Extract contact email from page (mailto: links, impressum, etc.)
+  let contactEmail: string | null = null;
+  const mailtoMatch = html.match(/mailto:([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/i);
+  if (mailtoMatch) {
+    contactEmail = mailtoMatch[1];
+  } else {
+    // Try to find email pattern in visible text
+    const emailMatch = html.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+    if (emailMatch && !emailMatch[0].includes('example') && !emailMatch[0].includes('sentry')) {
+      contactEmail = emailMatch[0];
+    }
+  }
+  if (contactEmail) ok(`📧 Kontakt: ${contactEmail}`);
+
+  return { shopName, productName, imageUrl, contactEmail };
 }
 
 async function downloadImage(imageUrl: string): Promise<Buffer> {
@@ -542,6 +563,73 @@ async function generateEmail(shopName: string, productName: string, embedUrl: st
   return emailText.trim();
 }
 
+/** Extract subject line from generated email (first line starting with 'Betreff:') */
+function extractSubject(emailText: string, fallbackProduct: string): string {
+  for (const line of emailText.split('\n')) {
+    const trimmed = line.replace(/^\*\*/, '').replace(/\*\*$/, '').trim();
+    if (trimmed.toLowerCase().startsWith('betreff:')) {
+      return trimmed.replace(/^betreff:\s*/i, '').trim();
+    }
+  }
+  return `Dein ${fallbackProduct} in 3D`;
+}
+
+/** Send email via Resend */
+async function sendEmail(
+  recipientEmail: string,
+  subject: string,
+  bodyHtml: string,
+): Promise<string | null> {
+  if (!RESEND_API_KEY) {
+    console.warn('⚠️  RESEND_API_KEY fehlt — Email wird NICHT gesendet (nur als Draft gespeichert)');
+    return null;
+  }
+
+  const resend = new Resend(RESEND_API_KEY);
+  console.log(`📨 Sende Email via Resend an ${recipientEmail}...`);
+
+  const { data, error } = await resend.emails.send({
+    from: RESEND_FROM,
+    to: recipientEmail,
+    replyTo: RESEND_REPLY_TO,
+    subject,
+    html: bodyHtml,
+  });
+
+  if (error) {
+    err(`Resend-Fehler: ${JSON.stringify(error)}`);
+    return null;
+  }
+
+  ok(`✅ Email gesendet! ID: ${data?.id}`);
+  return data?.id ?? null;
+}
+
+/** Convert markdown-ish email text to basic HTML */
+function emailToHtml(emailText: string, embedUrl: string): string {
+  // Strip subject line if present
+  const lines = emailText.split('\n').filter(l => !l.toLowerCase().replace(/^\*\*/, '').trim().startsWith('betreff:'));
+  const body = lines.join('\n').trim();
+
+  // Convert markdown links and bold
+  const htmlBody = body
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" style="color:#00aaff">$1</a>')
+    .replace(/\n\n/g, '</p><p style="margin:12px 0;color:#333;font-size:15px;line-height:1.6;">')
+    .replace(/\n/g, '<br/>');
+
+  return `
+    <div style="font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;background:#fafafa;">
+      <p style="margin:12px 0;color:#333;font-size:15px;line-height:1.6;">${htmlBody}</p>
+      <div style="margin:24px 0;padding:16px;background:#111;border-radius:12px;text-align:center;">
+        <a href="${embedUrl}" style="color:#00aaff;font-size:14px;font-weight:bold;text-decoration:none;">👉 Interaktives 3D-Modell ansehen</a>
+      </div>
+      <hr style="border:1px solid #eee;margin:24px 0;"/>
+      <p style="font-size:11px;color:#999;">Gesendet von <a href="https://3d-snap.com" style="color:#00aaff;">3D-Snap</a> — Foto zu 3D in 15 Sekunden.</p>
+    </div>
+  `;
+}
+
 /** ---------------- Output & Orchestrierung ---------------- */
 
 type CsvRow = {
@@ -549,6 +637,7 @@ type CsvRow = {
   product_name: string;
   url: string;
   embed_link: string;
+  email_sent: string;
   status: string;
   error: string;
 };
@@ -655,6 +744,7 @@ async function main(): Promise<void> {
           product_name: productName,
           url,
           embed_link: placeholderEmbed,
+          email_sent: '',
           status: 'DRY_RUN_OK',
           error: '',
         });
@@ -673,9 +763,26 @@ async function main(): Promise<void> {
       embedLink = embedUrl;
       const emailText = await generateEmail(shopName, productName, embedUrl);
 
+      // ── Send Email via Resend ───────────────────────────────────
+      const subject = extractSubject(emailText, productName);
+      const htmlBody = emailToHtml(emailText, embedUrl);
+      let emailSentId: string | null = null;
+
+      // Try to find contact email from scraped page
+      const contactEmail = scraped.contactEmail;
+      if (contactEmail) {
+        emailSentId = await sendEmail(contactEmail, subject, htmlBody);
+      } else {
+        console.warn(`⚠️  Keine Kontakt-Email für ${shopName} gefunden — Email wird nur als Draft gespeichert.`);
+      }
+
       markdownOut += [
         `## E-Mail an: ${shopName}`,
         `**URL:** ${url}`,
+        `**Kontakt:** ${contactEmail || '❌ nicht gefunden'}`,
+        `**Gesendet:** ${emailSentId ? `✅ (${emailSentId})` : '❌ Nein'}`,
+        ``,
+        `**Betreff:** ${subject}`,
         ``,
         `${emailText}`,
         ``,
@@ -690,6 +797,7 @@ async function main(): Promise<void> {
         product_name: productName,
         url,
         embed_link: embedUrl,
+        email_sent: emailSentId ?? '',
         status: 'OK',
         error: '',
       });
@@ -714,6 +822,7 @@ async function main(): Promise<void> {
         product_name: productName,
         url,
         embed_link: embedLink,
+        email_sent: '',
         status: opts.dryRun ? 'DRY_RUN_FEHLER' : 'FEHLER',
         error: message,
       });
@@ -725,11 +834,11 @@ async function main(): Promise<void> {
   await fs.promises.writeFile('emails_to_send.md', markdownOut, 'utf-8');
   ok(`📁 E-Mails/Ergebnisse gespeichert: emails_to_send.md`);
 
-  const header = ['shop_name', 'product_name', 'url', 'embed_link', 'status', 'error'];
+  const header = ['shop_name', 'product_name', 'url', 'embed_link', 'email_sent', 'status', 'error'];
   const csvLines = [
     header.join(','),
     ...rows.map((r) =>
-      [r.shop_name, r.product_name, r.url, r.embed_link, r.status, r.error].map(csvEscape).join(',')
+      [r.shop_name, r.product_name, r.url, r.embed_link, r.email_sent, r.status, r.error].map(csvEscape).join(',')
     ),
   ];
 
