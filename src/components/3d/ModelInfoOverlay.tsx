@@ -1,15 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
-import { createPortal } from "react-dom";
+import { create } from "zustand";
 import * as THREE from "three";
 
+// ─── Shared store for model stats ────────────────────────────────────────────
 interface ModelStats {
     triangles: number;
-    meshes: number;
     maxTextureRes: number;
 }
+
+interface ModelStatsStore {
+    stats: ModelStats | null;
+    setStats: (s: ModelStats | null) => void;
+}
+
+export const useModelStatsStore = create<ModelStatsStore>((set) => ({
+    stats: null,
+    setStats: (stats) => set({ stats }),
+}));
 
 function formatTriangles(n: number): string {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -18,36 +28,23 @@ function formatTriangles(n: number): string {
 }
 
 /**
- * Overlay badge shown in the editor's 3D canvas (bottom-right corner).
+ * R3F component — must be placed INSIDE the <Canvas>.
  *
- * Displays:
- * - Triangle count (e.g. "42.1K tris")
- * - Max texture resolution (e.g. "1024²")
- *
- * Renders via React portal into document.body to avoid R3F DOM constraints.
- * Only visible in editor mode — hidden in embeds.
+ * Traverses the scene to gather geometry/texture statistics and writes
+ * them to the shared `useModelStatsStore`. The actual DOM overlay is
+ * rendered by `ModelInfoOverlayHUD` *outside* the Canvas to avoid the
+ * "Div is not part of THREE namespace" R3F error.
  */
-export function ModelInfoOverlay() {
+export function ModelStatsGatherer() {
     const { scene } = useThree();
-    const [stats, setStats] = useState<ModelStats | null>(null);
-    const [mounted, setMounted] = useState(false);
+    const setStats = useModelStatsStore((s) => s.setStats);
 
     useEffect(() => {
-        const timer = setTimeout(() => setMounted(true), 0);
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Traverse the scene to gather geometry statistics
-    useEffect(() => {
-        if (!scene) return;
-
         let triangles = 0;
-        let meshes = 0;
         let maxTextureRes = 0;
 
         scene.traverse((child) => {
             if (!(child instanceof THREE.Mesh)) return;
-            meshes++;
 
             const geom = child.geometry;
             if (geom) {
@@ -60,7 +57,6 @@ export function ModelInfoOverlay() {
                 }
             }
 
-            // Check textures for resolution
             const materials = Array.isArray(child.material)
                 ? child.material
                 : [child.material];
@@ -80,19 +76,29 @@ export function ModelInfoOverlay() {
 
         setStats({
             triangles: Math.round(triangles),
-            meshes,
             maxTextureRes,
         });
-    }, [scene, scene.children.length]);
 
-    if (!mounted || !stats || typeof document === "undefined") return null;
+        return () => setStats(null);
+    }, [scene, scene.children.length, setStats]);
 
-    // Find the viewer container to portal into (positioned relative to the canvas)
-    const container = document.querySelector("[data-editor-viewer]");
-    if (!container) return null;
+    // Renders nothing into the 3D scene — purely a stats gatherer
+    return null;
+}
 
-    return createPortal(
-        <div className="absolute bottom-14 right-3 z-20 flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-2.5 py-1 text-[11px] font-mono text-white/60 backdrop-blur-sm">
+/**
+ * DOM component — must be placed OUTSIDE the <Canvas>.
+ *
+ * Reads stats from `useModelStatsStore` and renders an overlay badge
+ * positioned over the canvas via absolute positioning.
+ */
+export function ModelInfoOverlayHUD() {
+    const stats = useModelStatsStore((s) => s.stats);
+
+    if (!stats || stats.triangles === 0) return null;
+
+    return (
+        <div className="absolute bottom-14 right-3 z-20 flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-2.5 py-1 text-[11px] font-mono text-white/60 backdrop-blur-sm pointer-events-none">
             <span title={`${stats.triangles.toLocaleString()} Dreiecke`}>
                 {formatTriangles(stats.triangles)} tris
             </span>
@@ -104,7 +110,6 @@ export function ModelInfoOverlay() {
                     </span>
                 </>
             )}
-        </div>,
-        container,
+        </div>
     );
 }

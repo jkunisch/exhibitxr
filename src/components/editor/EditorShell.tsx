@@ -6,7 +6,7 @@ import { Camera, ExternalLink, Settings, SlidersHorizontal, Sparkles, X, Downloa
 import ViewerCanvas from "@/components/3d/ViewerCanvas";
 import ModelViewer from "@/components/3d/ModelViewer";
 import { ScreenshotCapture } from "@/components/embed/ScreenshotCapture";
-import { ModelInfoOverlay } from "@/components/3d/ModelInfoOverlay";
+import { ModelStatsGatherer, ModelInfoOverlayHUD } from "@/components/3d/ModelInfoOverlay";
 import EditorForm from "@/components/editor/EditorForm";
 import ControlsLegend from "@/components/ui/ControlsLegend";
 import FloatingCanvasToolbar from "@/components/ui/FloatingCanvasToolbar";
@@ -371,8 +371,9 @@ export default function EditorShell({
                                 onLoaded={() => setBoundsFitKey((k) => k + 1)}
                             />
                             <ScreenshotCapture title={effectiveConfig.title || "3D-Snap"} />
-                            <ModelInfoOverlay />
+                            <ModelStatsGatherer />
                         </ViewerCanvas>
+                        <ModelInfoOverlayHUD />
 
                         {effectiveConfig.model.variants.length > 0 && (
                             <div className="absolute bottom-4 left-4 flex flex-wrap gap-2 pr-20">
