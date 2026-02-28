@@ -294,13 +294,17 @@ async function scrapeShop(url: string): Promise<ScrapeResult> {
 
   // Extract contact email from page (mailto: links, impressum, etc.)
   let contactEmail: string | null = null;
-  const mailtoMatch = html.match(/mailto:([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/i);
-  if (mailtoMatch) {
+  const EMAIL_BLACKLIST = /example|sentry|wixpress|addresshere|yourname|youremail|placeholder|@2x|@3x|@1x/i;
+  const EMAIL_RE = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,6}/;
+
+  const mailtoMatch = html.match(/mailto:([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,6})/i);
+  if (mailtoMatch && !EMAIL_BLACKLIST.test(mailtoMatch[1])) {
     contactEmail = mailtoMatch[1];
   } else {
-    // Try to find email pattern in visible text
-    const emailMatch = html.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
-    if (emailMatch && !emailMatch[0].includes('example') && !emailMatch[0].includes('sentry')) {
+    // Try to find email pattern in visible text (skip image URLs, scripts, etc.)
+    const textOnly = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');
+    const emailMatch = textOnly.match(EMAIL_RE);
+    if (emailMatch && !EMAIL_BLACKLIST.test(emailMatch[0]) && !emailMatch[0].match(/\.(jpg|png|gif|webp|svg|avif)/i)) {
       contactEmail = emailMatch[0];
     }
   }
