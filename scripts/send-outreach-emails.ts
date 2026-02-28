@@ -44,21 +44,21 @@ const TARGETS: OutreachTarget[] = [
         productName: 'Neusser Eierdieb',
         shopUrl: 'https://shop.3dprintnovesia.de/products/neusser-eierdieb',
         embedUrl: 'https://3d-snap.com/embed/cc02081d-caef-43e3-b318-14b7d84c31c1',
-        recipientEmail: '', // TODO: Set manually
+        recipientEmail: 'info@3dprintnovesia.de',
     },
     {
         shopName: '3DMichel',
         productName: 'Lithophane Lampe',
         shopUrl: 'https://www.3dmichel.com/produkt/lithophane-lampe-3d-druck-personalisiert/',
         embedUrl: 'https://3d-snap.com/embed/9c25a4f0-99bc-4d85-bd78-68489eb2f838',
-        recipientEmail: '', // TODO: Set manually
+        recipientEmail: 'j.michel@3dmichel.com',
     },
     {
         shopName: 'CAT LOURI',
         productName: '3D-gedruckte Vasen',
         shopUrl: 'https://catlouri.com/products/asthetische-3d-gedruckte-vasen-fur-dein-modernes-zuhause',
         embedUrl: 'https://3d-snap.com/embed/b3b335c5-9c9c-4f7a-bed3-3752d8646c09',
-        recipientEmail: '', // TODO: Set manually
+        recipientEmail: 'catlouri@gmx.de',
     },
 ];
 
