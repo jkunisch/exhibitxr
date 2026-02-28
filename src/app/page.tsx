@@ -3,11 +3,11 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { 
-  Camera, 
-  Palette, 
-  MapPin, 
-  Link2, 
+import {
+  Camera,
+  Palette,
+  MapPin,
+  Link2,
   ArrowUpRight,
   ShieldCheck,
   Globe,
@@ -28,7 +28,7 @@ export default function LandingPage() {
       {/* HERO SECTION */}
       <section className="relative pt-40 pb-20 lg:pt-56 lg:pb-32 overflow-hidden">
         <div className="container mx-auto px-6 relative z-10 text-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-[0.3em] text-[#00aaff] uppercase mb-12 backdrop-blur-md"
@@ -37,7 +37,7 @@ export default function LandingPage() {
             Snap. Generieren. Teilen.
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -46,7 +46,7 @@ export default function LandingPage() {
             REALITÄT <br /> <span className="text-[#00aaff] drop-shadow-[0_0_40px_rgba(0,170,255,0.4)] uppercase tracking-tighter">SNAPPEN</span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -56,7 +56,7 @@ export default function LandingPage() {
             Einfach. Schnell. Für alle Anwendungsbereiche.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -73,14 +73,14 @@ export default function LandingPage() {
           </motion.div>
 
           {/* 3D Snap Module - FLUID BORDER UPGRADE */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             className="relative mx-auto w-full max-w-5xl rounded-[3.5rem] p-[2px] overflow-hidden group shadow-[0_0_100px_rgba(0,170,255,0.15)]"
           >
             {/* Fluid Magic Border (Animated Conic Gradient with Rainbow Hue Shift) */}
-            <motion.div 
+            <motion.div
               className="absolute inset-[-500%] animate-[spin_6s_linear_infinite]"
               animate={{ filter: ["hue-rotate(0deg)", "hue-rotate(360deg)"] }}
               transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
@@ -88,7 +88,7 @@ export default function LandingPage() {
                 background: 'conic-gradient(from 0deg, transparent 0%, transparent 40%, #00aaff 50%, transparent 60%, transparent 100%)',
               }}
             />
-            
+
             <div className="relative rounded-[3.4rem] overflow-hidden border border-white/5 bg-[#050507] backdrop-blur-3xl min-h-[550px]">
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none z-10" />
               <div className="relative z-10">
@@ -119,20 +119,20 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { 
-                title: "Möbel", 
-                desc: "Premium Präsentation", 
-                img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop" 
+              {
+                title: "Möbel",
+                desc: "Premium Präsentation",
+                img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop"
               },
-              { 
-                title: "Industrie", 
-                desc: "Präzision & Technik", 
-                img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop" 
+              {
+                title: "Industrie",
+                desc: "Präzision & Technik",
+                img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop"
               },
-              { 
-                title: "Kreative", 
-                desc: "Builder & Artists", 
-                img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop" 
+              {
+                title: "Kreative",
+                desc: "Builder & Artists",
+                img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop"
               }
             ].map((item, idx) => (
               <div key={idx} className="group relative rounded-[3rem] overflow-hidden aspect-[4/5] md:aspect-[10/14] bg-zinc-100 shadow-xl">
@@ -165,7 +165,7 @@ export default function LandingPage() {
                 </div>
                 <ul className="space-y-4 text-sm font-semibold text-zinc-300">
                   <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> 5 Credits inklusive</li>
-                  <li className="flex items-center gap-3 text-zinc-500"><Check size={16} /> ~1 Premium Snap zum Testen</li>
+                  <li className="flex items-center gap-3 text-zinc-500"><Check size={16} /> ~2 Premium Snaps zum Testen</li>
                   <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Unlimitierte Projekte</li>
                 </ul>
               </div>
@@ -189,7 +189,7 @@ export default function LandingPage() {
                 </div>
                 <ul className="space-y-4 text-sm font-semibold text-zinc-100">
                   <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> 30 Credits / Monat</li>
-                  <li className="flex items-center gap-3 text-zinc-400"><Check size={16} /> ~10 Premium Snaps</li>
+                  <li className="flex items-center gap-3 text-zinc-400"><Check size={16} /> ~15 Premium Snaps</li>
                   <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> Unlimitierte Projekte</li>
                   <li className="flex items-center gap-3"><Check size={16} className="text-[#00aaff]" /> Rollover (Credits verfallen nicht)</li>
                 </ul>
@@ -211,7 +211,7 @@ export default function LandingPage() {
                 </div>
                 <ul className="space-y-4 text-sm font-semibold text-zinc-300">
                   <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> 80 Credits / Monat</li>
-                  <li className="flex items-center gap-3 text-zinc-600"><Check size={16} /> ~26 Premium Snaps</li>
+                  <li className="flex items-center gap-3 text-zinc-600"><Check size={16} /> ~40 Premium Snaps</li>
                   <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Unlimitierte Projekte</li>
                   <li className="flex items-center gap-3"><Check size={16} className="text-zinc-500" /> Rollover inklusive</li>
                 </ul>
@@ -224,9 +224,9 @@ export default function LandingPage() {
               </Link>
             </StudioCard>
           </div>
-          
+
           <p className="mt-12 text-xs font-medium text-zinc-500">
-            * 1 Credit = 1 Basic Snap (Tripo AI). 3 Credits = 1 Premium Snap (Meshy AI, PBR & High-Fidelity).
+            * 1 Credit = 1 Basic Snap (Tripo AI). 2 Credits = 1 Premium Snap (Meshy AI, PBR & High-Fidelity).
           </p>
         </div>
       </section>
@@ -240,7 +240,7 @@ export default function LandingPage() {
                 3D-SNAP<span className="text-[#00aaff] italic">.de</span>
               </Link>
               <p className="text-zinc-600 text-lg leading-relaxed font-medium">
-                Das schnellste 3D-Studio für Creator & Brands. 
+                Das schnellste 3D-Studio für Creator & Brands.
               </p>
             </div>
 
@@ -263,8 +263,8 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-center border-t border-white/5 pt-12 text-[10px] font-black uppercase tracking-[0.4em] text-zinc-800">
             <span>&copy; 2026 ExhibitXR &middot; Build 0.4.9</span>
             <div className="flex gap-12 mt-8 md:mt-0">
-               <span className="flex items-center gap-3"><ShieldCheck size={14} className="text-[#00aaff]" /> Sicherer Speicher</span>
-               <span className="flex items-center gap-3 tracking-[0.5em]">Berlin &middot; Mannheim</span>
+              <span className="flex items-center gap-3"><ShieldCheck size={14} className="text-[#00aaff]" /> Sicherer Speicher</span>
+              <span className="flex items-center gap-3 tracking-[0.5em]">Berlin &middot; Mannheim</span>
             </div>
           </div>
         </div>

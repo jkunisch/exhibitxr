@@ -1,5 +1,42 @@
-# Trage hier untereinander die Shop-URLs ein (z.B. Shopify oder WooCommerce).
-# Das Skript arbeitet die ersten 10 URLs automatisch ab.
-# Beispiel:
-# https://www.allbirds.com/products/mens-tree-runners
-# https://www.snocks.com/products/snocks-sneaker-socken-damen-herren
+# DACH B2B Targets (Tier S-C aus outreach-master.md)
+
+# raumplus — Gleittür/Schranksystem (Facet)
+https://www.raumplus.de/facet
+# Böckmann — Pferdeanhänger (Comfort)
+https://www.boeckmann.com/de/anhaenger/pferdeanhaenger/p/comfort
+# Siedle — Türstationen (Video Set Vario mit Axiom)
+https://www.siedle.de/de-de/produkte/set-vva-700-2-ag-siedle-video-set-vario-mit-axiom/
+# Montech — Förderbänder (TB30 Dual-Belt Conveyor)
+https://montech.com/ch/en/shop/products/dual-belt-conveyor-tb30
+# Niessing — Trauringe (Niessing Balance)
+https://niessing.com/Niessing-Balance/N35103132-62048000000000000371010374372101010
+# ELKA — Schrankenanlagen (INDUSTRIAL – Serie S)
+https://www.elka.eu/de/produkte/zufahrtskontrollen/schranken/1498
+# COR — Polstermöbel (Conseta Sofa)
+https://www.cor.de/en/furniture/conseta-sofa
+# Viasit — Bürostühle (Drumback-Arbeitsplatzstuhl)
+https://www.viasit.com/de/produkte/stuehle-/-sessel/drumback-arbeitsplatzstuhl
+# ATMOS — Medizintechnik (ATMOS LC 27 Patient)
+https://atmosmed.com/de/produkte-loesungen/medizinische-absaugsysteme/atmos-elektrische-absauggeraete/atemwegsabsaugung/homecaresauger/lc27-patient
+# ASKUBAL — Gelenklager/Gelenkköpfe (KA 10-DL)
+https://www.askubal.de/de/produkte/gelenkkoepfe/ka-d-gelenkkoepfe-massreihe-k-aussengewinde-wartungsfrei/ka-10-dl/
+
+# Shopify Smoke-Test URLs (verifiziert)
+# Allbirds
+https://www.allbirds.com/products/mens-tree-runners
+https://www.allbirds.com/products/mens-wool-runners
+https://www.allbirds.com/products/womens-wool-runners
+https://www.allbirds.com/products/womens-tree-runners
+https://www.allbirds.com/products/mens-dasher-nz
+# Chubbies
+https://www.chubbiesshorts.com/products/the-khakinators-5-5-originals
+https://www.chubbiesshorts.com/products/the-khakinators-7
+# The Ridge
+https://ridge.com/products/aluminum-gunmetal
+https://ridge.com/products/titanium-stonewashed
+https://ridge.com/products/forged-carbon
+https://ridge.com/products/titanium-burnt
+# Death Wish Coffee
+https://www.deathwishcoffee.com/products/death-wish-coffee
+# Dr. Squatch
+https://www.drsquatch.com/products/pine-tar

@@ -60,7 +60,7 @@ const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL ?? 'minimax/minima
 
 // Resend email configuration
 const RESEND_API_KEY: string | undefined = process.env.RESEND_API_KEY;
-const RESEND_FROM: string = process.env.RESEND_FROM ?? 'onboarding@resend.dev';
+const RESEND_FROM: string = process.env.RESEND_FROM ?? '3D-Snap <hello@3d-snap.com>';
 const RESEND_REPLY_TO: string = process.env.RESEND_REPLY_TO ?? 'jonatankunisch@gmail.com';
 
 const DEFAULT_BATCH_LIMIT = 10;

@@ -1,0 +1,9 @@
+# Live-Run: 3 verifizierte DACH Maker-Shops
+# Alle haben og:image, alle im Dry-Run erfolgreich getestet
+
+# 3DPrintNovesia — Neusser Eierdieb (Shopify, 255KB Bild)
+https://shop.3dprintnovesia.de/products/neusser-eierdieb
+# 3DMichel — Lithophane Lampe (WooCommerce, 340KB Bild)
+https://www.3dmichel.com/produkt/lithophane-lampe-3d-druck-personalisiert/
+# CAT LOURI — 3D-gedruckte Vasen (Shopify, 2.3MB Bild)
+https://catlouri.com/products/asthetische-3d-gedruckte-vasen-fur-dein-modernes-zuhause

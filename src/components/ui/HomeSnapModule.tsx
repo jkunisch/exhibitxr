@@ -14,8 +14,8 @@ export default function HomeSnapModule() {
   const [progress, setProgress] = useState(0);
   const [modelUrl, setModelUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [provider, setProvider] = useState<SnapProvider>('basic');
-  const providerRef = useRef<SnapProvider>('basic');
+  const [provider, setProvider] = useState<SnapProvider>('premium');
+  const providerRef = useRef<SnapProvider>('premium');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Cleanup polling on unmount

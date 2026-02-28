@@ -213,7 +213,7 @@ export async function finalizeModel(
       glbBuffer = await Promise.race([
         optimizeGlb(rawBuffer),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("Optimization timeout after 120s")), 120_000)
+          setTimeout(() => reject(new Error("Optimization timeout after 25s")), 25_000)
         ),
       ]);
       console.log("[finalizeModel] optimization done, size:", (glbBuffer.length / 1024 / 1024).toFixed(2), "MB");
@@ -275,7 +275,7 @@ export async function finalizeModel(
           firebaseStorageDownloadTokens: downloadToken,
           tenantId: normalizedTenantId,
           isPublished: "false",
-          meshyTaskId: normalizedTaskId,
+          meshyTaskId: normalizedTaskId.split("::")[0],
         },
       },
     });

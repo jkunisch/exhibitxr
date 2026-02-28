@@ -1,0 +1,32 @@
+# 3D-Drucker / Maker-Markt — Outreach Targets
+# Ausführen: npx tsx scripts/outreach-crawler.ts targets-3dprint.txt --dry-run
+
+# Etsy Maker-Shops (3D-Druck / Handmade)
+https://www.etsy.com/listing/1865162287/3d-printed-lampshade-vase-table-lamp
+https://www.etsy.com/listing/4306082062/3d-printed-vase-lamp-for-flower
+https://www.etsy.com/listing/4394971453/moon-lamp-3d-printed-lithophane
+https://www.etsy.com/listing/1829652367/3d-printed-articulated-dragon-flexi
+https://www.etsy.com/listing/1775079587/mini-colorful-turtle-3d-printed
+https://www.etsy.com/listing/1414770596/custom-3d-printing-service-miniatures
+https://www.etsy.com/listing/1504489607/3d-printed-articulated-dragon
+https://www.etsy.com/listing/4396071856/articulated-witch-figurine-3d-printed
+https://www.etsy.com/listing/1312096141/buddha-head-planter-for-indoor-plants-3d
+
+# Shopify / WooCommerce 3D-Print Stores
+https://be3dprintshop.com/products/3d-printed-lithophane-photo-lamp-personalized
+https://bieber-flytec.de/products/lithophane-lampe-lichtbild-leuchtbild-kundenspezifisch-angefertigt-3d-druck
+https://patrickminiatures.de/products/fatty-cyber-boss-3d-printed-proxy-77010
+https://shop.maschavonrascha.de/en/products/tischlampe-3d-druck-mascha-von-rascha
+https://3dzg.eu/en/product/light-up-lithophane/
+https://www.fleur-ami.com/en/Planters-Vessels/Vases-Planters/3D-Curve-vase-21-cm-height-20-cm-lemon-yellow/
+https://www.starbase3d.com/shop/p/tabletop-gaming-mini-resin-3d-print-service
+
+# DACH Maker-Brands (Premium)
+https://shop.3dprintnovesia.de/products/neusser-eierdieb
+https://catlouri.com/products/asthetische-3d-gedruckte-vasen-fur-dein-modernes-zuhause
+https://ellishop.de/products/cozy-home-deko-aufsteller-3d-druck
+https://ellishop.de/products/3d-gedruckter-windlichthalter-wellenstruktur
+https://www.mjuergensshop.de/product/du-bist-mir-wichtelig-deko-3d-druck-aufsteller-600506
+https://www.3dmichel.com/produkt/lithophane-lampe-3d-druck-personalisiert/
+https://3djan.de/p/lithophane-lampe-mit-wunschmotiv
+https://ellishop.de/products/skandi-deko-ei-mit-fussen-3d-druck-glatt-oder-geriffelt-farbe-wahlbar

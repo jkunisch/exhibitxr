@@ -32,7 +32,7 @@ const PLAN_MONTHLY_CREDITS: Record<PlanTier, number> = {
 /** Credit cost per generation by provider. */
 const GENERATION_COST: Record<string, number> = {
     basic: 1,    // Tripo — fast, ~30s
-    premium: 3,  // Meshy — high quality, 3-5 min
+    premium: 2,  // Meshy — high quality, 3-5 min
     upscale: 1,  // Texture upscaling to 4K
 };
 
@@ -193,18 +193,18 @@ export async function grantMonthlyCredits(
     const maxAllowedBalance = monthlyAmount * 2; // Cap at 2x monthly limit
 
     const adminDb = getAdminDb();
-    
+
     // We run a transaction to ensure we don't blindly add credits
     await adminDb.runTransaction(async (transaction) => {
         const tenantRef = adminDb.collection("tenants").doc(tenantId);
         const tenantDoc = await transaction.get(tenantRef);
-        
+
         if (!tenantDoc.exists) return;
-        
-        const currentCredits = typeof tenantDoc.data()?.generationCredits === "number" 
-            ? tenantDoc.data()?.generationCredits 
+
+        const currentCredits = typeof tenantDoc.data()?.generationCredits === "number"
+            ? tenantDoc.data()?.generationCredits
             : 0;
-            
+
         // Calculate how much we can actually add without breaching the cap
         let creditsToAdd = monthlyAmount;
         if (currentCredits + monthlyAmount > maxAllowedBalance) {

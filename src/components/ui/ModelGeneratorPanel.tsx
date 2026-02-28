@@ -153,7 +153,7 @@ export function ModelGeneratorPanel({
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isDragActive, setIsDragActive] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [provider, setProvider] = useState<Provider>("basic");
+    const [provider, setProvider] = useState<Provider>("premium");
     const [isConverting, setIsConverting] = useState(false);
 
     // ── Cropping States ──────────────────────────────────────────────────
@@ -166,7 +166,7 @@ export function ModelGeneratorPanel({
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const taskIdRef = useRef<string | null>(null);
-    const providerRef = useRef<Provider>("basic");
+    const providerRef = useRef<Provider>("premium");
     const finalizingRef = useRef(false);
     const stepRef = useRef<Step>("idle");
 
@@ -589,7 +589,7 @@ export function ModelGeneratorPanel({
                         }`}
                 >
                     <p className="text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-1">Pro <Sparkles size={10} /></p>
-                    <p className="text-[9px] font-medium opacity-60">3 Credits</p>
+                    <p className="text-[9px] font-medium opacity-60">2 Credits</p>
                 </button>
             </div>
 

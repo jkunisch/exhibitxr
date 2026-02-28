@@ -1,0 +1,168 @@
+# GPT Pro Prompt: Kordex → Personal Work Assistant
+
+> **Anleitung**: Diesen gesamten Text als eine Nachricht in GPT Pro einfügen. Keine Credentials oder Secrets enthalten.
+
+---
+
+Du bist ein Senior Software Architect und AI-Engineer. Ich habe ein bestehendes Projekt namens **Kordex** — einen autonomen, zielgesteuerten Orchestrator-Agenten — und möchte ihn zu einem **Personal Work Assistant** weiterentwickeln. Der Assistant soll lernen, mit wem ich zusammenarbeite, was meine Kontakte machen, sich wichtige Fakten merken und mir proaktiv bei der Arbeit helfen.
+
+## Bestehende Architektur
+
+### Tech Stack
+- **Python 3.11+**
+- **LangGraph** (StateGraph) für den Orchestrator-Loop
+- **FastAPI** REST API
+- **Gradio** GUI ("Spectre" Dashboard)
+- **SQLite** (lokal) + **PostgreSQL mit pgvector** (Production) für Memory
+- **Multi-Provider LLM**: Vertex AI (Gemini), OpenRouter (beliebige Modelle), Mock-Provider
+- **MCP** (Model Context Protocol) Client für Tool-Integration
+
+### Orchestrator-Engine
+Der Kern-Loop ist ein LangGraph StateGraph mit folgenden Nodes:
+
+```
+context_build → plan → plan_approval → route → execute_tool/execute_subagent → evaluate → error_handler → memory_write → replan_or_finish → deliver
+```
+
+- **Context Build Node**: Baut pro Cycle ein token-budgetiertes Kontextpaket (Goal + Recent History + Semantic Memory + Episodic Memory + Graph Nodes/Edges)
+- **Plan Node**: LLM erstellt Aufgaben-Dekomposition
+- **Execute Node**: Führt Tools oder Subagents aus (getrennte Nodes)
+- **Evaluate Node**: Hybrid-Evaluation (deterministic rubric + optional LLM judge)
+- **Memory Write Node**: Speichert Episodic + Semantic memories + Graph Nodes/Edges
+- **Replan/Deliver**: Entscheidet ob weiterer Cycle nötig oder Ergebnis ausliefern
+
+### Memory System (bestehend)
+
+**MemoryStore** (Abstract Base):
+```python
+class MemoryStore:
+    def add_memory(run_id, kind, summary, content, source, task_id, step, importance, metadata) -> str
+    def list_memory(run_id, limit, kinds) -> list[MemoryRecord]
+    def search_memory(run_id, query, limit, kinds) -> list[MemoryRecord]
+    def forget_memory(run_id, memory_ids) -> int
+    def upsert_graph_node(run_id, node_key, node_type, label, attributes, weight) -> str
+    def upsert_graph_edge(run_id, source_key, target_key, relation, attributes, weight) -> str
+    def list_graph(run_id, limit_nodes, limit_edges) -> tuple[list[GraphNodeRecord], list[GraphEdgeRecord]]
+```
+
+**Memory Types**: `semantic` (Fakten/Wissen) + `episodic` (Task-Outcomes)
+
+**Knowledge Graph**: Nodes mit `(node_key, node_type, label, weight, attributes)`, Edges mit `(source_key, target_key, relation, weight, attributes)`. Aktuelle Node-Types: `goal`, `task`, `entity`. Aktuelle Relations: `decomposed_into`, `mentions`.
+
+**Memory Extractor**: Wird nach jeder Task-Execution aufgerufen, extrahiert:
+- Episodic memory (Task-Outcome)
+- Semantic memory (Execution Evidence)
+- Graph Nodes (Goal, Task, heuristisch erkannte Entities)
+- Graph Edges (Beziehungen zwischen Goal/Task/Entities)
+
+Entity-Extraktion ist aktuell heuristisch: Regex für CamelCase-Tokens und URLs.
+
+**Context Builder**: Baut pro LLM-Call ein `ContextPacket`:
+```python
+@dataclass
+class ContextPacket:
+    goal: str
+    recent_history: list[dict]       # Short-term (last N entries)
+    memories: list[dict]             # Semantic + Episodic (token-budgeted)
+    graph_nodes: list[dict]          # Knowledge Graph Nodes
+    graph_edges: list[dict]          # Knowledge Graph Edges
+    token_budget: int
+    context_tokens_in: int
+    context_tokens_saved: int
+    retrieval_candidates: int
+    retrieval_hits: int
+```
+
+**PostgreSQL Schema** hat bereits eine `embedding vector(768)` Spalte in `memory_records`, aber `search_memory()` nutzt aktuell nur lexical fallback — pgvector cosine similarity ist vorbereitet aber nicht implementiert.
+
+### Skill System
+- **SkillRegistry**: Registriert Skills mit `ToolSpec` (name, input_schema, side_effect, risk_class, timeout, retry_policy, requires_gate)
+- **SkillExecutor**: Führt Skills aus mit Policy-Gates und Idempotency
+- **Browser Adapter**: Subprocess-Bridge zu einem headless Browser mit Approval-Workflow
+- **MCP Adapter**: Kann externe MCP-Server als Skills einbinden
+
+### Security & Limits
+- **LimitsConfig**: max_steps=40, max_runtime_sec=1800, max_tokens=180000, max_tool_failures=6, max_cost_usd=10.0
+- **Risk Classes**: READ_ONLY_LOCAL, EXTERNAL_READ, REVERSIBLE_WRITE, CRITICAL_WRITE
+- **Approval Store**: Für Actions die Human-in-the-Loop brauchen
+- **Autonomy Modes**: max_autonomy vs. controlled_autonomy
+
+### API Endpoints (bestehend)
+```
+POST /runs              - Start Run
+GET  /runs              - List Runs
+GET  /runs/{id}/status  - Run Status
+POST /runs/{id}/pause   - Pause
+POST /runs/{id}/resume  - Resume
+POST /runs/{id}/stop    - Stop
+GET  /runs/{id}/memory  - Get Memory
+GET  /runs/{id}/graph   - Get Knowledge Graph
+POST /memory/search     - Search Memory
+POST /memory/forget     - Forget Memory
+GET  /runs/{id}/trace   - Get Trace
+GET  /runs/{id}/kpis    - Get KPIs
+POST /runs/{id}/replay  - Replay
+```
+
+### Bestehender Go-To-Market Plan
+Aktuell B2B-first positioniert als generische Agent-Engine mit Research/Sales-Ops Workflows als erstem Anwendungsfall.
+
+---
+
+## Gewünschte Transformation: Personal Work Assistant
+
+Der Assistant soll:
+
+1. **Personen lernen**: Mit wem arbeite ich zusammen? Was machen die? Welche Firma, Rolle, Expertise? Wann war der letzte Kontakt?
+2. **Fakten merken**: Projektdetails, Entscheidungen, Preferences, wiederkehrende Muster
+3. **Beziehungen verstehen**: Wer hat mich mit wem connected? Wer arbeitet mit wem zusammen? Welche Projekte haben welche Stakeholder?
+4. **Proaktiv helfen**: Erinnerungen, Follow-ups, Kontext bei Meetings vorbereiten
+5. **Business-Tools nutzen**: E-Mail, Kalender, CRM, Dokumente durchsuchen
+
+---
+
+## Deine Aufgabe
+
+Erstelle einen **konkreten, code-nahen Implementierungsplan** mit folgenden Abschnitten:
+
+### A) Memory-Schema-Erweiterung
+- Wie muss das SQLite/PostgreSQL-Schema erweitert werden für cross-run Memory (aktuell ist alles per `run_id` isoliert)?
+- Welche neuen `node_type` und `relation` Werte braucht der Knowledge Graph für People, Organizations, Projects?
+- Wie löst man Entity Resolution / Person-Deduplication?
+- Konkreter SQL-Migrations-Code.
+
+### B) Semantic Search Aktivierung
+- Wie implementiert man die pgvector-basierte Suche in `search_memory()`?
+- Welches Embedding-Modell (Vertex AI, OpenAI, oder lokales)?
+- Wie integriert man Hybrid Search (semantic + lexical + graph)?
+- Konkreter Python-Code für die `PostgresMemoryStore.search_memory()` Methode.
+
+### C) Continuous Memory Extraction
+- Wie erweitert man den `MemoryExtractor` für Konversations-basierte Extraktion (nicht nur nach Task-Completion)?
+- Wie erkennt man People/Orgs/Projects aus natürlichem Text?
+- Wie implementiert man Importance Scoring mit zeitlichem Decay?
+- Wie erkennt man Widersprüche zu bestehenden Fakten?
+
+### D) People Graph
+- Datenmodell für Personen, Organisationen, Beziehungen
+- API-Endpoints für People-Queries ("Was weißt du über X?", "Mit wem arbeitet Y zusammen?")
+- Integration in den Context Builder — wie fließen relevante People-Infos in den LLM-Kontext?
+
+### E) Chat Interface
+- Wie transformiert man die aktuelle Run-basierte Architektur in ein konversationales Interface?
+- Soll der Chat ein spezieller "always-running" Run sein, oder ein neues Konzept?
+- Streaming Response Integration
+- Wie unterscheidet der Router zwischen "schnelle Frage" und "komplexe Task-Delegation"?
+
+### F) Business Skill Integration
+- Welche MCP-Server für Email, Calendar, CRM empfiehlst du?
+- Wie registriert man diese als Skills mit passenden Risk Classes?
+- Konkreter Code für einen "check_and_summarize_emails" Skill.
+
+### G) Architektur-Entscheidungen
+- Soll der People Graph im gleichen `memory_records`/`graph_nodes` Schema leben oder eine eigene Tabelle?
+- Wie löst man cross-run Memory ohne die bestehende run_id-Isolation zu brechen?
+- Event Sourcing vs. State-basiert für lernende Fakten?
+- Welche Teile des bestehenden Codes müssen refactored werden vs. können direkt erweitert werden?
+
+Gib für jeden Abschnitt **konkreten Python-Code**, **SQL-Migrations**, und **Architektur-Diagramme** (Mermaid) an. Achte darauf, dass deine Vorschläge mit den bestehenden Interfaces (`MemoryStore`, `MemoryExtractor`, `ContextBuilder`, `SkillExecutor`) kompatibel sind und keine Breaking Changes verursachen.

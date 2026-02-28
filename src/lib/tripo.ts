@@ -232,13 +232,13 @@ export async function submitImageToTripo(
 
                 // Track which key created this task so polling uses the same one
                 taskKeyMap.set(taskId, apiKey);
-                console.log(`[Tripo] Task ${taskId} created with key #${(tripoKeyIndex === 0 ? keys.length : tripoKeyIndex)}/${keys.length}`);
+                console.log(`[Tripo] Task ${taskId} created with key #${i + 1}/${keys.length}`);
 
                 return { taskId };
             } catch (error: unknown) {
                 if (error instanceof TripoApiError && isRetryableStatus(error.status)) {
                     const reason = isCreditsError(error.status, error.payload) ? "credits exhausted" : `status ${error.status}`;
-                    console.warn(`[Tripo] Key #${i + 1}/${keys.length} failed (${reason}). Rotating to next key...`);
+                    console.warn(`[Tripo] Key #${i + 1}/${keys.length} failed (${reason}). ${i + 1 < keys.length ? 'Rotating to next key...' : 'No more keys to try.'}`);
                     lastError = error;
                     continue;
                 }
@@ -248,7 +248,8 @@ export async function submitImageToTripo(
         }
 
         // All keys exhausted
-        throw lastError ?? new Error("All Tripo API keys exhausted (credits depleted on all accounts).");
+        console.error(`[Tripo] All ${keys.length} API key(s) exhausted. None could create a task.`);
+        throw lastError ?? new Error(`All ${keys.length} Tripo API key(s) exhausted (credits depleted on all accounts).`);
     } catch (error: unknown) {
         if (error instanceof Error) {
             throw new Error(`Failed to submit image to Tripo: ${error.message}`);
