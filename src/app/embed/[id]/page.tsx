@@ -93,28 +93,34 @@ async function loadEmbedData(exhibitionId: string): Promise<EmbedLoadResult> {
         .limit(1)
         .get();
     } catch {
-      // Index may still be building — fall through to documentId() lookup
+      // Index may still be building — fall through to direct doc lookup
       return null;
     }
   })();
 
+  // Fallback: scan all tenants to find the exhibition by document ID
   if (!snapshot || snapshot.empty) {
     try {
-      snapshot = await adminDb
-        .collectionGroup("exhibitions")
-        .where(FieldPath.documentId(), "==", exhibitionId)
-        .limit(1)
-        .get();
+      const tenantsSnap = await adminDb.collection("tenants").listDocuments();
+      for (const tenantRef of tenantsSnap) {
+        const docRef = tenantRef.collection("exhibitions").doc(exhibitionId);
+        const docSnap = await docRef.get();
+        if (docSnap.exists) {
+          // Wrap in a snapshot-like object to match the rest of the code
+          snapshot = { empty: false, docs: [docSnap] } as unknown as typeof snapshot;
+          break;
+        }
+      }
     } catch {
-      return null;
+      // ignore — snapshot stays null/empty
     }
   }
 
-  if (snapshot.empty) {
+  if (!snapshot || snapshot.empty) {
     return null;
   }
 
-  const doc = snapshot.docs[0];
+  const doc = snapshot.docs[0]!;
   const data = doc.data();
 
   if (data.isPublished !== true) {
