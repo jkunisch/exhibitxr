@@ -1,18 +1,19 @@
 /**
  * scripts/research-agent.ts
  *
- * Outreach Research Agent — finds new 3D-print shops with products + contact emails.
- * Fills the contacts buffer (data/contacts.json) for the Outreach Crawler to consume.
+ * Outreach Research Agent — finds shops with physical products that would benefit
+ * from interactive 3D product visualization. NOT limited to 3D-print shops!
+ * Targets: furniture, jewelry, fashion accessories, home decor, electronics, etc.
+ *
+ * Uses an LLM qualification step to evaluate if a product is suitable for 3D.
  *
  * Usage:
  *   npx tsx scripts/research-agent.ts                    # Default search
  *   npx tsx scripts/research-agent.ts --limit 15         # Find up to 15 new shops
- *   npx tsx scripts/research-agent.ts --query "3D Druck" # Custom search query
+ *   npx tsx scripts/research-agent.ts --query "Möbelshop" # Custom search query
  *   npx tsx scripts/research-agent.ts --dry-run          # Preview only, no saves
  *   npx tsx scripts/research-agent.ts --status            # Show buffer stats
- *
- * Searches Google for DACH 3D-print shops, scrapes product pages for og:image,
- * crawls Impressum/Kontakt pages for email, dedup against contacts.json.
+ *   npx tsx scripts/research-agent.ts --no-llm           # Skip LLM qualification
  */
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
@@ -27,6 +28,7 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
 
 import * as cheerio from 'cheerio';
 import { randomUUID } from 'crypto';
+import { GoogleAuth } from 'google-auth-library';
 import {
     loadContacts,
     addContact,
@@ -41,18 +43,29 @@ const BUFFER_THRESHOLD = 10;
 const DEFAULT_SEARCH_LIMIT = 15;
 const FETCH_TIMEOUT_MS = 15_000;
 
+// Vertex AI (Gemini) config — uses firebase-adminsdk.json for auth
+const GCP_PROJECT = 'exhibitxr';
+const GCP_LOCATION = 'europe-west1';
+const GEMINI_MODEL = 'gemini-3-flash-preview';
+
 const USER_AGENT =
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 
 const EMAIL_BLACKLIST =
-    /example|sentry|wixpress|addresshere|yourname|youremail|placeholder|noreply|no-reply|@2x|@3x|@1x|support@shopify|apps@shopify/i;
+    /example|sentry|wixpress|addresshere|yourname|youremail|ihremail|placeholder|noreply|no-reply|@email\.de|@2x|@3x|@1x|support@shopify|apps@shopify/i;
 
+// Broad queries: ANY shop that sells physical products suitable for 3D visualization
 const DEFAULT_QUERIES = [
-    '3D Druck Shop Deutschland Impressum',
-    '3D gedruckt Produkte online kaufen Kontakt',
-    '3D print shop Schweiz Österreich',
-    '3D Druck Figuren Lampe Vase online bestellen',
-    '3D Druck Schmuck Deko Shop',
+    'Möbel Online-Shop Deutschland Impressum',
+    'Schmuck handgemacht Online-Shop Kontakt',
+    'Design Lampen Leuchten Shop Deutschland',
+    'Wohnaccessoires Deko Online bestellen Impressum',
+    'Sneaker Schuhe Online-Shop Deutschland',
+    'Luxus Uhren Shop Kontakt Deutschland',
+    'Handtaschen Lederwaren Online-Shop',
+    'Keramik Vasen Deko Online kaufen',
+    'Modeschmuck Accessoires Shop Deutschland',
+    'Elektronik Gadgets Shop Impressum',
 ];
 
 // ── ANSI helpers ────────────────────────────────────────────────
@@ -67,6 +80,7 @@ interface CliOpts {
     query: string;
     dryRun: boolean;
     statusOnly: boolean;
+    useLlm: boolean;
 }
 
 function parseCli(argv: string[]): CliOpts {
@@ -75,6 +89,7 @@ function parseCli(argv: string[]): CliOpts {
         query: '',
         dryRun: false,
         statusOnly: false,
+        useLlm: true,
     };
 
     for (let i = 0; i < argv.length; i++) {
@@ -86,6 +101,8 @@ function parseCli(argv: string[]): CliOpts {
             opts.dryRun = true;
         } else if (argv[i] === '--status') {
             opts.statusOnly = true;
+        } else if (argv[i] === '--no-llm') {
+            opts.useLlm = false;
         }
     }
 
@@ -269,6 +286,111 @@ async function findContactEmail(shopDomain: string, productPageHtml: string): Pr
     return null;
 }
 
+// ── LLM Qualification (Vertex AI Gemini) ────────────────────────
+interface LlmVerdict {
+    suitable: boolean;
+    reason: string;
+    bestProduct: string;
+}
+
+let _cachedAccessToken: { token: string; expiresAt: number } | null = null;
+
+async function getVertexAccessToken(): Promise<string> {
+    // Cache token (valid ~1 hour)
+    if (_cachedAccessToken && Date.now() < _cachedAccessToken.expiresAt - 60_000) {
+        return _cachedAccessToken.token;
+    }
+
+    const auth = new GoogleAuth({
+        keyFile: resolve(process.cwd(), 'firebase-adminsdk.json'),
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+    });
+
+    const client = await auth.getClient();
+    const tokenRes = await client.getAccessToken();
+    const token = typeof tokenRes === 'string' ? tokenRes : tokenRes?.token;
+
+    if (!token) throw new Error('Konnte kein Vertex AI Access Token erhalten');
+
+    _cachedAccessToken = { token, expiresAt: Date.now() + 3_500_000 };
+    return token;
+}
+
+async function qualifyShopWithLlm(
+    shopName: string,
+    productName: string,
+    shopUrl: string,
+    ogDescription?: string,
+): Promise<LlmVerdict> {
+    const prompt = [
+        'Du bist ein Sales-Qualifier für 3D-Snap, einen Service der physische Produkte als interaktive 3D-Modelle für Online-Shops erstellt.',
+        '',
+        `Analysiere diesen Shop:`,
+        `- Shop: ${shopName}`,
+        `- Produkt: ${productName}`,
+        `- URL: ${shopUrl}`,
+        ogDescription ? `- Beschreibung: ${ogDescription}` : '',
+        '',
+        'Bewerte: Würde dieser Shop von interaktiven 3D-Produktmodellen profitieren?',
+        '',
+        'GEEIGNET sind Shops die physische Produkte verkaufen, die man drehen/inspizieren möchte:',
+        '- Möbel, Lampen, Vasen, Deko-Objekte',
+        '- Schmuck, Uhren, Accessoires',
+        '- Schuhe, Taschen, Mode-Accessoires',
+        '- Elektronik, Gadgets',
+        '- Figuren, Skulpturen, Kunstobjekte',
+        '- Haushaltsgeräte mit Design-Aspekt',
+        '',
+        'NICHT GEEIGNET sind:',
+        '- Reine Dienstleistungen (Beratung, Software)',
+        '- Digitale Produkte (eBooks, Kurse)',
+        '- Lebensmittel, Kosmetik (flach/einfach)',
+        '- Druckereien / B2B-Industrieteile',
+        '- Shops die bereits 3D/AR nutzen',
+        '',
+        'Antwort NUR als JSON (kein Markdown):',
+        '{ "suitable": true/false, "reason": "Kurze Begründung", "bestProduct": "Bestes Produkt für 3D-Demo" }',
+    ].filter(Boolean).join('\n');
+
+    try {
+        const accessToken = await getVertexAccessToken();
+        const endpoint = `https://${GCP_LOCATION}-aiplatform.googleapis.com/v1/projects/${GCP_PROJECT}/locations/${GCP_LOCATION}/publishers/google/models/${GEMINI_MODEL}:generateContent`;
+
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig: {
+                    temperature: 0.3,
+                    maxOutputTokens: 200,
+                    responseMimeType: 'application/json',
+                },
+            }),
+        });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            warn(`   Vertex AI Fehler (HTTP ${res.status}): ${errText.slice(0, 200)}`);
+            return { suitable: true, reason: 'Vertex AI error, defaulting', bestProduct: productName };
+        }
+
+        const json = await res.json();
+        const raw: string = json?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? '';
+
+        // Parse JSON from response
+        const jsonStr = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(jsonStr) as LlmVerdict;
+        return parsed;
+    } catch (e) {
+        warn(`   LLM-Parsing fehlgeschlagen — qualifiziere trotzdem`);
+        return { suitable: true, reason: 'Parse error, defaulting', bestProduct: productName };
+    }
+}
+
 // ── Main pipeline ───────────────────────────────────────────────
 async function main() {
     const opts = parseCli(process.argv.slice(2));
@@ -346,6 +468,22 @@ async function main() {
 
             ok(`   Shop: ${product.shopName}`);
             ok(`   Produkt: ${product.productName}`);
+
+            // LLM qualification (if enabled)
+            if (opts.useLlm) {
+                const $ = cheerio.load(html);
+                const ogDesc = $('meta[property="og:description"]').attr('content') ?? undefined;
+                info(`   🤖 LLM-Qualifizierung...`);
+                const verdict = await qualifyShopWithLlm(product.shopName, product.productName, url, ogDesc);
+                if (!verdict.suitable) {
+                    warn(`   ❌ Nicht geeignet: ${verdict.reason}`);
+                    continue;
+                }
+                ok(`   ✅ Geeignet: ${verdict.reason}`);
+                if (verdict.bestProduct !== product.productName) {
+                    info(`   💡 Bestes Produkt: ${verdict.bestProduct}`);
+                }
+            }
 
             // Find contact email
             const email = await findContactEmail(domain, html);
