@@ -3,7 +3,7 @@ name: 🔄 Outreach Pipeline (Daily)
 on:
   schedule:
     # 10:30 CET = 09:30 UTC (Sommerzeit: 08:30 UTC)
-    - cron: '30 9 * * 1-5'  # Mo-Fr um 10:30 CET
+    - cron: '30 9 * * *'  # Jeden Tag um 10:30 CET
   workflow_dispatch:  # Manuell auslösbar
 
 permissions:
