@@ -7,7 +7,6 @@ import {
 } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
-import { readFileSync } from "fs";
 
 let cachedAdminApp: App | null = null;
 
@@ -30,10 +29,13 @@ function readServiceAccount(): ServiceAccount {
   }
 
   // Fallback: read from JSON file (GOOGLE_APPLICATION_CREDENTIALS)
+  // Uses lazy require to avoid breaking Next.js client bundling.
   const filePath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
   if (filePath) {
     try {
-      const content = readFileSync(filePath, "utf-8");
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const fs = require("fs") as typeof import("fs");
+      const content = fs.readFileSync(filePath, "utf-8");
       return JSON.parse(content) as ServiceAccount;
     } catch (e) {
       throw new Error(`Failed to read GOOGLE_APPLICATION_CREDENTIALS file: ${e}`);
