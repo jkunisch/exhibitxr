@@ -43,10 +43,11 @@ const BUFFER_THRESHOLD = 10;
 const DEFAULT_SEARCH_LIMIT = 15;
 const FETCH_TIMEOUT_MS = 15_000;
 
-// Vertex AI (Gemini) config — uses firebase-adminsdk.json for auth
-const GCP_PROJECT = 'exhibitxr';
-const GCP_LOCATION = 'europe-west1';
-const GEMINI_MODEL = 'gemini-3-flash-preview';
+// Vertex AI (Gemini) config — uses sovereign-agent-swarm SA for auth (1000€ credits)
+const GCP_PROJECT = process.env.VERTEX_PROJECT ?? 'sovereign-agent-swarm';
+const GCP_LOCATION = process.env.VERTEX_LOCATION ?? 'global';
+const GEMINI_MODEL = process.env.VERTEX_MODEL ?? 'gemini-3-flash-preview';
+const VERTEX_KEY_FILE = process.env.VERTEX_KEY_FILE ?? resolve(process.cwd(), '..', '..', 'Downloads', 'sovereign-agent-swarm-44084244fde5.json');
 
 const USER_AGENT =
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
@@ -302,7 +303,7 @@ async function getVertexAccessToken(): Promise<string> {
     }
 
     const auth = new GoogleAuth({
-        keyFile: resolve(process.cwd(), 'firebase-adminsdk.json'),
+        keyFile: VERTEX_KEY_FILE,
         scopes: ['https://www.googleapis.com/auth/cloud-platform'],
     });
 
@@ -354,7 +355,11 @@ async function qualifyShopWithLlm(
 
     try {
         const accessToken = await getVertexAccessToken();
-        const endpoint = `https://${GCP_LOCATION}-aiplatform.googleapis.com/v1/projects/${GCP_PROJECT}/locations/${GCP_LOCATION}/publishers/google/models/${GEMINI_MODEL}:generateContent`;
+        // For 'global' location: use aiplatform.googleapis.com (no region prefix)
+        const host = GCP_LOCATION === 'global'
+            ? 'aiplatform.googleapis.com'
+            : `${GCP_LOCATION}-aiplatform.googleapis.com`;
+        const endpoint = `https://${host}/v1/projects/${GCP_PROJECT}/locations/${GCP_LOCATION}/publishers/google/models/${GEMINI_MODEL}:generateContent`;
 
         const res = await fetch(endpoint, {
             method: 'POST',
