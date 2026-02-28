@@ -196,17 +196,19 @@ export default async function EmbedPage({ params }: EmbedPageProps) {
   }
 
   return (
-    <EmbedViewer
-      exhibitionId={id}
-      modelUrl={embedData.config.model.glbUrl}
-      usdzUrl={embedData.config.model.usdzUrl}
-      title={embedData.config.title}
-      tenantId={embedData.tenantId}
-      autoRotate={embedData.config.autoRotate}
-      entryAnimation={embedData.config.entryAnimation}
-      stageType={embedData.config.stageType}
-      envRotation={embedData.config.envRotation}
-    />
+    <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
+      <EmbedViewer
+        exhibitionId={id}
+        modelUrl={embedData.config.model.glbUrl}
+        usdzUrl={embedData.config.model.usdzUrl}
+        title={embedData.config.title}
+        tenantId={embedData.tenantId}
+        autoRotate={embedData.config.autoRotate}
+        entryAnimation={embedData.config.entryAnimation}
+        stageType={embedData.config.stageType}
+        envRotation={embedData.config.envRotation}
+      />
+    </div>
   );
 }
 
