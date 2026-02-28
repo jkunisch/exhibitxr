@@ -1,0 +1,70 @@
+name: 🔄 Outreach Pipeline (Daily)
+
+on:
+  schedule:
+    # 10:30 CET = 09:30 UTC (Sommerzeit: 08:30 UTC)
+    - cron: '30 9 * * 1-5'  # Mo-Fr um 10:30 CET
+  workflow_dispatch:  # Manuell auslösbar
+
+permissions:
+  contents: write  # Für auto-commit von contacts.json
+
+jobs:
+  outreach-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📚 Install Dependencies
+        run: npm ci
+
+      - name: 🔑 Setup Credentials
+        run: |
+          # Vertex AI Service Account
+          echo '${{ secrets.VERTEX_SA_KEY }}' > /tmp/vertex-sa.json
+
+          # .env.local for scripts
+          cat > .env.local << 'ENVEOF'
+          RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+          OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
+          MESHY_API_KEY=${{ secrets.MESHY_API_KEY }}
+          FIREBASE_SERVICE_ACCOUNT_KEY=${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+          ENVEOF
+
+      - name: 🔍 Research Agent (neue Leads finden)
+        run: npx tsx scripts/research-agent.ts --limit 10
+        env:
+          VERTEX_KEY_FILE: /tmp/vertex-sa.json
+          VERTEX_PROJECT: sovereign-agent-swarm
+          VERTEX_LOCATION: global
+          VERTEX_MODEL: gemini-3-flash-preview
+
+      - name: 📊 Buffer Status
+        run: npx tsx scripts/research-agent.ts --status
+
+      - name: 📧 Outreach Crawler (3D + Email)
+        run: npx tsx scripts/outreach-crawler.ts --contacts --limit 5
+        env:
+          VERTEX_KEY_FILE: /tmp/vertex-sa.json
+        continue-on-error: true  # Pipeline soll weiterlaufen auch wenn einzelne Shops fehlschlagen
+
+      - name: 💾 Commit contacts.json Updates
+        run: |
+          git config user.name "Outreach Bot"
+          git config user.email "bot@3d-snap.com"
+          git add data/contacts.json
+          git diff --cached --quiet || git commit -m "chore: update contacts.json [pipeline]"
+          git push
+
+      - name: 🧹 Cleanup
+        if: always()
+        run: rm -f /tmp/vertex-sa.json
