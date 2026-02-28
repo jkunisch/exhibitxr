@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useTransition, animated } from "@react-spring/three";
 import { Canvas, useThree } from "@react-three/fiber";
 import {
     Environment,
@@ -202,14 +201,6 @@ export default function ViewerCanvas({
     const contactShadowBlur = isMobile ? 1.5 : 2.5;
     const contactShadowScale = isMobile ? 10 : 20;
 
-    // Smooth transitions for stage changes
-    const stageTransitions = useTransition(stageType, {
-        from: { opacity: 0 },
-        enter: { opacity: 1 },
-        leave: { opacity: 0 },
-        config: { mass: 1, tension: 200, friction: 20 },
-    });
-
     return (
         <div
             className={className}
@@ -274,61 +265,29 @@ export default function ViewerCanvas({
                 </Suspense>
 
                 {/* ── Scene Staging (Pedestals & Backdrops) ────────────── */}
-                {stageTransitions((props, item) => {
-                    if (item === "pedestal-marble") {
-                        return (
-                            <animated.mesh receiveShadow position={[0, -0.05, 0]}>
-                                <cylinderGeometry args={[1.5, 1.5, 0.1, 64]} />
-                                <animated.meshStandardMaterial
-                                    color="#f8f9fa"
-                                    roughness={0.1}
-                                    metalness={0.2}
-                                    transparent
-                                    opacity={props.opacity as any}
-                                />
-                            </animated.mesh>
-                        );
-                    }
-                    if (item === "pedestal-wood") {
-                        return (
-                            <animated.mesh receiveShadow position={[0, -0.05, 0]}>
-                                <cylinderGeometry args={[1.5, 1.5, 0.1, 64]} />
-                                <animated.meshStandardMaterial
-                                    color="#3e2723"
-                                    roughness={0.7}
-                                    metalness={0.0}
-                                    transparent
-                                    opacity={props.opacity as any}
-                                />
-                            </animated.mesh>
-                        );
-                    }
-                    if (item === "backdrop-curved") {
-                        return (
-                            // Backdrop from drei is a group containing a mesh. 
-                            // We wrap it in animated.group, but we need to fade its material.
-                            // To smoothly fade Backdrop's internal material, we use animated primitive 
-                            // or pass custom material as child.
-                            <animated.group position-y={(props.opacity as any).to((o: number) => (1 - o) * -2)}>
-                                <Backdrop
-                                    receiveShadow
-                                    floor={2}
-                                    segments={20}
-                                    position={[0, 0, -3]}
-                                    scale={[15, 10, 5]}
-                                >
-                                    <animated.meshStandardMaterial
-                                        color="#f0f0f0"
-                                        roughness={1}
-                                        transparent
-                                        opacity={props.opacity as any}
-                                    />
-                                </Backdrop>
-                            </animated.group>
-                        );
-                    }
-                    return null;
-                })}
+                {stageType === "pedestal-marble" && (
+                    <mesh receiveShadow position={[0, -0.05, 0]}>
+                        <cylinderGeometry args={[1.5, 1.5, 0.1, 64]} />
+                        <meshStandardMaterial color="#f8f9fa" roughness={0.1} metalness={0.2} />
+                    </mesh>
+                )}
+                {stageType === "pedestal-wood" && (
+                    <mesh receiveShadow position={[0, -0.05, 0]}>
+                        <cylinderGeometry args={[1.5, 1.5, 0.1, 64]} />
+                        <meshStandardMaterial color="#3e2723" roughness={0.7} metalness={0.0} />
+                    </mesh>
+                )}
+                {stageType === "backdrop-curved" && (
+                    <Backdrop
+                        receiveShadow
+                        floor={2}
+                        segments={20}
+                        position={[0, 0, -3]}
+                        scale={[15, 10, 5]}
+                    >
+                        <meshStandardMaterial color="#f0f0f0" roughness={1} />
+                    </Backdrop>
+                )}
 
                 {/* ── Ground Contact Shadows (Apple / Spline style) ──────
                      Mobile: reduced blur (1.5 vs 2.5) and scale (10 vs 20)
