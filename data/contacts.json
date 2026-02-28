@@ -1,0 +1,47 @@
+[
+    {
+        "id": "cc02081d-caef-43e3-b318-14b7d84c31c1",
+        "shopName": "3DPrintNovesia",
+        "shopDomain": "shop.3dprintnovesia.de",
+        "shopUrl": "https://shop.3dprintnovesia.de",
+        "productUrl": "https://shop.3dprintnovesia.de/products/neusser-eierdieb",
+        "productName": "Neusser Eierdieb",
+        "email": "info@3dprintnovesia.de",
+        "status": "sent",
+        "embedUrl": "https://3d-snap.com/embed/cc02081d-caef-43e3-b318-14b7d84c31c1",
+        "resendId": "da798a40-f1b3-4327-845c-519d5320691d",
+        "researchedAt": "2026-02-28T12:00:00Z",
+        "modelGeneratedAt": "2026-02-28T12:05:00Z",
+        "emailSentAt": "2026-02-28T13:42:00Z"
+    },
+    {
+        "id": "9c25a4f0-99bc-4d85-bd78-68489eb2f838",
+        "shopName": "3DMichel",
+        "shopDomain": "www.3dmichel.com",
+        "shopUrl": "https://www.3dmichel.com",
+        "productUrl": "https://www.3dmichel.com/produkt/lithophane-lampe-3d-druck-personalisiert/",
+        "productName": "Lithophane Lampe",
+        "email": "j.michel@3dmichel.com",
+        "status": "sent",
+        "embedUrl": "https://3d-snap.com/embed/9c25a4f0-99bc-4d85-bd78-68489eb2f838",
+        "resendId": "8e363443-1e19-45c3-8881-7778c28a9d3c",
+        "researchedAt": "2026-02-28T12:00:00Z",
+        "modelGeneratedAt": "2026-02-28T12:05:00Z",
+        "emailSentAt": "2026-02-28T13:42:00Z"
+    },
+    {
+        "id": "b3b335c5-9c9c-4f7a-bed3-3752d8646c09",
+        "shopName": "CAT LOURI",
+        "shopDomain": "catlouri.com",
+        "shopUrl": "https://catlouri.com",
+        "productUrl": "https://catlouri.com/products/asthetische-3d-gedruckte-vasen-fur-dein-modernes-zuhause",
+        "productName": "3D-gedruckte Vasen",
+        "email": "catlouri@gmx.de",
+        "status": "sent",
+        "embedUrl": "https://3d-snap.com/embed/b3b335c5-9c9c-4f7a-bed3-3752d8646c09",
+        "resendId": "56c04f26-3a91-4885-8eec-75197560ee2a",
+        "researchedAt": "2026-02-28T12:00:00Z",
+        "modelGeneratedAt": "2026-02-28T12:05:00Z",
+        "emailSentAt": "2026-02-28T13:42:00Z"
+    }
+]
