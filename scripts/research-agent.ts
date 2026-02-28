@@ -43,11 +43,11 @@ const BUFFER_THRESHOLD = 10;
 const DEFAULT_SEARCH_LIMIT = 15;
 const FETCH_TIMEOUT_MS = 15_000;
 
-// Vertex AI (Gemini) config — uses sovereign-agent-swarm SA for auth (1000€ credits)
+// Vertex AI (Gemini) config — sovereign-agent-swarm project (1000€ credits)
 const GCP_PROJECT = process.env.VERTEX_PROJECT ?? 'sovereign-agent-swarm';
-const GCP_LOCATION = process.env.VERTEX_LOCATION ?? 'global';
-const GEMINI_MODEL = process.env.VERTEX_MODEL ?? 'gemini-3-flash-preview';
-const VERTEX_KEY_FILE = process.env.VERTEX_KEY_FILE ?? resolve(process.cwd(), '..', '..', 'Downloads', 'sovereign-agent-swarm-44084244fde5.json');
+const GCP_LOCATION = process.env.VERTEX_LOCATION ?? 'europe-west1';
+const GEMINI_MODEL = process.env.VERTEX_MODEL ?? 'gemini-2.0-flash';
+const VERTEX_KEY_FILE = process.env.VERTEX_KEY_FILE ?? resolve(process.env.USERPROFILE ?? process.env.HOME ?? '', 'Downloads', 'sovereign-agent-swarm-44084244fde5.json');
 
 const USER_AGENT =
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
@@ -324,33 +324,37 @@ async function qualifyShopWithLlm(
     ogDescription?: string,
 ): Promise<LlmVerdict> {
     const prompt = [
-        'Du bist ein Sales-Qualifier für 3D-Snap, einen Service der physische Produkte als interaktive 3D-Modelle für Online-Shops erstellt.',
+        '# Aufgabe',
+        'Du bist ein Lead-Qualifier für 3D-Snap. Unser Service: Shopbetreiber laden ein Produktfoto hoch und bekommen in 15 Sekunden ein interaktives, drehbares 3D-Modell für ihren Online-Shop.',
         '',
-        `Analysiere diesen Shop:`,
-        `- Shop: ${shopName}`,
-        `- Produkt: ${productName}`,
-        `- URL: ${shopUrl}`,
-        ogDescription ? `- Beschreibung: ${ogDescription}` : '',
+        '# Deine Aufgabe',
+        'Bewerte, ob das Produkt dieses Shops von einem interaktiven 3D-Modell profitieren würde.',
+        'Die Kernfrage: Würde ein Kunde das Produkt online drehen, zoomen und von allen Seiten inspizieren wollen, bevor er kauft?',
         '',
-        'Bewerte: Würde dieser Shop von interaktiven 3D-Produktmodellen profitieren?',
+        `# Shop-Daten`,
+        `Shop: ${shopName}`,
+        `Produkt: ${productName}`,
+        `URL: ${shopUrl}`,
+        ogDescription ? `Beschreibung: ${ogDescription}` : '',
         '',
-        'GEEIGNET sind Shops die physische Produkte verkaufen, die man drehen/inspizieren möchte:',
-        '- Möbel, Lampen, Vasen, Deko-Objekte',
-        '- Schmuck, Uhren, Accessoires',
-        '- Schuhe, Taschen, Mode-Accessoires',
-        '- Elektronik, Gadgets',
-        '- Figuren, Skulpturen, Kunstobjekte',
-        '- Haushaltsgeräte mit Design-Aspekt',
+        '# Bewertungskriterien',
         '',
-        'NICHT GEEIGNET sind:',
-        '- Reine Dienstleistungen (Beratung, Software)',
-        '- Digitale Produkte (eBooks, Kurse)',
-        '- Lebensmittel, Kosmetik (flach/einfach)',
-        '- Druckereien / B2B-Industrieteile',
-        '- Shops die bereits 3D/AR nutzen',
+        'GEEIGNET (suitable=true):',
+        '- Produkt hat interessante 3D-Geometrie (Möbel, Lampen, Vasen, Figuren, Skulpturen)',
+        '- Produkt wird vor dem Kauf visuell inspiziert (Schmuck, Uhren, Schuhe, Taschen)',
+        '- Hoher Warenwert → Kunde will Details sehen (Designermöbel, Elektronik, Luxusgüter)',
+        '- Produkt ist schwer in 2D-Fotos zu erfassen (komplexe Formen, Details von hinten)',
         '',
-        'Antwort NUR als JSON (kein Markdown):',
-        '{ "suitable": true/false, "reason": "Kurze Begründung", "bestProduct": "Bestes Produkt für 3D-Demo" }',
+        'NICHT GEEIGNET (suitable=false):',
+        '- Flache/simple Produkte ohne 3D-Mehrwert (Poster, Aufkleber, Textilien ohne Form)',
+        '- Reine Dienstleistungen oder digitale Produkte',
+        '- Lebensmittel, Kosmetik (Verpackung ist irrelevant)',
+        '- B2B-Industrieteile, Rohmaterial, Filament',
+        '- Seite ist kein Shop (Blog, Magazin, Verzeichnis)',
+        '',
+        '# Antwortformat',
+        'Antworte NUR als JSON-Objekt:',
+        '{ "suitable": true/false, "reason": "1 Satz warum", "bestProduct": "Name des besten Produkts für eine 3D-Demo" }',
     ].filter(Boolean).join('\n');
 
     try {
