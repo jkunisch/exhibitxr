@@ -438,9 +438,9 @@ async function saveToDatabase(productName: string, glbUrl: string): Promise<stri
       entryAnimation: 'none',
       ambientIntensity: 0.8,
       contactShadows: true,
-      autoRotate: false,
+      autoRotate: true,   // Auto-start for outreach embeds — no click needed
       cameraPosition: [0, 1.5, 4],
-      bgColor: '#111111',
+      bgColor: '#18181b',
       model: {
         id: modelId,
         label: productName,

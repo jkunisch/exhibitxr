@@ -1,0 +1,378 @@
+/**
+ * Master Orchestrator: Phase 1 -> Phase 5
+ *
+ * Phases:
+ * 1) Firestore fetch + Playwright screenshot (1080x1920)
+ * 2) LLM Ad Factory (prompt/negative/caption/editPlan)
+ * 3) Vertex Veo generate (async) + download
+ * 4) FFmpeg overlays
+ * 5) Publish to TikTok (uses existing src/lib/tiktok.ts integration)
+ *
+ * Fault tolerance:
+ * - Each product is isolated: errors log + skip to next.
+ * - Temp file cleanup is best-effort.
+ *
+ * Usage:
+ *   node --loader ts-node/esm scripts/veo-tiktok-pipeline.ts --limit=10
+ * or compile via tsc and run node dist/scripts/...
+ */
+
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+dotenv.config({ path: resolve(process.cwd(), '.env.local') });
+
+import { Firestore } from "@google-cloud/firestore";
+import { chromium, Browser } from "playwright";
+import { mkdir, readFile, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { randomUUID } from "node:crypto";
+
+import { VertexVeoClient } from "../src/lib/vertex-veo.js";
+import { AdFactory, type ProductContext } from "../src/lib/ad-factory.js";
+import { burnInTikTokOverlays } from "../src/lib/ffmpeg-editor.js";
+
+// ---------------------------
+// Small, dependency-free CLI + logging
+// ---------------------------
+
+function ansi(code: number): string {
+  return `\u001b[${code}m`;
+}
+const C = {
+  reset: ansi(0),
+  dim: ansi(2),
+  red: ansi(31),
+  green: ansi(32),
+  yellow: ansi(33),
+  cyan: ansi(36),
+  bold: ansi(1),
+};
+
+function logInfo(msg: string): void {
+  console.log(`${C.cyan}[info]${C.reset} ${msg}`);
+}
+function logWarn(msg: string): void {
+  console.warn(`${C.yellow}[warn]${C.reset} ${msg}`);
+}
+function logError(msg: string): void {
+  console.error(`${C.red}[error]${C.reset} ${msg}`);
+}
+function logOk(msg: string): void {
+  console.log(`${C.green}[ok]${C.reset} ${msg}`);
+}
+
+function mustEnv(name: string): string {
+  const v = process.env[name];
+  if (!v || v.trim().length === 0) throw new Error(`Missing required env var: ${name}`);
+  return v.trim();
+}
+
+function envOr(name: string, fallback: string): string {
+  const v = process.env[name];
+  return v && v.trim().length > 0 ? v.trim() : fallback;
+}
+
+function parseArgs(argv: readonly string[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const raw of argv) {
+    if (!raw.startsWith("--")) continue;
+    const eq = raw.indexOf("=");
+    if (eq === -1) out[raw.slice(2)] = "true";
+    else out[raw.slice(2, eq)] = raw.slice(eq + 1);
+  }
+  return out;
+}
+
+async function bestEffortRm(path: string): Promise<void> {
+  try {
+    await rm(path, { force: true, recursive: true });
+  } catch {
+    // ignore
+  }
+}
+
+// ---------------------------
+// Firestore model extraction (Phase 1)
+// ---------------------------
+
+interface FirestoreModelDoc {
+  readonly title?: unknown;
+  readonly description?: unknown;
+  readonly glbUrl?: unknown;
+  readonly published?: unknown;
+}
+
+function toStringOrUndefined(x: unknown): string | undefined {
+  return typeof x === "string" && x.trim().length > 0 ? x.trim() : undefined;
+}
+function toBooleanOrFalse(x: unknown): boolean {
+  return typeof x === "boolean" ? x : false;
+}
+
+function buildViewerUrl(template: string, modelId: string, glbUrl: string): string {
+  // Template supports:
+  // - {{id}}
+  // - {{glbUrl}} (URL-encoded)
+  return template
+    .replaceAll("{{id}}", encodeURIComponent(modelId))
+    .replaceAll("{{glbUrl}}", encodeURIComponent(glbUrl));
+}
+
+// ---------------------------
+// Playwright screenshot (Phase 1)
+// ---------------------------
+
+async function captureModelScreenshot(
+  browser: Browser,
+  viewerUrl: string,
+  outPath: string,
+  readySelector: string,
+): Promise<void> {
+  const ctx = await browser.newContext({
+    viewport: { width: 1080, height: 1920 },
+    deviceScaleFactor: 1,
+  });
+  const page = await ctx.newPage();
+  try {
+    await page.goto(viewerUrl, { waitUntil: "networkidle", timeout: 90_000 });
+    await page.waitForSelector(readySelector, { timeout: 60_000 });
+
+    // Give WebGL a moment to settle (materials/textures).
+    await page.waitForTimeout(1500);
+
+    // JPEG saves bandwidth for referenceImages; still high-res.
+    await page.screenshot({ path: outPath, type: "jpeg", quality: 90, fullPage: true });
+  } finally {
+    await page.close().catch(() => undefined);
+    await ctx.close().catch(() => undefined);
+  }
+}
+
+// ---------------------------
+// TikTok publisher integration (Phase 5)
+// ---------------------------
+
+type TikTokPublishFn = (args: { videoPath: string; caption: string }) => Promise<void>;
+
+async function loadTikTokPublisher(): Promise<TikTokPublishFn> {
+  // We intentionally do a dynamic import so your existing src/lib/tiktok.ts can evolve
+  // without forcing this script to match an exact named export at compile time.
+  const modUnknown = await import("../src/lib/tiktok.js");
+
+  const mod = modUnknown as Record<string, unknown>;
+
+  const candidates = ["publishVideo", "uploadAndPublishVideo", "publishToTikTok", "postToTikTok"] as const;
+
+  for (const name of candidates) {
+    const fn = mod[name];
+    if (typeof fn === "function") {
+      return fn as TikTokPublishFn;
+    }
+  }
+
+  throw new Error(
+    `Could not find a publish function in src/lib/tiktok.ts. Expected one of: ${candidates.join(", ")}`,
+  );
+}
+
+// ---------------------------
+// Main pipeline
+// ---------------------------
+
+async function main(): Promise<void> {
+  const args = parseArgs(process.argv.slice(2));
+
+  const projectId = envOr("GOOGLE_CLOUD_PROJECT", "");
+  if (!projectId) throw new Error("Set GOOGLE_CLOUD_PROJECT (or configure ADC project).");
+
+  const veoLocation = envOr("VEO_LOCATION", envOr("GOOGLE_CLOUD_LOCATION", "us-central1"));
+  const veoModelId = envOr("VEO_MODEL_ID", "veo-3.1-fast-generate-001");
+
+  const firestoreCollection = envOr("FIRESTORE_COLLECTION", "models");
+  const publishedField = envOr("FIRESTORE_PUBLISHED_FIELD", "published");
+
+  const viewerTemplate = mustEnv("MODEL_VIEWER_URL_TEMPLATE"); // e.g. https://yourapp/viewer?src={{glbUrl}}
+  const readySelector = envOr("VIEWER_READY_SELECTOR", "canvas");
+
+  const outputGcsPrefix = envOr("VEO_OUTPUT_GCS_PREFIX", ""); // Optional; if empty, uses base64
+  const workDir = envOr("PIPELINE_WORKDIR", ".tmp/veo-ad-factory");
+
+  const limit = Number(args["limit"] ?? envOr("PIPELINE_LIMIT", "25"));
+  const dryRun = (args["dryRun"] ?? envOr("TIKTOK_DRY_RUN", "false")).toLowerCase() === "true";
+  const keepArtifacts = (args["keep"] ?? envOr("KEEP_ARTIFACTS", "false")).toLowerCase() === "true";
+
+  const sampleCount = Number(envOr("VEO_SAMPLE_COUNT", "1")); // cost lever
+  const resolution = envOr("VEO_RESOLUTION", "1080p") as "720p" | "1080p" | "4k";
+
+  logInfo(`Project: ${projectId}`);
+  logInfo(`Veo: model=${veoModelId} location=${veoLocation} resolution=${resolution} sampleCount=${sampleCount}`);
+  logInfo(`Firestore: collection=${firestoreCollection} where ${publishedField}==true limit=${limit}`);
+  logInfo(`DryRun (TikTok): ${dryRun ? "true" : "false"}`);
+  logInfo(`Workdir: ${workDir}`);
+
+  await mkdir(workDir, { recursive: true });
+
+  const firestoreKeyPath = envOr("FIRESTORE_KEY_FILE", "service-account.json");
+  const firestore = new Firestore({ projectId, keyFilename: firestoreKeyPath });
+
+  const veoProjectId = envOr("VEO_PROJECT_ID", projectId);
+
+  const adFactory = new AdFactory({
+    projectId: veoProjectId,
+    location: envOr("AD_FACTORY_LOCATION", "us-central1"),
+    model: envOr("AD_FACTORY_MODEL", "gemini-2.5-flash"),
+    temperature: Number(envOr("AD_FACTORY_TEMPERATURE", "0.7")),
+    maxOutputTokens: Number(envOr("AD_FACTORY_MAX_TOKENS", "1200")),
+  });
+
+  const veo = new VertexVeoClient({
+    projectId: veoProjectId,
+    location: veoLocation,
+    modelId: veoModelId,
+    poll: {
+      timeoutMs: Number(envOr("VEO_POLL_TIMEOUT_MS", String(12 * 60_000))),
+    },
+  });
+
+  const publishToTikTok = dryRun ? null : await loadTikTokPublisher();
+
+  // Launch Playwright once (huge perf win).
+  const browser = await chromium.launch({ headless: true });
+
+  try {
+    const snap = await firestore
+      .collection(firestoreCollection)
+      .where(publishedField, "==", true)
+      .limit(limit)
+      .get();
+
+    logInfo(`Fetched ${snap.size} published models.`);
+
+    let index = 0;
+    for (const doc of snap.docs) {
+      index++;
+      const id = doc.id;
+      const data = doc.data() as FirestoreModelDoc;
+
+      const title = toStringOrUndefined(data.title) ?? "(untitled)";
+      const description = toStringOrUndefined(data.description);
+      const glbUrl = toStringOrUndefined(data.glbUrl);
+      const published = toBooleanOrFalse(data.published);
+
+      if (!published || !glbUrl) {
+        logWarn(`Skipping doc=${id} (published=${String(published)} glbUrl=${String(glbUrl)})`);
+        continue;
+      }
+
+      const runId = `${id}_${randomUUID().slice(0, 8)}`;
+      const productWorkDir = join(workDir, runId);
+      await mkdir(productWorkDir, { recursive: true });
+
+      const screenshotPath = join(productWorkDir, "reference.jpg");
+      const rawVideoDir = join(productWorkDir, "raw");
+      const editedVideoDir = join(productWorkDir, "edited");
+      await mkdir(rawVideoDir, { recursive: true });
+      await mkdir(editedVideoDir, { recursive: true });
+
+      logInfo(`${C.bold}(${index}/${snap.size})${C.reset} Processing: ${title} [${id}]`);
+
+      try {
+        // Phase 1: screenshot
+        const viewerUrl = buildViewerUrl(viewerTemplate, id, glbUrl);
+        logInfo(`Phase 1: Screenshot -> ${viewerUrl}`);
+        await captureModelScreenshot(browser, viewerUrl, screenshotPath, readySelector);
+
+        const refB64 = (await readFile(screenshotPath)).toString("base64");
+
+        // Phase 2: LLM ad spec
+        logInfo("Phase 2: AdFactory (LLM prompt spec)");
+        const product: ProductContext = { id, title, description, glbUrl };
+        const adSpec = await adFactory.generateAdSpec(product);
+
+        // Phase 3: Veo generate + download
+        logInfo("Phase 3: Veo generate (async) + download");
+        const gcsPrefix = outputGcsPrefix ? `${ensureTrailingSlash(outputGcsPrefix)}${id}/${runId}/` : undefined;
+
+        const veoResult = await veo.generateAndDownload(
+          {
+            prompt: adSpec.veoPrompt,
+            negativePrompt: adSpec.negativePrompt,
+            aspectRatio: "9:16",
+            resolution,
+            generateAudio: false,
+            sampleCount,
+            personGeneration: envOr("VEO_PERSON_GENERATION", "dont_allow") as "dont_allow" | "allow_adult",
+            outputGcsUri: gcsPrefix,
+
+            // Use screenshot as identity anchor.
+            referenceImages: [
+              {
+                referenceType: "asset",
+                image: { mimeType: "image/jpeg", bytesBase64Encoded: refB64 },
+              },
+            ],
+
+            // If ref images are rejected by model/region, fallback to image-to-video.
+            fallbackToImageToVideoOnReferenceRejection: true,
+          },
+          rawVideoDir,
+          { filenamePrefix: `veo_${id}` },
+        );
+
+        const rawVideoPath = veoResult.localPaths[0];
+        if (!rawVideoPath) throw new Error("Veo produced no local video path.");
+
+        // Phase 4: FFmpeg overlays
+        logInfo("Phase 4: FFmpeg burn-in overlays");
+        const editedPath = join(editedVideoDir, `tiktok_${id}.mp4`);
+
+        await burnInTikTokOverlays({
+          inputPath: rawVideoPath,
+          outputPath: editedPath,
+          hookText: adSpec.editPlan.hookText,
+          ctaText: adSpec.editPlan.ctaText,
+          fontFile: process.env.FFMPEG_FONT_FILE,
+        });
+
+        // Phase 5: Publish
+        const caption = `${adSpec.tiktok.caption} ${adSpec.tiktok.hashtags.join(" ")}`.trim();
+        logInfo(`Phase 5: TikTok publish (dryRun=${dryRun ? "true" : "false"})`);
+        if (!dryRun && publishToTikTok) {
+          // @ts-ignore dynamic import 
+          await publishToTikTok(editedPath, caption, adSpec.tiktok.hashtags);
+          logOk(`Published to TikTok: ${title}`);
+        } else {
+          logOk(`Dry run complete. Edited video at: ${editedPath}`);
+        }
+
+        // Cleanup
+        if (!keepArtifacts) {
+          await bestEffortRm(productWorkDir);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        logError(`Failed product id=${id}: ${msg}`);
+        if (!keepArtifacts) {
+          await bestEffortRm(productWorkDir);
+        }
+        continue; // skip to next product
+      }
+    }
+
+    logOk("Pipeline complete.");
+  } finally {
+    await browser.close().catch(() => undefined);
+  }
+}
+
+// Local helper copied to keep script self-contained.
+function ensureTrailingSlash(uri: string): string {
+  return uri.endsWith("/") ? uri : `${uri}/`;
+}
+
+main().catch((err) => {
+  const msg = err instanceof Error ? err.stack ?? err.message : String(err);
+  // eslint-disable-next-line no-console
+  console.error(`${C.red}[fatal]${C.reset} ${msg}`);
+  process.exitCode = 1;
+});
