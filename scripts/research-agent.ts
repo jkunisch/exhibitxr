@@ -45,8 +45,8 @@ const FETCH_TIMEOUT_MS = 15_000;
 
 // Vertex AI (Gemini) config — sovereign-agent-swarm project (1000€ credits)
 const GCP_PROJECT = process.env.VERTEX_PROJECT ?? 'sovereign-agent-swarm';
-const GCP_LOCATION = process.env.VERTEX_LOCATION ?? 'europe-west1';
-const GEMINI_MODEL = process.env.VERTEX_MODEL ?? 'gemini-2.0-flash';
+const GCP_LOCATION = process.env.VERTEX_LOCATION ?? 'global';
+const GEMINI_MODEL = process.env.VERTEX_MODEL ?? 'gemini-3-flash-preview';
 const VERTEX_KEY_FILE = process.env.VERTEX_KEY_FILE ?? resolve(process.env.USERPROFILE ?? process.env.HOME ?? '', 'Downloads', 'sovereign-agent-swarm-44084244fde5.json');
 
 const USER_AGENT =
@@ -375,8 +375,7 @@ async function qualifyShopWithLlm(
                 contents: [{ role: 'user', parts: [{ text: prompt }] }],
                 generationConfig: {
                     temperature: 0.3,
-                    maxOutputTokens: 200,
-                    responseMimeType: 'application/json',
+                    maxOutputTokens: 300,
                 },
             }),
         });
@@ -387,15 +386,49 @@ async function qualifyShopWithLlm(
             return { suitable: true, reason: 'Vertex AI error, defaulting', bestProduct: productName };
         }
 
-        const json = await res.json();
-        const raw: string = json?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? '';
+        const json = await res.json() as any;
+        // Gemini 3 Flash returns multiple parts: one with thoughtSignature, one with text
+        const parts = json?.candidates?.[0]?.content?.parts ?? [];
+        const textPart = parts.find((p: any) => p.text && !p.thoughtSignature) ?? parts.find((p: any) => p.text);
+        const raw: string = (textPart?.text ?? '').trim();
 
-        // Parse JSON from response
-        const jsonStr = raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(jsonStr) as LlmVerdict;
+        if (!raw) {
+            warn(`   LLM gab leere Antwort zurück`);
+            return { suitable: true, reason: 'Empty response, defaulting', bestProduct: productName };
+        }
+
+        // Robust extraction: try JSON.parse first, fall back to regex field extraction
+        let parsed: LlmVerdict | null = null;
+
+        // Attempt 1: find JSON block and parse directly
+        const jsonBlock = raw.match(/\{[^{}]*"suitable"[^{}]*\}/);
+        if (jsonBlock) {
+            try { parsed = JSON.parse(jsonBlock[0]); } catch { /* fall through */ }
+        }
+
+        // Attempt 2: extract fields individually via regex
+        if (!parsed) {
+            const suitableMatch = raw.match(/"suitable"\s*:\s*(true|false)/i);
+            const reasonMatch = raw.match(/"reason"\s*:\s*"([^"]+)"/);
+            const bestMatch = raw.match(/"bestProduct"\s*:\s*"([^"]+)"/);
+            if (suitableMatch) {
+                parsed = {
+                    suitable: suitableMatch[1] === 'true',
+                    reason: reasonMatch?.[1] ?? 'Vom LLM qualifiziert',
+                    bestProduct: bestMatch?.[1] ?? productName,
+                };
+            }
+        }
+
+        if (!parsed) {
+            warn(`   LLM-Antwort nicht parsebar: ${raw.slice(0, 80)}`);
+            return { suitable: true, reason: 'Unparseable response', bestProduct: productName };
+        }
+
         return parsed;
     } catch (e) {
-        warn(`   LLM-Parsing fehlgeschlagen — qualifiziere trotzdem`);
+        const errMsg = e instanceof Error ? e.message : String(e);
+        warn(`   LLM-Fehler: ${errMsg}`);
         return { suitable: true, reason: 'Parse error, defaulting', bestProduct: productName };
     }
 }
