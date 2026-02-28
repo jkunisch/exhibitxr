@@ -303,15 +303,19 @@ export default function ViewerCanvas({
                     />
                 )}
 
-                {/* ── Ground Plane for directional light shadows ─────── */}
-                <mesh
-                    receiveShadow
-                    rotation={[-Math.PI / 2, 0, 0]}
-                    position={[0, 0, 0]}
-                >
-                    <planeGeometry args={[50, 50]} />
-                    <shadowMaterial transparent opacity={0.1} />
-                </mesh>
+                {/* ── Ground Plane for directional light shadows ───────
+                     Hidden when a pedestal is active to prevent Z-fighting
+                     (pedestal top surface is co-planar with this plane at y=0). */}
+                {stageType !== "pedestal-marble" && stageType !== "pedestal-wood" && (
+                    <mesh
+                        receiveShadow
+                        rotation={[-Math.PI / 2, 0, 0]}
+                        position={[0, 0, 0]}
+                    >
+                        <planeGeometry args={[50, 50]} />
+                        <shadowMaterial transparent opacity={0.1} />
+                    </mesh>
+                )}
 
                 {/* ── Model Container (Bounds always in tree, manual fit) ── */}
                 <Bounds margin={1.2}>
