@@ -48,3 +48,5 @@ next-env.d.ts
 
 # GCP service account key
 gcp-veo-key.json
+
+firebase-adminsdk.json

@@ -7,20 +7,42 @@ import {
 } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+import { readFileSync } from "fs";
 
 let cachedAdminApp: App | null = null;
 
 function readServiceAccount(): ServiceAccount {
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-  if (!raw) {
-    throw new Error("Missing FIREBASE_SERVICE_ACCOUNT_KEY environment variable.");
+  if (raw) {
+    try {
+      return JSON.parse(raw) as ServiceAccount;
+    } catch {
+      // dotenv v17 expands \n in values to real newline chars (0x0A).
+      // JSON.parse rejects raw newlines inside string values.
+      // Fix: re-escape real newlines back to \n before parsing.
+      try {
+        const fixed = raw.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+        return JSON.parse(fixed) as ServiceAccount;
+      } catch {
+        // fall through to file-based fallback
+      }
+    }
   }
 
-  try {
-    return JSON.parse(raw) as ServiceAccount;
-  } catch {
-    throw new Error("Invalid FIREBASE_SERVICE_ACCOUNT_KEY JSON.");
+  // Fallback: read from JSON file (GOOGLE_APPLICATION_CREDENTIALS)
+  const filePath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  if (filePath) {
+    try {
+      const content = readFileSync(filePath, "utf-8");
+      return JSON.parse(content) as ServiceAccount;
+    } catch (e) {
+      throw new Error(`Failed to read GOOGLE_APPLICATION_CREDENTIALS file: ${e}`);
+    }
   }
+
+  throw new Error(
+    "Missing Firebase credentials. Set FIREBASE_SERVICE_ACCOUNT_KEY (JSON string) or GOOGLE_APPLICATION_CREDENTIALS (path to JSON file).",
+  );
 }
 
 /** Server-side Firebase Admin app (singleton, lazily initialized). */

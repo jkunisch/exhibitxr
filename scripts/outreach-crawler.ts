@@ -1,197 +1,709 @@
+/**
+ * scripts/outreach-crawler.ts
+ *
+ * ExhibitXR / 3D-Snap Outreach Crawler
+ *
+ * Dual-Mode CLI:
+ *   1) Single-URL:
+ *      npx tsx scripts/outreach-crawler.ts https://example.com/product
+ *
+ *   2) Batch-Mode (Datei):
+ *      npx tsx scripts/outreach-crawler.ts targets.txt
+ *
+ * Optional:
+ *   --dry-run   => Scraping + Download testen, aber keine Meshy/Firebase/OpenRouter Calls
+ *   --limit 10  => nur im Batch-Mode: maximale Anzahl URLs (Default: 10)
+ *
+ * Outputs:
+ *   - emails_to_send.md
+ *   - outreach_results.csv  (shop_name,product_name,url,embed_link,status,error)
+ */
+
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
 import * as fs from 'fs';
 
-// Load .env.local variables
+// Load .env.local variables (OPENROUTER_API_KEY, Firebase-Credentials, ...)
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
+// dotenv v17 corrupts the private_key in FIREBASE_SERVICE_ACCOUNT_KEY (partial unescape).
+// Fallback: point firebaseAdmin.ts to the JSON file directly.
+if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  const candidates = [
+    resolve(process.cwd(), 'firebase-adminsdk.json'),
+    resolve(process.cwd(), '..', 'Documents', 'ExhibitXR', 'secrets', 'firebase-adminsdk.json'),
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) {
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = p;
+      break;
+    }
+  }
+}
+
 import * as cheerio from 'cheerio';
-import crypto from 'crypto';
+import { randomUUID } from 'crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminDb } from '../src/lib/firebaseAdmin';
 import { submitImageTo3D, pollTaskStatus } from '../src/lib/meshy';
+import type { PollResult } from '../src/lib/meshy';
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const TARGET_FILE = process.argv[2];
+/** ---------------- Konfiguration ---------------- */
+const OUTREACH_TENANT_ID: string = process.env.OUTREACH_TENANT_ID ?? 'outreach-tenant';
 
-if (!TARGET_FILE) {
-  console.error("❌ Bitte gib eine Textdatei mit URLs an: npx tsx scripts/outreach-crawler.ts targets.txt");
-  process.exit(1);
+const APP_URL: string = process.env.NEXT_PUBLIC_APP_URL ?? 'https://3dsnap.de';
+const EMBED_BASE_URL: string = process.env.EMBED_BASE_URL ?? `${APP_URL}/embed`;
+
+const OPENROUTER_API_KEY: string | undefined = process.env.OPENROUTER_API_KEY;
+const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL ?? 'minimax/minimax-m2.5';
+
+const DEFAULT_BATCH_LIMIT = 10;
+const FETCH_TIMEOUT_MS = 30_000;
+const DOWNLOAD_TIMEOUT_MS = 45_000;
+const FETCH_RETRY_DELAY_MS = 2_000;
+const FETCH_MAX_RETRIES = 1;
+
+// shopifyI5: Download-Validierung
+const ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
+
+// shopifyI6: Publish-Flag (Default: true, da Embed-Links sonst nicht funktionieren)
+const OUTREACH_PUBLISH_DEFAULT: boolean = process.env.OUTREACH_PUBLISH_DEFAULT !== 'false';
+
+// shopifyI7: Realistischer User-Agent
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+
+const ZERO_VEC3: [number, number, number] = [0, 0, 0];
+
+/** ---------------- Mini CLI Helpers ---------------- */
+const ANSI = {
+  reset: '\x1b[0m',
+  dim: '\x1b[2m',
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  cyan: '\x1b[36m',
+  bold: '\x1b[1m',
+} as const;
+
+function info(msg: string): void {
+  console.log(`${ANSI.cyan}ℹ${ANSI.reset} ${msg}`);
+}
+function ok(msg: string): void {
+  console.log(`${ANSI.green}✅${ANSI.reset} ${msg}`);
+}
+function warn(msg: string): void {
+  console.log(`${ANSI.yellow}⚠️${ANSI.reset} ${msg}`);
+}
+function err(msg: string): void {
+  console.error(`${ANSI.red}❌${ANSI.reset} ${msg}`);
 }
 
-if (!OPENROUTER_API_KEY) {
-  console.error("❌ OPENROUTER_API_KEY fehlt in der .env.local!");
-  process.exit(1);
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
 }
 
-async function scrapeShop(url: string) {
-  console.log(`\n🔍 Scraping URL: ${url}`);
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Fetch failed: ${response.statusText}`);
-  const html = await response.text();
-  const $ = cheerio.load(html);
+function printUsage(exitCode = 1): void {
+  const text = `
+${ANSI.bold}3D-Snap Outreach Crawler${ANSI.reset}
 
-  const title = $('meta[property="og:title"]').attr('content') || $('title').text() || 'Unbekanntes Produkt';
-  const imageUrl = $('meta[property="og:image"]').attr('content');
-  const shopName = $('meta[property="og:site_name"]').attr('content') || new URL(url).hostname;
+${ANSI.bold}Verwendung${ANSI.reset}
+  npx tsx scripts/outreach-crawler.ts https://example.com/product
+  npx tsx scripts/outreach-crawler.ts targets.txt
 
-  if (!imageUrl) {
-    throw new Error("Konnte kein og:image auf der Seite finden.");
+${ANSI.bold}Optionen${ANSI.reset}
+  --dry-run           Nur Scraping + Download testen (keine Meshy/Firebase/OpenRouter-Aufrufe)
+  --limit <zahl>      Nur Batch-Modus: Max. Anzahl URLs (Standard: ${DEFAULT_BATCH_LIMIT})
+  --help              Hilfe anzeigen
+
+${ANSI.bold}Ausgabe${ANSI.reset}
+  - emails_to_send.md
+  - outreach_results.csv  (shop_name,product_name,url,embed_link,status,error)
+`.trim();
+
+  console.log(text);
+  process.exit(exitCode);
+}
+
+type CliOptions = {
+  input: string;
+  dryRun: boolean;
+  limit: number;
+};
+
+function parseCli(argv: string[]): CliOptions {
+  let input: string | undefined;
+  let dryRun = false;
+  let limit = DEFAULT_BATCH_LIMIT;
+
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+
+    if (a === '--help' || a === '-h') {
+      printUsage(0);
+    }
+
+    if (a === '--dry-run') {
+      dryRun = true;
+      continue;
+    }
+
+    if (a === '--limit') {
+      const val = argv[i + 1];
+      if (!val || val.startsWith('-')) {
+        err('Bitte gib nach --limit eine Zahl an.');
+        printUsage(1);
+      }
+      const parsed = Number.parseInt(val, 10);
+      if (!Number.isFinite(parsed) || parsed <= 0) {
+        err('Ungültiger Wert für --limit.');
+        printUsage(1);
+      }
+      limit = parsed;
+      i++; // skip value
+      continue;
+    }
+
+    if (a.startsWith('-')) {
+      err(`Unbekannte Option: ${a}`);
+      printUsage(1);
+    }
+
+    if (!input) {
+      input = a;
+      continue;
+    }
   }
 
-  console.log(`✅ Produkt gefunden: ${title}`);
-  console.log(`🖼️  Bild URL: ${imageUrl}`);
+  if (!input) {
+    err('Bitte gib eine URL oder eine targets.txt Datei an.');
+    printUsage(1);
+  }
 
-  return { title, imageUrl, shopName };
+  return { input: input!, dryRun, limit };
 }
 
-async function downloadImage(url: string): Promise<Buffer> {
-  console.log(`⬇️  Lade Bild herunter...`);
-  // Handle relative URLs
-  const absoluteUrl = url.startsWith('http') ? url : `https:${url}`;
-  const response = await fetch(absoluteUrl);
-  if (!response.ok) throw new Error(`Download failed: ${response.statusText}`);
-  const arrayBuffer = await response.arrayBuffer();
-  return Buffer.from(arrayBuffer);
+function isSingleUrlArg(input: string): boolean {
+  return input.trim().toLowerCase().startsWith('http');
 }
 
-async function generate3D(imageBuffer: Buffer, title: string) {
-  console.log(`⚡ Starte 3D-Snap Generierung via Meshy API...`);
-  const filename = `${title.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
-  
-  const { taskId } = await submitImageTo3D(imageBuffer, filename);
-  console.log(`⏳ Task gestartet (ID: ${taskId}). Polling...`);
+function isProbablyHttpUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value.trim());
+}
 
-    let attempts = 0;
-    while (attempts < 600) { // Max 30 Minuten
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      const status = await pollTaskStatus(taskId);
-      
-      process.stdout.write(`\r   Progress: ${status.progress}% (${status.status})`);
-      
-      if (status.status === 'SUCCEEDED' && status.glbUrl) {
-        console.log(`\n  ✅ 3D Modell fertig generiert!`);
-        return status.glbUrl;
-      } else if (status.status === 'FAILED' || status.status === 'EXPIRED') {
-        throw new Error(`Meshy Task failed: ${status.error || 'Unknown error'}`);
+function toAbsoluteUrl(imageUrl: string, pageUrl: string): string {
+  try {
+    return new URL(imageUrl, pageUrl).href;
+  } catch {
+    throw new Error(`Ungültige Bild-URL gefunden: ${imageUrl}`);
+  }
+}
+
+async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': USER_AGENT,
+        Accept: '*/*',
+      },
+      redirect: 'follow',
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchWithRetry(url: string, timeoutMs: number, label: string): Promise<Response> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= FETCH_MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetchWithTimeout(url, timeoutMs);
+      if (!res.ok) {
+        throw new Error(`HTTP-Fehler ${res.status} (${res.statusText})`);
       }
-      attempts++;
+      return res;
+    } catch (e) {
+      lastError = e;
+      if (attempt < FETCH_MAX_RETRIES) {
+        warn(`🔁 ${label} fehlgeschlagen – erneuter Versuch in ${FETCH_RETRY_DELAY_MS / 1000}s...`);
+        await sleep(FETCH_RETRY_DELAY_MS);
+        continue;
+      }
     }
-    
-    console.log(`\n⚠️  Timeout nach 30 Minuten erreicht (Meshy Server sind überlastet).`);
-  console.log(`🦆  Verwende sicheres Fallback-Modell (Demo), um den Outreach-Workflow abzuschließen...`);
-  return 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb';
+  }
+
+  const msg = lastError instanceof Error ? lastError.message : String(lastError);
+  throw new Error(`${label} fehlgeschlagen: ${msg}`);
 }
 
-async function saveToDatabase(title: string, glbUrl: string) {
-  console.log(`💾 Speichere in Firebase...`);
+/** ---------------- Pipeline Steps ---------------- */
+
+type ScrapeResult = {
+  shopName: string;
+  productName: string;
+  imageUrl: string;
+};
+
+async function scrapeShop(url: string): Promise<ScrapeResult> {
+  console.log(`\n🔍 ${ANSI.bold}Scraping${ANSI.reset}: ${url}`);
+
+  const res = await fetchWithRetry(url, FETCH_TIMEOUT_MS, 'Scraping');
+  const html = await res.text();
+  const $ = cheerio.load(html);
+
+  const productNameRaw =
+    $('meta[property="og:title"]').attr('content') || $('title').text() || 'Unbekanntes Produkt';
+
+  const shopNameRaw = $('meta[property="og:site_name"]').attr('content') || new URL(url).hostname;
+
+  const imageCandidate =
+    $('meta[property="og:image:secure_url"]').attr('content') ||
+    $('meta[property="og:image"]').attr('content') ||
+    $('meta[name="twitter:image"]').attr('content') ||
+    $('meta[property="twitter:image"]').attr('content') ||
+    undefined;
+
+  const productName = productNameRaw.trim() || 'Unbekanntes Produkt';
+  const shopName = shopNameRaw.trim() || new URL(url).hostname;
+
+  if (!imageCandidate) {
+    throw new Error('Konnte kein og:image (oder twitter:image) auf der Seite finden.');
+  }
+
+  if (imageCandidate.startsWith('data:')) {
+    throw new Error('og:image ist ein data:-URL – kann nicht heruntergeladen werden.');
+  }
+
+  const imageUrl = toAbsoluteUrl(imageCandidate.trim(), url);
+
+  ok(`Shop: ${shopName}`);
+  ok(`Produkt: ${productName}`);
+  ok(`Bild: ${imageUrl}`);
+
+  return { shopName, productName, imageUrl };
+}
+
+async function downloadImage(imageUrl: string): Promise<Buffer> {
+  console.log('⬇️  Lade Bild herunter...');
+  const res = await fetchWithRetry(imageUrl, DOWNLOAD_TIMEOUT_MS, 'Bild-Download');
+
+  // shopifyI5: MIME-Type validieren
+  const contentType = res.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase();
+  if (contentType && !ALLOWED_IMAGE_MIMES.includes(contentType)) {
+    throw new Error(`Nicht unterstütztes Bildformat: ${contentType} (erlaubt: ${ALLOWED_IMAGE_MIMES.join(', ')})`);
+  }
+
+  // shopifyI5: Dateigröße prüfen
+  const contentLength = res.headers.get('content-length');
+  if (contentLength && Number.parseInt(contentLength, 10) > MAX_IMAGE_BYTES) {
+    throw new Error(`Bild zu groß: ${(Number.parseInt(contentLength, 10) / 1024 / 1024).toFixed(1)}MB (max: ${MAX_IMAGE_BYTES / 1024 / 1024}MB)`);
+  }
+
+  const arrayBuffer = await res.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  // Auch nach Download nochmal prüfen (content-length ist nicht immer gesetzt)
+  if (buffer.byteLength > MAX_IMAGE_BYTES) {
+    throw new Error(`Bild zu groß: ${(buffer.byteLength / 1024 / 1024).toFixed(1)}MB (max: ${MAX_IMAGE_BYTES / 1024 / 1024}MB)`);
+  }
+
+  ok(`Bild heruntergeladen: ${(buffer.byteLength / 1024).toFixed(0)}KB`);
+  return buffer;
+}
+
+function safeFilenameFromTitle(title: string): string {
+  const base = title
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9_\-]/g, '_')
+    .slice(0, 80);
+  return `${base || 'produkt'}.jpg`;
+}
+
+// shopifyI1: Use typed returns from meshy.ts directly — no unknown casts, no duplicate parsers
+async function generate3D(imageBuffer: Buffer, productName: string): Promise<string> {
+  console.log('⚡ Starte 3D-Snap Generierung via Meshy API...');
+
+  const filename = safeFilenameFromTitle(productName);
+
+  // submitImageTo3D returns typed GenerateResult { taskId: string }
+  const { taskId } = await submitImageTo3D(imageBuffer, filename);
+
+  info(`⏳ Task gestartet (ID: ${taskId}). Status-Abfrage...`);
+
+  const POLL_TIMEOUT_MS = 10 * 60 * 1000; // 10 Minuten Gesamtlimit
+  const POLL_INTERVAL_MS = 5_000;          // 5s zwischen Polls
+  const SINGLE_POLL_TIMEOUT_MS = 15_000;   // 15s Timeout pro einzelnen Poll-Call
+  const deadline = Date.now() + POLL_TIMEOUT_MS;
+
+  while (Date.now() < deadline) {
+    await sleep(POLL_INTERVAL_MS);
+
+    // Hard deadline check after sleep
+    if (Date.now() >= deadline) break;
+
+    let poll: PollResult;
+    try {
+      // Wrap pollTaskStatus with its own AbortController timeout
+      const result = await Promise.race([
+        pollTaskStatus(taskId),
+        new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Poll-Timeout (15s)')), SINGLE_POLL_TIMEOUT_MS);
+        }),
+      ]);
+      poll = result;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      warn(`Poll-Fehler (wird wiederholt): ${msg}`);
+      continue; // Retry on next iteration — deadline still enforced
+    }
+
+    const progressText = `${Math.round(poll.progress)}%`;
+    process.stdout.write(`\r   ${ANSI.dim}Fortschritt${ANSI.reset}: ${progressText} (${poll.status})`);
+
+    if (poll.status === 'SUCCEEDED' && poll.glbUrl) {
+      process.stdout.write('\n');
+      ok('3D-Modell fertig generiert!');
+      return poll.glbUrl;
+    }
+
+    if (poll.status === 'FAILED' || poll.status === 'EXPIRED') {
+      process.stdout.write('\n');
+      const reason = poll.error ? ` (${poll.error})` : '';
+      throw new Error(`Meshy Task fehlgeschlagen${reason}`);
+    }
+  }
+
+  process.stdout.write('\n');
+  throw new Error(`Timeout nach ${POLL_TIMEOUT_MS / 60_000} Minuten erreicht. Task-ID: ${taskId}`);
+}
+
+// shopifyI4: Guard — ensure outreach tenant doc exists before writing exhibitions
+let tenantChecked = false;
+
+async function ensureTenantExists(): Promise<void> {
+  if (tenantChecked) return;
+
   const db = getAdminDb();
-  
-  // Use a dedicated tenant ID for outreach or a specific admin one
-  const tenantId = "outreach-tenant"; 
-  const exhibitionId = crypto.randomUUID();
-  const modelId = crypto.randomUUID();
-  const now = FieldValue.serverTimestamp();
+  const tenantRef = db.collection('tenants').doc(OUTREACH_TENANT_ID);
+  const snap = await tenantRef.get();
 
-  await db.collection("tenants").doc(tenantId).collection("exhibitions").doc(exhibitionId).set({
-    id: exhibitionId,
-    tenantId: tenantId,
-    title: `Outreach: ${title}`,
-    isPublished: true, // IMPORTANT: Must be public for the embed link to work
-    glbUrl: glbUrl,
-    environment: "studio",
-    model: {
-      id: modelId,
-      label: title,
-      glbUrl: glbUrl,
-      scale: 1,
-      position: [0, 0, 0],
-      variants: [],
-      hotspots: []
-    },
-    createdAt: now,
-    updatedAt: now,
-  });
+  if (!snap.exists) {
+    warn(`Tenant '${OUTREACH_TENANT_ID}' existiert nicht in Firestore – wird angelegt...`);
+    await tenantRef.set({
+      id: OUTREACH_TENANT_ID,
+      name: 'Outreach Crawler',
+      plan: 'free',
+      generationCredits: 0,
+      totalGenerationsUsed: 0,
+    });
+    ok(`Tenant '${OUTREACH_TENANT_ID}' wurde angelegt.`);
+  } else {
+    info(`Tenant '${OUTREACH_TENANT_ID}' gefunden.`);
+  }
 
-  const embedUrl = `https://3dsnap.de/embed/${exhibitionId}`;
-  console.log(`🔗 Sharebarer Embed-Link erstellt: ${embedUrl}`);
+  tenantChecked = true;
+}
+
+async function saveToDatabase(productName: string, glbUrl: string): Promise<string> {
+  console.log('💾 Speichere in Firebase (Firestore)...');
+
+  // shopifyI4: Tenant-Guard
+  await ensureTenantExists();
+
+  const db = getAdminDb();
+  const exhibitionId = randomUUID();
+  const modelId = randomUUID();
+
+  await db
+    .collection('tenants')
+    .doc(OUTREACH_TENANT_ID)
+    .collection('exhibitions')
+    .doc(exhibitionId)
+    .set({
+      id: exhibitionId,
+      tenantId: OUTREACH_TENANT_ID,
+      title: `Outreach: ${productName}`,
+      isPublished: OUTREACH_PUBLISH_DEFAULT,
+      glbUrl,
+      environment: 'studio',
+      // shopifyI2: Schema-Defaults aus ExhibitConfigSchema
+      stageType: 'none',
+      envRotation: 0,
+      entryAnimation: 'none',
+      ambientIntensity: 0.8,
+      contactShadows: true,
+      autoRotate: false,
+      cameraPosition: [0, 1.5, 4],
+      bgColor: '#111111',
+      model: {
+        id: modelId,
+        label: productName,
+        glbUrl,
+        scale: 1,
+        position: ZERO_VEC3,
+        variants: [],
+        hotspots: [],
+      },
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+  const embedUrl = `${EMBED_BASE_URL}/${exhibitionId}`;
+  ok(`🔗 Sharebarer Embed-Link erstellt: ${embedUrl}`);
   return embedUrl;
 }
 
-async function generateEmail(shopName: string, productName: string, embedUrl: string) {
-  console.log(`📧 Generiere personalisierte Kaltakquise-Mail via OpenRouter (minimax/minimax-m2.5)...`);
-  
-  const systemPrompt = `Du bist der Lead Growth Hacker für 3D-Snap. Schreibe eine Kaltakquise-Email an den Shopbetreiber von ${shopName}.
-Kontext: Du hast dir sein Bestseller-Produkt '${productName}' angesehen. Es hat aktuell kein 3D-Modell, was bei Mobile-Usern bis zu 14% Conversion kostet.
-Der Pitch: Anstatt ihm etwas zu verkaufen, hast du sein Produktbild genommen und es in 30 Sekunden durch unsere 3D-Snap KI gejagt.
-Call to Action: Er soll sich das fertige, interaktive 3D-Modell seines Produkts hier ansehen: ${embedUrl}.
-Tonfall: Kurz, freundlich aber direkt, professionell, kein Marketing-Bullshit. Maximal 4 Sätze. Zeige, don't tell. Nutze Markdown. Beende die Mail freundlich mit einem Satz wie "Wenn ihr euer restliches Inventar auch so mühelos in 3D verwandeln wollt, dann antworte uns gerne."`;
+async function generateEmail(shopName: string, productName: string, embedUrl: string): Promise<string> {
+  console.log(`📧 Generiere personalisierte Kaltakquise-Mail via OpenRouter (${OPENROUTER_MODEL})...`);
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "minimax/minimax-m2.5",
-      messages: [{ role: "system", content: systemPrompt }]
-    })
-  });
-
-  if (!response.ok) {
-    const errorData = await response.text();
-    throw new Error(`OpenRouter API failed: ${errorData}`);
+  if (!OPENROUTER_API_KEY) {
+    throw new Error('OPENROUTER_API_KEY fehlt in der .env.local!');
   }
 
-  const data = await response.json();
-  const emailText = data.choices[0].message.content;
-  return emailText;
+  const systemPrompt = [
+    `Du bist der Lead Growth Hacker für 3D-Snap. Schreibe eine Kaltakquise-Email an den Shopbetreiber von ${shopName}.`,
+    `Kontext: Du hast dir sein Bestseller-Produkt '${productName}' angesehen. Es hat aktuell kein 3D-Modell, was euch mobile Conversions kostet.`,
+    `Der Pitch: Anstatt ihm etwas zu verkaufen, hast du sein Produktbild genommen und es in 30 Sekunden durch unsere 3D-Snap KI gejagt.`,
+    `Call to Action: Er soll sich das fertige, interaktive 3D-Modell seines Produkts hier ansehen: ${embedUrl}. Wenn er sein restliches Inventar auch so mühelos in 3D verwandeln will, soll er antworten.`,
+    `Tonfall: Extrem kurz, selbstbewusst, kein Marketing-Bullshit. Maximal 4 Sätze. Zeige, don't tell. Nutze Markdown.`,
+  ].join('\n');
+
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': APP_URL,
+      'X-Title': '3D-Snap Outreach Crawler',
+    },
+    body: JSON.stringify({
+      model: OPENROUTER_MODEL,
+      temperature: 0.7,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: 'Schreibe die Email jetzt.' },
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`OpenRouter API fehlgeschlagen (HTTP ${res.status}): ${errorText}`);
+  }
+
+  const json = await res.json();
+  const emailText: string | undefined = json?.choices?.[0]?.message?.content;
+  if (!emailText || !emailText.trim()) {
+    throw new Error('OpenRouter: Keine Email im Response gefunden (choices[0].message.content).');
+  }
+
+  return emailText.trim();
 }
 
-async function main() {
-  try {
-    const fileContent = fs.readFileSync(TARGET_FILE, 'utf-8');
-    const urls = fileContent.split('\\n').map(l => l.trim()).filter(l => l.startsWith('http'));
-    
-    if (urls.length === 0) {
-      console.error("❌ Keine gültigen URLs in der Datei gefunden.");
+/** ---------------- Output & Orchestrierung ---------------- */
+
+type CsvRow = {
+  shop_name: string;
+  product_name: string;
+  url: string;
+  embed_link: string;
+  status: string;
+  error: string;
+};
+
+function csvEscape(value: string): string {
+  const v = value ?? '';
+  const needsQuotes = /[",\n\r]/.test(v);
+  const escaped = v.replace(/"/g, '""');
+  return needsQuotes ? `"${escaped}"` : escaped;
+}
+
+function formatError(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  return String(e);
+}
+
+async function readUrlsFromFile(filePath: string): Promise<string[]> {
+  const raw = await fs.promises.readFile(filePath, 'utf-8');
+
+  const lines = raw
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0)
+    .filter((l) => !l.startsWith('#'));
+
+  return lines.filter((l) => isProbablyHttpUrl(l));
+}
+
+async function main(): Promise<void> {
+  const opts = parseCli(process.argv.slice(2));
+
+  if (!opts.dryRun && !OPENROUTER_API_KEY) {
+    err('OPENROUTER_API_KEY fehlt in der .env.local!');
+    process.exit(1);
+  }
+
+  const dryRunLabel = opts.dryRun
+    ? '🧪 Dry-Run aktiv (keine Meshy/Firebase/OpenRouter-Aufrufe)'
+    : 'Live-Modus aktiv';
+  info(dryRunLabel);
+
+  const urls: string[] = [];
+  const input = opts.input;
+
+  if (isSingleUrlArg(input)) {
+    urls.push(input.trim());
+    info('Einzel-URL-Modus: 1 URL wird verarbeitet.');
+  } else {
+    if (!fs.existsSync(input) || !fs.statSync(input).isFile()) {
+      err(`Datei nicht gefunden: ${input}`);
       process.exit(1);
     }
 
-    // Harter Cap bei 10 URLs für die erste Welle
-    const cappedUrls = urls.slice(0, 10);
-    console.log(`\\n📋 Gefundene URLs: ${urls.length}. Führe Skript für die ersten ${cappedUrls.length} URLs aus...\\n`);
-
-    let markdownOutput = `# 📧 Outreach E-Mails\\n\\n`;
-
-    for (let i = 0; i < cappedUrls.length; i++) {
-      const url = cappedUrls[i];
-      console.log(`\\n========================================================`);
-      console.log(`🔄 Verarbeite URL ${i + 1}/${cappedUrls.length}: ${url}`);
-      console.log(`========================================================`);
-      
-      try {
-        const { title, imageUrl, shopName } = await scrapeShop(url);
-        const imageBuffer = await downloadImage(imageUrl);
-        const glbUrl = await generate3D(imageBuffer, title);
-        const embedUrl = await saveToDatabase(title, glbUrl);
-        const emailText = await generateEmail(shopName, title, embedUrl);
-        
-        markdownOutput += `## E-Mail an: ${shopName}\\n**URL:** ${url}\\n\\n${emailText}\\n\\n---\\n\\n`;
-      } catch (error: any) {
-        console.error(`\\n❌ ERROR bei URL ${url}: ${error.message}`);
-        markdownOutput += `## Fehler bei: ${url}\\n**Grund:** ${error.message}\\n\\n---\\n\\n`;
-      }
+    const all = await readUrlsFromFile(input);
+    if (all.length === 0) {
+      err('Keine gültigen URLs in der Datei gefunden. (Tipp: Jede Zeile eine URL, Kommentare mit #)');
+      process.exit(1);
     }
-    
-    fs.writeFileSync('emails_to_send.md', markdownOutput);
-    console.log(`\\n🚀 Batch-Outreach Workflow erfolgreich beendet!`);
-    console.log(`📁 Alle E-Mails wurden in 'emails_to_send.md' gespeichert.`);
-  } catch (error: any) {
-    console.error(`\\n❌ CRITICAL ERROR: ${error.message}`);
-    process.exit(1);
+
+    const capped = all.slice(0, opts.limit);
+    urls.push(...capped);
+
+    info(`Batch-Modus: ${all.length} URLs gefunden → verarbeite ${urls.length} (limit=${opts.limit}).`);
   }
+
+  let markdownOut = `# 📧 Outreach E-Mails\n\n`;
+  const rows: CsvRow[] = [];
+
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i];
+
+    let shopName = '';
+    let productName = '';
+    let embedLink = '';
+
+    console.log(`\n${ANSI.bold}========================================================${ANSI.reset}`);
+    console.log(`${ANSI.bold}🔄 Verarbeite URL ${i + 1}/${urls.length}:${ANSI.reset} ${url}`);
+    console.log(`${ANSI.bold}========================================================${ANSI.reset}`);
+
+    try {
+      if (opts.dryRun) {
+        const scraped = await scrapeShop(url);
+        shopName = scraped.shopName;
+        productName = scraped.productName;
+        await downloadImage(scraped.imageUrl);
+
+        const placeholderEmbed = `${EMBED_BASE_URL}/DRY_RUN`;
+        embedLink = placeholderEmbed;
+
+        markdownOut += [
+          `## ${shopName}`,
+          `**URL:** ${url}`,
+          ``,
+          `*(Dry-Run)* Scraping + Bild-Download erfolgreich.`,
+          ``,
+          `**Embed:** ${placeholderEmbed} *(Platzhalter – kein Firestore Eintrag)*`,
+          ``,
+          `---`,
+          ``,
+        ].join('\n');
+
+        rows.push({
+          shop_name: shopName,
+          product_name: productName,
+          url,
+          embed_link: placeholderEmbed,
+          status: 'DRY_RUN_OK',
+          error: '',
+        });
+
+        ok(`Dry-Run fertig: ${shopName}`);
+        continue;
+      }
+
+      // Live-Mode
+      const scraped = await scrapeShop(url);
+      shopName = scraped.shopName;
+      productName = scraped.productName;
+      const imageBuffer = await downloadImage(scraped.imageUrl);
+      const glbUrl = await generate3D(imageBuffer, productName);
+      const embedUrl = await saveToDatabase(productName, glbUrl);
+      embedLink = embedUrl;
+      const emailText = await generateEmail(shopName, productName, embedUrl);
+
+      markdownOut += [
+        `## E-Mail an: ${shopName}`,
+        `**URL:** ${url}`,
+        ``,
+        `${emailText}`,
+        ``,
+        `**Embed:** ${embedUrl}`,
+        ``,
+        `---`,
+        ``,
+      ].join('\n');
+
+      rows.push({
+        shop_name: shopName,
+        product_name: productName,
+        url,
+        embed_link: embedUrl,
+        status: 'OK',
+        error: '',
+      });
+
+      ok(`Fertig: ${shopName}`);
+    } catch (e) {
+      const message = formatError(e);
+      err(`Fehler bei URL ${url}: ${message}`);
+
+      markdownOut += [
+        `## Fehler`,
+        `**URL:** ${url}`,
+        ``,
+        `**Grund:** ${message}`,
+        ``,
+        `---`,
+        ``,
+      ].join('\n');
+
+      rows.push({
+        shop_name: shopName,
+        product_name: productName,
+        url,
+        embed_link: embedLink,
+        status: opts.dryRun ? 'DRY_RUN_FEHLER' : 'FEHLER',
+        error: message,
+      });
+
+      continue;
+    }
+  }
+
+  await fs.promises.writeFile('emails_to_send.md', markdownOut, 'utf-8');
+  ok(`📁 E-Mails/Ergebnisse gespeichert: emails_to_send.md`);
+
+  const header = ['shop_name', 'product_name', 'url', 'embed_link', 'status', 'error'];
+  const csvLines = [
+    header.join(','),
+    ...rows.map((r) =>
+      [r.shop_name, r.product_name, r.url, r.embed_link, r.status, r.error].map(csvEscape).join(',')
+    ),
+  ];
+
+  await fs.promises.writeFile('outreach_results.csv', csvLines.join('\n'), 'utf-8');
+  ok(`📁 CSV gespeichert: outreach_results.csv`);
+
+  console.log(`\n🚀 Workflow beendet.`);
 }
 
-main();
+main().catch((e) => {
+  err(`KRITISCHER FEHLER: ${formatError(e)}`);
+  process.exit(1);
+});
