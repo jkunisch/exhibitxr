@@ -5,8 +5,11 @@ import { useCallback, useEffect, useState } from "react";
 import { Camera, ExternalLink, Settings, SlidersHorizontal, Sparkles, X, Download, Loader2 } from "lucide-react";
 import ViewerCanvas from "@/components/3d/ViewerCanvas";
 import ModelViewer from "@/components/3d/ModelViewer";
+import { ScreenshotCapture } from "@/components/embed/ScreenshotCapture";
+import { ModelInfoOverlay } from "@/components/3d/ModelInfoOverlay";
 import EditorForm from "@/components/editor/EditorForm";
 import ControlsLegend from "@/components/ui/ControlsLegend";
+import FloatingCanvasToolbar from "@/components/ui/FloatingCanvasToolbar";
 import dynamic from "next/dynamic";
 const ModelGeneratorPanel = dynamic(
     () => import("@/components/ui/ModelGeneratorPanel").then((mod) => mod.ModelGeneratorPanel),
@@ -119,6 +122,10 @@ export default function EditorShell({
     const setPickedMeshName = useEditorStore((s) => s.setPickedMeshName);
     const saveStatus = useEditorStore((s) => s.saveStatus);
     const saveError = useEditorStore((s) => s.saveError);
+    const undo = useEditorStore((s) => s.undo);
+    const redo = useEditorStore((s) => s.redo);
+    const canUndo = useEditorStore((s) => s.canUndo());
+    const canRedo = useEditorStore((s) => s.canRedo());
 
     useEffect(() => {
         const mediaQuery = window.matchMedia("(min-width: 768px)");
@@ -149,15 +156,40 @@ export default function EditorShell({
         setPickedMeshName(null);
     }, [setSelectedModel, setActiveHotspot, setPickedMeshName]);
 
-    // ESC: deselect model + close hotspot focus
+    // Global keyboard shortcuts (ESC, Undo, Redo)
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key !== "Escape") return;
-            clearViewerSelection();
+            // Ignore keystrokes if focused inside an input/textarea
+            if (
+                ["INPUT", "TEXTAREA"].includes((event.target as HTMLElement)?.tagName) ||
+                (event.target as HTMLElement)?.isContentEditable
+            ) {
+                return;
+            }
+
+            if (event.key === "Escape") {
+                clearViewerSelection();
+                return;
+            }
+
+            // Undo: Ctrl+Z (or Cmd+Z on Mac)
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z" && !event.shiftKey) {
+                event.preventDefault();
+                undo();
+            }
+
+            // Redo: Ctrl+Y, or Ctrl+Shift+Z (or Cmd+Shift+Z on Mac)
+            if (
+                (event.ctrlKey || event.metaKey) &&
+                (event.key.toLowerCase() === "y" || (event.key.toLowerCase() === "z" && event.shiftKey))
+            ) {
+                event.preventDefault();
+                redo();
+            }
         };
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [clearViewerSelection]);
+    }, [clearViewerSelection, undo, redo]);
 
     const handleConfigChange = useCallback(
         (partial: EditorConfigUpdate) => {
@@ -311,7 +343,7 @@ export default function EditorShell({
 
             <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
                 <div className="grid h-full grid-cols-1 grid-rows-1 md:grid-rows-[50vh_minmax(0,1fr)] lg:grid-cols-[400px_minmax(0,1fr)] lg:grid-rows-1">
-                    <div className="relative min-h-0 md:row-start-1 md:row-end-2 lg:col-start-2 lg:row-start-1">
+                    <div data-editor-viewer className="relative min-h-0 md:row-start-1 md:row-end-2 lg:col-start-2 lg:row-start-1">
                         <ViewerCanvas
                             environment={effectiveConfig.environment}
                             envRotation={effectiveConfig.envRotation}
@@ -338,6 +370,8 @@ export default function EditorShell({
                                 onTransformEnd={handleTransformEnd}
                                 onLoaded={() => setBoundsFitKey((k) => k + 1)}
                             />
+                            <ScreenshotCapture title={effectiveConfig.title || "3D-Snap"} />
+                            <ModelInfoOverlay />
                         </ViewerCanvas>
 
                         {effectiveConfig.model.variants.length > 0 && (
@@ -382,6 +416,19 @@ export default function EditorShell({
                         {/* ── Controls Legend Overlay ─────────────── */}
                         <ControlsLegend
                             isModelSelected={selectedModelId === effectiveConfig.model.id}
+                        />
+
+                        {/* ── Floating Quick-Action Toolbar ────────── */}
+                        <FloatingCanvasToolbar
+                            autoRotate={effectiveConfig.autoRotate}
+                            onToggleAutoRotate={() => handleConfigChange({ autoRotate: !effectiveConfig.autoRotate })}
+                            isModelSelected={selectedModelId === effectiveConfig.model.id}
+                            onToggleGizmo={handleModelSelect}
+                            onResetCamera={() => setBoundsFitKey((k) => k + 1)}
+                            canUndo={canUndo}
+                            canRedo={canRedo}
+                            onUndo={undo}
+                            onRedo={redo}
                         />
                     </div>
 

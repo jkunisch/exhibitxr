@@ -7,6 +7,24 @@ import {
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
+// ── Config History (external to avoid circular state updates) ────────────────
+const MAX_HISTORY = 50;
+let configHistory: ExhibitConfig[] = [];
+let historyIndex = -1;
+
+function pushToHistory(config: ExhibitConfig): void {
+    // Trim future entries when branching from an earlier point
+    configHistory = configHistory.slice(0, historyIndex + 1);
+    configHistory.push(structuredClone(config));
+    if (configHistory.length > MAX_HISTORY) configHistory.shift();
+    historyIndex = configHistory.length - 1;
+}
+
+function resetHistory(): void {
+    configHistory = [];
+    historyIndex = -1;
+}
+
 interface EditorState {
     /** The current exhibit config from Firestore. */
     config: ExhibitConfig | null;
@@ -24,6 +42,8 @@ interface EditorState {
     saveStatus: SaveStatus;
     /** Error message when saveStatus is "error". */
     saveError: string | null;
+    /** Counter to trigger entry-animation replay (increment to replay). */
+    animationReplayKey: number;
 
     // ─── Actions ────────────────────────────────────────────────────────────────
 
@@ -43,6 +63,16 @@ interface EditorState {
     setAmbientIntensity: (value: number) => void;
     /** Update the save status indicator. */
     setSaveStatus: (status: SaveStatus, error?: string) => void;
+    /** Trigger a replay of the entry animation. */
+    replayAnimation: () => void;
+    /** Undo the last config change. */
+    undo: () => void;
+    /** Redo a previously undone change. */
+    redo: () => void;
+    /** Whether undo is available. */
+    canUndo: () => boolean;
+    /** Whether redo is available. */
+    canRedo: () => boolean;
     /** Reset editor state (called on unmount). */
     reset: () => void;
 }
@@ -54,6 +84,7 @@ const initialState = {
     selectedModelId: null,
     pickedMeshName: null,
     ambientIntensity: DEFAULT_AMBIENT_INTENSITY,
+    animationReplayKey: 0,
     saveStatus: "idle" as SaveStatus,
     saveError: null,
 };
@@ -63,7 +94,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
     setConfig: (config, ambientIntensity) => {
         const current = get().config;
-        // Prefer config.ambientIntensity if defined
         const nextAmbient =
             ambientIntensity !== undefined
                 ? sanitizeAmbientIntensity(ambientIntensity)
@@ -79,6 +109,11 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         ) {
             return;
         }
+
+        // Reset history when a new config is loaded (initial load or exhibit switch)
+        resetHistory();
+        pushToHistory(config);
+
         set({
             config,
             activeVariantId: get().activeVariantId ?? config.model.variants[0]?.id,
@@ -89,17 +124,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     updateConfig: (partial) => {
         const current = get().config;
         if (!current) return;
-        // Deep-merge `model` to prevent partial updates (e.g. { model: { glbUrl } })
-        // from wiping other model fields (position, scale, variants, hotspots).
-        set({
-            config: {
-                ...current,
-                ...partial,
-                model: partial.model
-                    ? { ...current.model, ...partial.model }
-                    : current.model,
-            },
-        });
+        const nextConfig: ExhibitConfig = {
+            ...current,
+            ...partial,
+            model: partial.model
+                ? { ...current.model, ...partial.model }
+                : current.model,
+        };
+        pushToHistory(nextConfig);
+        set({ config: nextConfig });
     },
 
     setActiveVariant: (variantId) => {
@@ -126,7 +159,27 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         set({ saveStatus: status, saveError: error ?? null });
     },
 
+    replayAnimation: () => {
+        set((state) => ({ animationReplayKey: state.animationReplayKey + 1 }));
+    },
+
+    undo: () => {
+        if (historyIndex <= 0) return;
+        historyIndex--;
+        set({ config: structuredClone(configHistory[historyIndex]) });
+    },
+
+    redo: () => {
+        if (historyIndex >= configHistory.length - 1) return;
+        historyIndex++;
+        set({ config: structuredClone(configHistory[historyIndex]) });
+    },
+
+    canUndo: () => historyIndex > 0,
+    canRedo: () => historyIndex < configHistory.length - 1,
+
     reset: () => {
+        resetHistory();
         set(initialState);
     },
 }));

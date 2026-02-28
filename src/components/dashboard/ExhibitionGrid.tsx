@@ -16,6 +16,8 @@ export interface ExhibitionClientData {
     hotspotsCount: number;
     updatedAt: number;
     isPublished: boolean;
+    /** URL of a poster/thumbnail image for this exhibition (auto-generated on 3D creation). */
+    thumbnailUrl?: string;
 }
 
 const ENV_GRADIENTS: Record<string, string> = {
@@ -59,7 +61,16 @@ const ExhibitionCard = memo(({ exhibition, tenantId }: { exhibition: ExhibitionC
         <div className="group flex flex-col bg-white/[0.04] border border-white/[0.08] hover:border-white/20 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_rgba(0,170,255,0.08)] h-full">
             <div className={`relative h-44 w-full bg-gradient-to-br ${gradient} flex items-center justify-center overflow-hidden`}>
                 <div className="absolute inset-0 bg-[#0a0a0f]/20 mix-blend-overlay" />
-                <EnvIcon className="w-12 h-12 text-white/30 relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:text-white/50" strokeWidth={1.5} />
+                {exhibition.thumbnailUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                        src={exhibition.thumbnailUrl}
+                        alt={exhibition.title}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                    />
+                ) : (
+                    <EnvIcon className="w-12 h-12 text-white/30 relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:text-white/50" strokeWidth={1.5} />
+                )}
             </div>
 
             <div className="flex flex-col flex-1 p-5">

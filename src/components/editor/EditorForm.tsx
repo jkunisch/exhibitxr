@@ -13,6 +13,7 @@ import {
 } from "@/lib/lighting";
 import type { ExhibitConfig, ExhibitModel } from "@/types/schema";
 import { useEditorStore } from "@/store/editorStore";
+import PremiumSlider from "@/components/ui/PremiumSlider";
 
 const ENVIRONMENT_PRESETS = [
     "studio",
@@ -30,17 +31,18 @@ const ENVIRONMENT_PRESETS = [
 type EnvironmentPreset = (typeof ENVIRONMENT_PRESETS)[number];
 type SectionKey = "general" | "lighting" | "model" | "variants" | "hotspots";
 
+/** Rich multi-stop CSS gradients that visually represent each HDRI environment. */
 const ENVIRONMENT_THUMBNAILS: Record<EnvironmentPreset, string> = {
-    studio: "from-slate-100/70 via-slate-300/35 to-slate-700/40",
-    city: "from-sky-300/60 via-slate-400/25 to-slate-900/55",
-    sunset: "from-amber-200/70 via-orange-400/45 to-rose-600/60",
-    dawn: "from-rose-200/65 via-orange-200/40 to-sky-400/45",
-    night: "from-indigo-300/45 via-slate-900/70 to-black/90",
-    warehouse: "from-zinc-200/55 via-zinc-500/40 to-zinc-900/65",
-    forest: "from-emerald-200/60 via-emerald-500/35 to-emerald-900/70",
-    apartment: "from-stone-100/65 via-stone-300/30 to-stone-600/50",
-    park: "from-lime-200/60 via-green-400/40 to-emerald-700/65",
-    lobby: "from-amber-100/60 via-amber-300/40 to-slate-700/55",
+    studio: "radial-gradient(ellipse at 50% 30%, #e8e8e8 0%, #b0b0b0 40%, #6b6b6b 80%, #3a3a3a 100%)",
+    city: "linear-gradient(135deg, #1a2a4a 0%, #2d4a7a 30%, #4a7ab0 55%, #e8a040 85%, #f0c060 100%)",
+    sunset: "linear-gradient(to bottom, #2a1a3a 0%, #8a3060 25%, #e86040 50%, #f0a040 75%, #f8d080 100%)",
+    dawn: "linear-gradient(to bottom, #2a2a5a 0%, #6a4a8a 25%, #c07090 50%, #e8a890 75%, #f0d0b0 100%)",
+    night: "radial-gradient(ellipse at 40% 40%, #1a1a3a 0%, #0a0a20 50%, #050510 100%)",
+    warehouse: "radial-gradient(ellipse at 50% 20%, #c8a060 0%, #8a7050 35%, #4a3a30 65%, #2a2020 100%)",
+    forest: "radial-gradient(ellipse at 50% 60%, #90c060 0%, #508040 30%, #2a5030 60%, #1a3020 100%)",
+    apartment: "radial-gradient(ellipse at 70% 30%, #f0e0c0 0%, #c0a880 30%, #806850 60%, #4a3a30 100%)",
+    park: "linear-gradient(to bottom, #60a0e0 0%, #80c0f0 30%, #a0d8a0 60%, #60a050 80%, #408030 100%)",
+    lobby: "radial-gradient(ellipse at 50% 40%, #f0d8a0 0%, #c0a060 30%, #806040 60%, #3a2a20 100%)",
 };
 
 interface MaterialPreset {
@@ -449,16 +451,27 @@ export default function EditorForm({
                     <div className="border-t border-white/10 pt-4">
                         <FieldLabel>Start-Animation</FieldLabel>
                         <FieldHint>Animation beim Laden des 3D-Modells.</FieldHint>
-                        <select
-                            value={config.entryAnimation ?? "none"}
-                            onChange={(e) => onChange({ entryAnimation: e.target.value as ExhibitConfig["entryAnimation"] })}
-                            className="w-full appearance-none rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30"
-                        >
-                            <option value="none">Keine</option>
-                            <option value="float">Sanftes Schweben</option>
-                            <option value="drop">Drop-In</option>
-                            <option value="spin-in">Spin</option>
-                        </select>
+                        <div className="flex items-center gap-2">
+                            <select
+                                value={config.entryAnimation ?? "none"}
+                                onChange={(e) => onChange({ entryAnimation: e.target.value as ExhibitConfig["entryAnimation"] })}
+                                className="flex-1 appearance-none rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30"
+                            >
+                                <option value="none">Keine</option>
+                                <option value="float">Sanftes Schweben</option>
+                                <option value="drop">Drop-In</option>
+                                <option value="spin-in">Spin</option>
+                            </select>
+                            <button
+                                type="button"
+                                onClick={() => useEditorStore.getState().replayAnimation()}
+                                disabled={!config.entryAnimation || config.entryAnimation === "none"}
+                                title="Animation abspielen"
+                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-slate-950/70 text-white/70 transition hover:border-cyan-500/40 hover:text-cyan-300 disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                            >
+                                ▶
+                            </button>
+                        </div>
                     </div>
 
                     <div className="border-t border-white/10 pt-4">
@@ -480,7 +493,8 @@ export default function EditorForm({
                                             }`}
                                     >
                                         <div
-                                            className={`h-10 rounded-lg bg-gradient-to-br ${ENVIRONMENT_THUMBNAILS[preset]}`}
+                                            className="h-10 rounded-lg"
+                                            style={{ background: ENVIRONMENT_THUMBNAILS[preset] }}
                                         />
                                         <p
                                             className={`mt-1.5 text-xs font-medium capitalize ${isActive ? "text-cyan-200" : "text-white/80 group-hover:text-white"
@@ -507,16 +521,12 @@ export default function EditorForm({
                             <FieldLabel>Umgebungslicht</FieldLabel>
                             <span className="text-xs font-semibold text-cyan-200">{ambientLabel}</span>
                         </div>
-                        <input
-                            type="range"
+                        <PremiumSlider
+                            value={ambientIntensity}
+                            onChange={(v) => onChange({ ambientIntensity: v })}
                             min={AMBIENT_INTENSITY_MIN}
                             max={AMBIENT_INTENSITY_MAX}
                             step={AMBIENT_INTENSITY_STEP}
-                            value={ambientIntensity}
-                            onChange={(e) =>
-                                onChange({ ambientIntensity: parseFloat(e.target.value) || 0 })
-                            }
-                            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/15 accent-cyan-400"
                         />
                         <div className="mt-1 flex items-center justify-between text-[11px] text-white/45">
                             <span>{AMBIENT_INTENSITY_MIN}</span>
@@ -531,16 +541,13 @@ export default function EditorForm({
                                 {Math.round(((config.envRotation || 0) * 180) / Math.PI)}°
                             </span>
                         </div>
-                        <input
-                            type="range"
+                        <PremiumSlider
+                            value={config.envRotation || 0}
+                            onChange={(v) => onChange({ envRotation: v })}
                             min={0}
                             max={Math.PI * 2}
                             step={0.05}
-                            value={config.envRotation || 0}
-                            onChange={(e) =>
-                                onChange({ envRotation: parseFloat(e.target.value) || 0 })
-                            }
-                            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/15 accent-cyan-400"
+                            formatValue={(v) => `${Math.round((v * 180) / Math.PI)}°`}
                         />
                         <FieldHint>Drehe die Lichtquelle, um Spiegelungen perfekt zu setzen.</FieldHint>
                     </div>
@@ -548,7 +555,31 @@ export default function EditorForm({
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] border-t border-white/10 pt-4 mt-4">
                         <div>
                             <FieldLabel>Hintergrundfarbe</FieldLabel>
-                            <FieldHint>Hex-Farbcode für den Szenenhintergrund.</FieldHint>
+                            <FieldHint>Wähle einen Preset oder gib einen Hex-Farbcode ein.</FieldHint>
+                            <div className="my-2 flex flex-wrap gap-1.5">
+                                {[
+                                    { hex: "#000000", label: "OLED Black" },
+                                    { hex: "#0A0E1A", label: "Deep Navy" },
+                                    { hex: "#111111", label: "Studio" },
+                                    { hex: "#1A1A1A", label: "Anthrazit" },
+                                    { hex: "#2A2A2A", label: "Dark Grey" },
+                                    { hex: "#3A3A3A", label: "Medium Grey" },
+                                    { hex: "#F0F0F0", label: "Off-White" },
+                                    { hex: "#FFFFFF", label: "Pure White" },
+                                ].map((swatch) => (
+                                    <button
+                                        key={swatch.hex}
+                                        type="button"
+                                        title={`${swatch.label} (${swatch.hex})`}
+                                        onClick={() => onChange({ bgColor: swatch.hex })}
+                                        className={`h-7 w-7 rounded-full border-2 transition-all duration-150 hover:scale-110 active:scale-95 ${config.bgColor.toUpperCase() === swatch.hex.toUpperCase()
+                                            ? "border-cyan-400 ring-2 ring-cyan-400/40 scale-110"
+                                            : "border-white/20 hover:border-white/50"
+                                            }`}
+                                        style={{ backgroundColor: swatch.hex }}
+                                    />
+                                ))}
+                            </div>
                             <TextInput value={config.bgColor} onChange={(v) => onChange({ bgColor: v })} />
                         </div>
                         <div className="sm:pt-6">

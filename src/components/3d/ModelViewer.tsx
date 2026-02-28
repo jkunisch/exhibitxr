@@ -150,6 +150,7 @@ function ModelViewerInner({
 }: ModelViewerProps) {
     const groupRef = useRef<THREE.Group>(null);
     const setPickedMeshName = useEditorStore((s) => s.setPickedMeshName);
+    const animationReplayKey = useEditorStore((s) => s.animationReplayKey);
     // Fire onLoaded once per GLB URL when we actually have a cloned scene
     const notifiedLoadedForUrl = useRef<string | null>(null);
 
@@ -357,22 +358,43 @@ function ModelViewerInner({
     }, [config.position, config.scale, entryAnimation]);
 
     // Trigger initial animations if model is cloned/ready.
+    // Also re-triggers when animationReplayKey changes (live preview).
     useEffect(() => {
         if (!clonedScene) return;
 
         if (entryAnimation === "drop") {
+            // Reset to start position first, then animate
             api.start({
-                position: [config.position[0], config.position[1], config.position[2]],
+                position: [config.position[0], config.position[1] + 5, config.position[2]],
                 scale: config.scale,
                 rotation: [0, 0, 0],
-                config: { mass: 2, tension: 120, friction: 14 },
+                immediate: true,
+            });
+            // Then animate to final position
+            requestAnimationFrame(() => {
+                api.start({
+                    position: [config.position[0], config.position[1], config.position[2]],
+                    scale: config.scale,
+                    rotation: [0, 0, 0],
+                    config: { mass: 2, tension: 120, friction: 14 },
+                });
             });
         } else if (entryAnimation === "spin-in") {
+            // Reset to start state first
             api.start({
                 position: [config.position[0], config.position[1], config.position[2]],
-                scale: config.scale,
-                rotation: [0, 0, 0],
-                config: { mass: 1, tension: 100, friction: 20 },
+                scale: 0,
+                rotation: [0, Math.PI * 2, 0],
+                immediate: true,
+            });
+            // Then animate to final state
+            requestAnimationFrame(() => {
+                api.start({
+                    position: [config.position[0], config.position[1], config.position[2]],
+                    scale: config.scale,
+                    rotation: [0, 0, 0],
+                    config: { mass: 1, tension: 100, friction: 20 },
+                });
             });
         } else {
             // No animation — jump to target immediately
@@ -383,6 +405,7 @@ function ModelViewerInner({
                 immediate: true,
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         entryAnimation,
         config.position[0],
@@ -391,6 +414,7 @@ function ModelViewerInner({
         config.scale,
         api,
         clonedScene,
+        animationReplayKey,
     ]);
 
     // Float Animation
