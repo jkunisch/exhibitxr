@@ -85,18 +85,29 @@ async function loadEmbedData(exhibitionId: string): Promise<EmbedLoadResult> {
 
   const adminDb = getAdminDb();
 
-  let snapshot = await adminDb
-    .collectionGroup("exhibitions")
-    .where("id", "==", exhibitionId)
-    .limit(1)
-    .get();
+  let snapshot = await (async () => {
+    try {
+      return await adminDb
+        .collectionGroup("exhibitions")
+        .where("id", "==", exhibitionId)
+        .limit(1)
+        .get();
+    } catch {
+      // Index may still be building — fall through to documentId() lookup
+      return null;
+    }
+  })();
 
-  if (snapshot.empty) {
-    snapshot = await adminDb
-      .collectionGroup("exhibitions")
-      .where(FieldPath.documentId(), "==", exhibitionId)
-      .limit(1)
-      .get();
+  if (!snapshot || snapshot.empty) {
+    try {
+      snapshot = await adminDb
+        .collectionGroup("exhibitions")
+        .where(FieldPath.documentId(), "==", exhibitionId)
+        .limit(1)
+        .get();
+    } catch {
+      return null;
+    }
   }
 
   if (snapshot.empty) {
