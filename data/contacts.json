@@ -52,7 +52,7 @@
     "productUrl": "https://www.westwing.de/",
     "productName": "Dein Möbel & Interior Online-Shop | Westwing",
     "email": "service@westwing.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-02-28T13:47:16.276Z"
   },
   {
@@ -63,7 +63,117 @@
     "productUrl": "https://www.salome-schmuck.de/",
     "productName": "Wunderschönen handgemachten Schmuck online kaufen",
     "email": "support@salome-schmuck.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-02-28T13:47:20.265Z"
+  },
+  {
+    "id": "eddba562-6a1e-4121-bff2-42a5c98941e5",
+    "shopName": "Online Shop Atelier-SR -",
+    "shopDomain": "atelier-sr.de",
+    "shopUrl": "https://atelier-sr.de",
+    "productUrl": "https://atelier-sr.de/",
+    "productName": "Online Shop Atelier-SR 2026 Online Shop Atelier-SR -",
+    "email": "kontakt@atelier-sr.de",
+    "status": "failed",
+    "researchedAt": "2026-03-02T10:12:27.270Z"
+  },
+  {
+    "id": "bc70864c-efe2-4701-ab7b-a1bcfc84dbfe",
+    "shopName": "KathyJewels",
+    "shopDomain": "kathy-jewels.de",
+    "shopUrl": "https://kathy-jewels.de",
+    "productUrl": "https://kathy-jewels.de/",
+    "productName": "Kathy Jewels - Handgemachter Schmuck aus Deutschland",
+    "email": "8813info@kathy-jewels.com",
+    "status": "failed",
+    "researchedAt": "2026-03-02T10:12:58.702Z"
+  },
+  {
+    "id": "e828d1a7-0b1a-4785-af46-974d40527ddd",
+    "shopName": "Selfmade Jewelry",
+    "shopDomain": "selfmadejewelry.com",
+    "shopUrl": "https://selfmadejewelry.com",
+    "productUrl": "https://selfmadejewelry.com/",
+    "productName": "Selfmade Jewelry - Handgemachter Schmuck mit Liebe zum Detail",
+    "email": "ina@selfmadejewelry.com",
+    "status": "failed",
+    "researchedAt": "2026-03-02T10:13:07.149Z"
+  },
+  {
+    "id": "fbc07cf3-6d48-44c1-a3bc-28fcde4e43af",
+    "shopName": "SchmuckFeeGennev",
+    "shopDomain": "schmuckfeegennev.de",
+    "shopUrl": "https://schmuckfeegennev.de",
+    "productUrl": "https://schmuckfeegennev.de/",
+    "productName": "Schmuckfee Gennev - Onlineshop für individuellen Modeschmuck",
+    "email": "schmuckfee@gennev.de",
+    "status": "researched",
+    "researchedAt": "2026-03-02T10:13:13.066Z"
+  },
+  {
+    "id": "0eb04f6f-2c41-4f2f-a791-c0de31e49616",
+    "shopName": "Schmuckatelier Nauderer",
+    "shopDomain": "schmuckatelier-nauderer.de",
+    "shopUrl": "https://schmuckatelier-nauderer.de",
+    "productUrl": "https://schmuckatelier-nauderer.de/",
+    "productName": "Schmuckatelier Nauderer: Handgemachten Schmuck entdecken",
+    "email": "info@schmuckatelier-nauderer.de",
+    "status": "researched",
+    "researchedAt": "2026-03-02T10:13:22.252Z"
+  },
+  {
+    "id": "009edfc5-1830-404a-af21-e77ebcede0bd",
+    "shopName": "SCHÖNER WOHNEN Shop",
+    "shopDomain": "shop.schoener-wohnen.de",
+    "shopUrl": "https://shop.schoener-wohnen.de",
+    "productUrl": "https://shop.schoener-wohnen.de/leuchten/",
+    "productName": "Stilvolle Designer-Leuchten | SCHÖNER WOHNEN-Shop",
+    "email": "service@shop.schoener-wohnen.de",
+    "status": "researched",
+    "researchedAt": "2026-03-02T10:13:26.992Z"
+  },
+  {
+    "id": "7f9848cb-a0e8-4943-9afa-134860bae241",
+    "shopName": "www.ambientedirect.com",
+    "shopDomain": "www.ambientedirect.com",
+    "shopUrl": "https://www.ambientedirect.com",
+    "productUrl": "https://www.ambientedirect.com/kategorien/leuchten",
+    "productName": "Designer Lampen & Leuchten: Top Labels | AmbienteDirect",
+    "email": "info@ambientedirect.com",
+    "status": "researched",
+    "researchedAt": "2026-03-02T10:13:32.364Z"
+  },
+  {
+    "id": "c5c6e307-56a5-450a-90e1-adcd2995846c",
+    "shopName": "BUTLERS",
+    "shopDomain": "www.butlers.com",
+    "shopUrl": "https://www.butlers.com",
+    "productUrl": "https://www.butlers.com/",
+    "productName": "BUTLERS Online Shop | Stilvolle Deko & Wohnaccessoires ✨",
+    "email": "impressum@home24.de",
+    "status": "researched",
+    "researchedAt": "2026-03-02T10:14:00.925Z"
+  },
+  {
+    "id": "967b6e64-ecac-4e17-a926-2b85ebe1f096",
+    "shopName": "Lüster & Laster",
+    "shopDomain": "luester-laster.de",
+    "shopUrl": "https://luester-laster.de",
+    "productUrl": "https://luester-laster.de/",
+    "productName": "Deko online shoppen I Lüster & Laster",
+    "email": "support@luester-laster.de",
+    "status": "researched",
+    "researchedAt": "2026-03-02T10:14:10.656Z"
+  },
+  {
+    "id": "38ac8a7b-1725-4c1d-9fe4-20d5d2ce4253",
+    "shopName": "Designmöbel & Wohnaccessoires für Ihr Zuhause | Dezain",
+    "shopDomain": "www.dezain.de",
+    "shopUrl": "https://www.dezain.de",
+    "productUrl": "https://www.dezain.de/",
+    "productName": "Designmöbel & Wohnaccessoires für Ihr Zuhause | Dezain",
+    "email": "service@dezain.de",
+    "status": "researched",
+    "researchedAt": "2026-03-02T10:14:16.743Z"
   }
 ]
