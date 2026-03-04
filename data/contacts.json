@@ -107,7 +107,7 @@
     "productUrl": "https://schmuckfeegennev.de/",
     "productName": "Schmuckfee Gennev - Onlineshop für individuellen Modeschmuck",
     "email": "schmuckfee@gennev.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-02T10:13:13.066Z"
   },
   {
@@ -118,7 +118,7 @@
     "productUrl": "https://schmuckatelier-nauderer.de/",
     "productName": "Schmuckatelier Nauderer: Handgemachten Schmuck entdecken",
     "email": "info@schmuckatelier-nauderer.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-02T10:13:22.252Z"
   },
   {
@@ -129,7 +129,7 @@
     "productUrl": "https://shop.schoener-wohnen.de/leuchten/",
     "productName": "Stilvolle Designer-Leuchten | SCHÖNER WOHNEN-Shop",
     "email": "service@shop.schoener-wohnen.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-02T10:13:26.992Z"
   },
   {
@@ -140,7 +140,7 @@
     "productUrl": "https://www.ambientedirect.com/kategorien/leuchten",
     "productName": "Designer Lampen & Leuchten: Top Labels | AmbienteDirect",
     "email": "info@ambientedirect.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-02T10:13:32.364Z"
   },
   {
@@ -151,7 +151,7 @@
     "productUrl": "https://www.butlers.com/",
     "productName": "BUTLERS Online Shop | Stilvolle Deko & Wohnaccessoires ✨",
     "email": "impressum@home24.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-02T10:14:00.925Z"
   },
   {
@@ -175,5 +175,115 @@
     "email": "service@dezain.de",
     "status": "researched",
     "researchedAt": "2026-03-02T10:14:16.743Z"
+  },
+  {
+    "id": "dc0c5ff1-65e8-4908-8af3-8fce5ad53290",
+    "shopName": "Pharao24",
+    "shopDomain": "www.pharao24.de",
+    "shopUrl": "https://www.pharao24.de",
+    "productUrl": "https://www.pharao24.de/",
+    "productName": "Möbel kaufen im Onlineshop Pharao24",
+    "email": "service@pharao24.de",
+    "status": "researched",
+    "researchedAt": "2026-03-04T10:04:51.503Z"
+  },
+  {
+    "id": "53db4e9e-d801-4dd5-bdb3-72c235c4266b",
+    "shopName": "perlotte.de",
+    "shopDomain": "perlotte.de",
+    "shopUrl": "https://perlotte.de",
+    "productUrl": "https://perlotte.de/",
+    "productName": "Schmuck individuell angefertigt. Von Hand, von Herzen | Perlotte Schmuck",
+    "email": "info@perlotte.de",
+    "status": "researched",
+    "researchedAt": "2026-03-04T10:04:59.262Z"
+  },
+  {
+    "id": "0e79d758-e6b6-49fe-81de-f8482bd5e735",
+    "shopName": "EL Jewellery",
+    "shopDomain": "eljewellery.de",
+    "shopUrl": "https://eljewellery.de",
+    "productUrl": "https://eljewellery.de/",
+    "productName": "El Jewellery I Hochwertiger und handgemachter Schmuck",
+    "email": "eljewellery@gmx.de",
+    "status": "researched",
+    "researchedAt": "2026-03-04T10:05:21.174Z"
+  },
+  {
+    "id": "63e9fccc-acc5-462d-baeb-e9c3f9a95e52",
+    "shopName": "DEKOSTORE Onlineshop | Deko für Zuhause bestellen",
+    "shopDomain": "dekostore.eu",
+    "shopUrl": "https://dekostore.eu",
+    "productUrl": "https://dekostore.eu/",
+    "productName": "DEKOSTORE Onlineshop | Deko für Zuhause bestellen",
+    "email": "info@dekostore.eu",
+    "status": "researched",
+    "researchedAt": "2026-03-04T10:06:10.691Z"
+  },
+  {
+    "id": "261bfec0-5267-46b3-a6d4-518d5d87f94c",
+    "shopName": "Sneakerjagers",
+    "shopDomain": "www.sneakerjagers.com",
+    "shopUrl": "https://www.sneakerjagers.com",
+    "productUrl": "https://www.sneakerjagers.com/de",
+    "productName": "Sneakerjagers | Deine Sneaker-Suchmaschine",
+    "email": "support@sneakerjagers.com",
+    "status": "researched",
+    "researchedAt": "2026-03-04T10:07:14.842Z"
+  },
+  {
+    "id": "09bd8e89-91ef-4f08-9c0b-bf061a4e6ede",
+    "shopName": "www.deichmann.com",
+    "shopDomain": "www.deichmann.com",
+    "shopUrl": "https://www.deichmann.com",
+    "productUrl": "https://www.deichmann.com/de-de/c/schuhe-sneaker-2590",
+    "productName": "Sneaker günstig online kaufen | DEICHMANN",
+    "email": "service-sk@deichmann.com",
+    "status": "researched",
+    "researchedAt": "2026-03-04T10:07:21.042Z"
+  },
+  {
+    "id": "b585d86c-0390-4e3c-80c3-63c25f83e6f1",
+    "shopName": "LuXchange",
+    "shopDomain": "luxchange.de",
+    "shopUrl": "https://luxchange.de",
+    "productUrl": "https://luxchange.de/",
+    "productName": "Luxusuhren kaufen | LuXchange Essen – Geprüfte Top-Marken",
+    "email": "info@uhr-kraft.com",
+    "status": "researched",
+    "researchedAt": "2026-03-04T10:07:48.313Z"
+  },
+  {
+    "id": "123ee249-eebf-4b54-8475-e3371faf29a7",
+    "shopName": "Luxurychrono",
+    "shopDomain": "luxurychrono.de",
+    "shopUrl": "https://luxurychrono.de",
+    "productUrl": "https://luxurychrono.de/",
+    "productName": "Luxurychrono - Ihr Fachgeschäft für Luxusuhren aus Düsseldorf",
+    "email": "ankauf@luxurychrono.de",
+    "status": "researched",
+    "researchedAt": "2026-03-04T10:07:52.616Z"
+  },
+  {
+    "id": "c8ad5c0f-4934-4e83-a941-7433a6e6a73c",
+    "shopName": "Uhrinstinkt",
+    "shopDomain": "www.uhrinstinkt.de",
+    "shopUrl": "https://www.uhrinstinkt.de",
+    "productUrl": "https://www.uhrinstinkt.de/kontakt",
+    "productName": "Uhrinstinkt",
+    "email": "info@uhrinstinkt.de",
+    "status": "researched",
+    "researchedAt": "2026-03-04T10:07:56.256Z"
+  },
+  {
+    "id": "08a9436e-fad1-4145-8474-576805526089",
+    "shopName": "Luxury Time - SW6",
+    "shopDomain": "luxury-time.de",
+    "shopUrl": "https://luxury-time.de",
+    "productUrl": "https://luxury-time.de/ueber-uns",
+    "productName": "Über uns | Luxury Time - SW6",
+    "email": "info@luxury-time.de",
+    "status": "researched",
+    "researchedAt": "2026-03-04T10:08:02.424Z"
   }
 ]
