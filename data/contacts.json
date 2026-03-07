@@ -162,7 +162,7 @@
     "productUrl": "https://luester-laster.de/",
     "productName": "Deko online shoppen I Lüster & Laster",
     "email": "support@luester-laster.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-02T10:14:10.656Z"
   },
   {
@@ -173,7 +173,7 @@
     "productUrl": "https://www.dezain.de/",
     "productName": "Designmöbel & Wohnaccessoires für Ihr Zuhause | Dezain",
     "email": "service@dezain.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-02T10:14:16.743Z"
   },
   {
@@ -184,7 +184,7 @@
     "productUrl": "https://www.pharao24.de/",
     "productName": "Möbel kaufen im Onlineshop Pharao24",
     "email": "service@pharao24.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-04T10:04:51.503Z"
   },
   {
@@ -195,7 +195,7 @@
     "productUrl": "https://perlotte.de/",
     "productName": "Schmuck individuell angefertigt. Von Hand, von Herzen | Perlotte Schmuck",
     "email": "info@perlotte.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-04T10:04:59.262Z"
   },
   {
@@ -206,7 +206,7 @@
     "productUrl": "https://eljewellery.de/",
     "productName": "El Jewellery I Hochwertiger und handgemachter Schmuck",
     "email": "eljewellery@gmx.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-04T10:05:21.174Z"
   },
   {
@@ -285,5 +285,115 @@
     "email": "info@luxury-time.de",
     "status": "researched",
     "researchedAt": "2026-03-04T10:08:02.424Z"
+  },
+  {
+    "id": "ccd4d204-4393-453f-ad46-bb1ba8e8b4aa",
+    "shopName": "8 seasons design",
+    "shopDomain": "8-seasons-design.de",
+    "shopUrl": "https://8-seasons-design.de",
+    "productUrl": "https://8-seasons-design.de/",
+    "productName": "8 seasons design | Designerlampen für dein Zuhause & Garten",
+    "email": "info@8-seasons-design.de",
+    "status": "researched",
+    "researchedAt": "2026-03-07T09:51:59.980Z"
+  },
+  {
+    "id": "0e6f2ee6-ad49-4824-a869-2757ef015c31",
+    "shopName": "https://www.geliebtes-zuhause.de/",
+    "shopDomain": "www.geliebtes-zuhause.de",
+    "shopUrl": "https://www.geliebtes-zuhause.de",
+    "productUrl": "https://www.geliebtes-zuhause.de/",
+    "productName": "Skandinavisches Design & Wohnaccessoires |",
+    "email": "info@geliebtes-zuhause.de",
+    "status": "researched",
+    "researchedAt": "2026-03-07T09:52:30.293Z"
+  },
+  {
+    "id": "426827e5-b47b-4c3b-9541-82d2eb8dc555",
+    "shopName": "My Time – Luxury Watches",
+    "shopDomain": "mytimewatches.de",
+    "shopUrl": "https://mytimewatches.de",
+    "productUrl": "https://mytimewatches.de/kontakt/",
+    "productName": "Kontakt | MyTime Watches – Ihr Luxusuhren-Händler",
+    "email": "mytime-nrw@gmx.de",
+    "status": "researched",
+    "researchedAt": "2026-03-07T09:53:59.560Z"
+  },
+  {
+    "id": "aa08f237-a7b5-4578-8cfc-3482730d62ed",
+    "shopName": "HORANDO",
+    "shopDomain": "www.horando.de",
+    "shopUrl": "https://www.horando.de",
+    "productUrl": "https://www.horando.de/",
+    "productName": "HORANDO | Luxusuhren online kaufen • Herren & Damen Uhren",
+    "email": "service@horando.de",
+    "status": "researched",
+    "researchedAt": "2026-03-07T09:54:02.867Z"
+  },
+  {
+    "id": "4b6f94ca-b30d-4b32-a4d5-e9c21e17660e",
+    "shopName": "Uhren Primus",
+    "shopDomain": "uhren-primus.de",
+    "shopUrl": "https://uhren-primus.de",
+    "productUrl": "https://uhren-primus.de/",
+    "productName": "Uhren Primus - Luxusuhren in Hamburg",
+    "email": "info@uhren-primus.de",
+    "status": "researched",
+    "researchedAt": "2026-03-07T09:54:05.801Z"
+  },
+  {
+    "id": "c7659ecb-fdc1-4c32-b857-391bc170e709",
+    "shopName": "Aurum Watches",
+    "shopDomain": "www.aurum-watches.de",
+    "shopUrl": "https://www.aurum-watches.de",
+    "productUrl": "https://www.aurum-watches.de/",
+    "productName": "Aurum Watches – Luxusuhren online kaufen & verkaufen",
+    "email": "info@aurum-watches.de",
+    "status": "researched",
+    "researchedAt": "2026-03-07T09:54:09.458Z"
+  },
+  {
+    "id": "c03b04c6-c6d0-4a1f-93f0-b06694898d2d",
+    "shopName": "PICARD Fashion",
+    "shopDomain": "picard-fashion.com",
+    "shopUrl": "https://picard-fashion.com",
+    "productUrl": "https://picard-fashion.com/",
+    "productName": "PICARD Fashion Onlineshop | Handtaschen und Accessoires",
+    "email": "info@picard-fashion.com",
+    "status": "researched",
+    "researchedAt": "2026-03-07T09:54:15.180Z"
+  },
+  {
+    "id": "4e062165-71df-41d8-b32e-248c9b1d083c",
+    "shopName": "Gusti Leder",
+    "shopDomain": "gusti-leder.de",
+    "shopUrl": "https://gusti-leder.de",
+    "productUrl": "https://gusti-leder.de/collections/handtaschen",
+    "productName": "Handtaschen aus Leder",
+    "email": "info@gusti-leder.de",
+    "status": "researched",
+    "researchedAt": "2026-03-07T09:54:20.235Z"
+  },
+  {
+    "id": "0070e45c-b8f6-4592-aba9-e7965486636d",
+    "shopName": "HOLZRICHTER Berlin",
+    "shopDomain": "www.holzrichter.berlin",
+    "shopUrl": "https://www.holzrichter.berlin",
+    "productUrl": "https://www.holzrichter.berlin/",
+    "productName": "HOLZRICHTER Berlin - Ledertaschen & Lederwaren",
+    "email": "concierge@holzrichter-berlin.com",
+    "status": "researched",
+    "researchedAt": "2026-03-07T09:54:24.362Z"
+  },
+  {
+    "id": "4a6224d8-d0f2-4b5e-931b-ef4ec4e257f3",
+    "shopName": "www.thielemann-lederwaren.de",
+    "shopDomain": "www.thielemann-lederwaren.de",
+    "shopUrl": "https://www.thielemann-lederwaren.de",
+    "productUrl": "https://www.thielemann-lederwaren.de/shop/handtaschen/",
+    "productName": "THIELEMANN  ❘ Handtaschen für Damen & Herren aus Echtleder ... | Lederunikate Made in Germany",
+    "email": "info@thielemann-lederwaren.de",
+    "status": "researched",
+    "researchedAt": "2026-03-07T09:54:36.812Z"
   }
 ]
