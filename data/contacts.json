@@ -217,7 +217,7 @@
     "productUrl": "https://dekostore.eu/",
     "productName": "DEKOSTORE Onlineshop | Deko für Zuhause bestellen",
     "email": "info@dekostore.eu",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-04T10:06:10.691Z"
   },
   {
@@ -228,7 +228,7 @@
     "productUrl": "https://www.sneakerjagers.com/de",
     "productName": "Sneakerjagers | Deine Sneaker-Suchmaschine",
     "email": "support@sneakerjagers.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-04T10:07:14.842Z"
   },
   {
@@ -239,7 +239,7 @@
     "productUrl": "https://www.deichmann.com/de-de/c/schuhe-sneaker-2590",
     "productName": "Sneaker günstig online kaufen | DEICHMANN",
     "email": "service-sk@deichmann.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-04T10:07:21.042Z"
   },
   {
@@ -250,7 +250,7 @@
     "productUrl": "https://luxchange.de/",
     "productName": "Luxusuhren kaufen | LuXchange Essen – Geprüfte Top-Marken",
     "email": "info@uhr-kraft.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-04T10:07:48.313Z"
   },
   {
@@ -261,7 +261,7 @@
     "productUrl": "https://luxurychrono.de/",
     "productName": "Luxurychrono - Ihr Fachgeschäft für Luxusuhren aus Düsseldorf",
     "email": "ankauf@luxurychrono.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-04T10:07:52.616Z"
   },
   {
@@ -395,5 +395,115 @@
     "email": "info@thielemann-lederwaren.de",
     "status": "researched",
     "researchedAt": "2026-03-07T09:54:36.812Z"
+  },
+  {
+    "id": "18efe82a-6c4a-43d8-93c6-51c08204b5cf",
+    "shopName": "Homeline der Möbel Onlineshop für Preisbewusste",
+    "shopDomain": "www.homeline1.de",
+    "shopUrl": "https://www.homeline1.de",
+    "productUrl": "https://www.homeline1.de/impressum",
+    "productName": "Homeline der Möbel Onlineshop für Preisbewusste",
+    "email": "info@homeline1.de",
+    "status": "researched",
+    "researchedAt": "2026-03-08T09:52:53.622Z"
+  },
+  {
+    "id": "90628bdb-8703-4a90-8510-9b05b713f370",
+    "shopName": "www.kaufvilla.de",
+    "shopDomain": "www.kaufvilla.de",
+    "shopUrl": "https://www.kaufvilla.de",
+    "productUrl": "https://www.kaufvilla.de/legal-disclosure",
+    "productName": "Impressum | Kaufvilla-schön wohnen! - Möbel-Onlineshop",
+    "email": "info@kaufvilla.de",
+    "status": "researched",
+    "researchedAt": "2026-03-08T09:53:10.548Z"
+  },
+  {
+    "id": "27ca8795-917a-4d47-9051-8636e74a22b8",
+    "shopName": "LovemadeCrafts",
+    "shopDomain": "www.lovemadecrafts.com",
+    "shopUrl": "https://www.lovemadecrafts.com",
+    "productUrl": "https://www.lovemadecrafts.com/",
+    "productName": "Handgemachter Occhi-Schmuck aus Salzburg | LovemadeCrafts",
+    "email": "verena@lovemadecrafts.com",
+    "status": "researched",
+    "researchedAt": "2026-03-08T09:53:24.461Z"
+  },
+  {
+    "id": "f0b49f52-b9d1-43a7-bf3b-f0cf2bbb2251",
+    "shopName": "design-bestseller.de",
+    "shopDomain": "www.design-bestseller.de",
+    "shopUrl": "https://www.design-bestseller.de",
+    "productUrl": "https://www.design-bestseller.de/leuchten/",
+    "productName": "Design-Leuchten &amp; Lampen für Ihr Zuhause | design-bestseller",
+    "email": "service@design-bestseller.de",
+    "status": "researched",
+    "researchedAt": "2026-03-08T09:53:37.409Z"
+  },
+  {
+    "id": "c3c8d750-bcd1-4126-9793-76ff49958892",
+    "shopName": "www.decowoerner.com",
+    "shopDomain": "www.decowoerner.com",
+    "shopUrl": "https://www.decowoerner.com",
+    "productUrl": "https://www.decowoerner.com/",
+    "productName": "Deko & Dekoration » Dekoartikel im DecoWoerner Shop",
+    "email": "adresse@gmail.com",
+    "status": "researched",
+    "researchedAt": "2026-03-08T09:54:20.850Z"
+  },
+  {
+    "id": "592cfdfe-e633-484b-b2b0-1a68d2a48bcb",
+    "shopName": "www.schuhroom.de",
+    "shopDomain": "www.schuhroom.de",
+    "shopUrl": "https://www.schuhroom.de",
+    "productUrl": "https://www.schuhroom.de/sneaker/",
+    "productName": "Sneaker Online Shop - Schuhroom.de | Schuhroom",
+    "email": "shop@schuhroom.de",
+    "status": "researched",
+    "researchedAt": "2026-03-08T09:55:28.118Z"
+  },
+  {
+    "id": "1c5efb19-b11e-4e9b-b496-da28ebb1722b",
+    "shopName": "Niederrhein Watches",
+    "shopDomain": "niederrheinwatches.de",
+    "shopUrl": "https://niederrheinwatches.de",
+    "productUrl": "https://niederrheinwatches.de/",
+    "productName": "Niederrhein Watches – Ihr Partner für exklusive Zeitmesser",
+    "email": "info@niederrheinwatches.de",
+    "status": "researched",
+    "researchedAt": "2026-03-08T09:55:35.118Z"
+  },
+  {
+    "id": "f54ba913-ce01-4199-bc94-d87160756548",
+    "shopName": "Juwelier Rüschenbeck",
+    "shopDomain": "www.rueschenbeck.de",
+    "shopUrl": "https://www.rueschenbeck.de",
+    "productUrl": "https://www.rueschenbeck.de/",
+    "productName": "Juwelier Rüschenbeck - Schmuck und Uhren",
+    "email": "info@rueschenbeck.com",
+    "status": "researched",
+    "researchedAt": "2026-03-08T09:55:38.890Z"
+  },
+  {
+    "id": "e6108e13-7bb2-4aa4-b9ec-eaa2ecc0f86e",
+    "shopName": "RICHTERS",
+    "shopDomain": "richters-luxusuhren.de",
+    "shopUrl": "https://richters-luxusuhren.de",
+    "productUrl": "https://richters-luxusuhren.de/",
+    "productName": "RICHTERS | Rolex, Breitling, Omega, IWC, Luxusuhren Online Kaufen",
+    "email": "timrichters@richters-luxusuhren.de",
+    "status": "researched",
+    "researchedAt": "2026-03-08T09:55:43.541Z"
+  },
+  {
+    "id": "2901dbf6-da8c-40d4-9203-1b4be2c59ec4",
+    "shopName": "Lederoase",
+    "shopDomain": "www.lederoase.de",
+    "shopUrl": "https://www.lederoase.de",
+    "productUrl": "https://www.lederoase.de/taschen/",
+    "productName": "Taschen",
+    "email": "info@lederoase.de",
+    "status": "researched",
+    "researchedAt": "2026-03-08T09:56:02.565Z"
   }
 ]
