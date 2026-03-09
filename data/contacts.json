@@ -272,7 +272,7 @@
     "productUrl": "https://www.uhrinstinkt.de/kontakt",
     "productName": "Uhrinstinkt",
     "email": "info@uhrinstinkt.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-04T10:07:56.256Z"
   },
   {
@@ -283,7 +283,7 @@
     "productUrl": "https://luxury-time.de/ueber-uns",
     "productName": "Über uns | Luxury Time - SW6",
     "email": "info@luxury-time.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-04T10:08:02.424Z"
   },
   {
@@ -294,7 +294,7 @@
     "productUrl": "https://8-seasons-design.de/",
     "productName": "8 seasons design | Designerlampen für dein Zuhause & Garten",
     "email": "info@8-seasons-design.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-07T09:51:59.980Z"
   },
   {
@@ -305,7 +305,7 @@
     "productUrl": "https://www.geliebtes-zuhause.de/",
     "productName": "Skandinavisches Design & Wohnaccessoires |",
     "email": "info@geliebtes-zuhause.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-07T09:52:30.293Z"
   },
   {
@@ -316,7 +316,7 @@
     "productUrl": "https://mytimewatches.de/kontakt/",
     "productName": "Kontakt | MyTime Watches – Ihr Luxusuhren-Händler",
     "email": "mytime-nrw@gmx.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-07T09:53:59.560Z"
   },
   {
@@ -505,5 +505,115 @@
     "email": "info@lederoase.de",
     "status": "researched",
     "researchedAt": "2026-03-08T09:56:02.565Z"
+  },
+  {
+    "id": "342e99e7-926a-41cd-9e8b-2eaad35092db",
+    "shopName": "Möbel Inhofer",
+    "shopDomain": "www.inhofer.de",
+    "shopUrl": "https://www.inhofer.de",
+    "productUrl": "https://www.inhofer.de/impressum",
+    "productName": "Impressum | Möbel Inhofer",
+    "email": "info@moebel-inhofer.de",
+    "status": "researched",
+    "researchedAt": "2026-03-09T10:12:34.284Z"
+  },
+  {
+    "id": "fb9756bb-218c-4e5d-901d-08782b6daab2",
+    "shopName": "WohnSinn",
+    "shopDomain": "wohnsinn-garreis.de",
+    "shopUrl": "https://wohnsinn-garreis.de",
+    "productUrl": "https://wohnsinn-garreis.de/",
+    "productName": "Handgemachte Deko & Wohnaccessoires online kaufen | WohnSinn",
+    "email": "info@wohnsinn-garreis.de",
+    "status": "researched",
+    "researchedAt": "2026-03-09T10:13:27.672Z"
+  },
+  {
+    "id": "5fc747f6-7173-43c8-bb25-7fd2ecaea6ed",
+    "shopName": "Rothfuss Watch Boutique",
+    "shopDomain": "rothfuss-watches.de",
+    "shopUrl": "https://rothfuss-watches.de",
+    "productUrl": "https://rothfuss-watches.de/",
+    "productName": "Rothfuss Watch Boutique | Rolex, AP, Patek, Omega & mehr",
+    "email": "kontakt@rothfuss.de",
+    "status": "researched",
+    "researchedAt": "2026-03-09T10:14:30.002Z"
+  },
+  {
+    "id": "4a677d21-5d90-406d-91c6-11516c8f4366",
+    "shopName": "voi leather design",
+    "shopDomain": "www.voi-design.de",
+    "shopUrl": "https://www.voi-design.de",
+    "productUrl": "https://www.voi-design.de/",
+    "productName": "voi leather design - hochwertige Taschen für deinen Alltag!",
+    "email": "shop@voi-design.de",
+    "status": "researched",
+    "researchedAt": "2026-03-09T10:14:44.877Z"
+  },
+  {
+    "id": "eaa1d05f-f697-451f-9a3c-4258ac911f73",
+    "shopName": "Pineapple Style Décor Shop",
+    "shopDomain": "pineapple-style.com",
+    "shopUrl": "https://pineapple-style.com",
+    "productUrl": "https://pineapple-style.com/de/wohndeko/wohnaccessoires/vasen/",
+    "productName": "Keramik Vase Kaufen - Vase Bestellen | Pineapple Style",
+    "email": "my@email.com",
+    "status": "researched",
+    "researchedAt": "2026-03-09T10:15:07.539Z"
+  },
+  {
+    "id": "ee8fd9e3-9410-4aa5-a8b4-d260d8489722",
+    "shopName": "Sylter WohnLust",
+    "shopDomain": "www.sylter-wohnlust.de",
+    "shopUrl": "https://www.sylter-wohnlust.de",
+    "productUrl": "https://www.sylter-wohnlust.de/collections/keramikvasen",
+    "productName": "Keramikvasen online kaufen | Zeitlos & Elegant",
+    "email": "info@digitalsprung.de",
+    "status": "researched",
+    "researchedAt": "2026-03-09T10:15:14.027Z"
+  },
+  {
+    "id": "48ce7835-5db8-4267-9f6e-321f8595defb",
+    "shopName": "Bijou Brigitte",
+    "shopDomain": "www.bijou-brigitte.com",
+    "shopUrl": "https://www.bijou-brigitte.com",
+    "productUrl": "https://www.bijou-brigitte.com/",
+    "productName": "Schmuck und Accessoires im BIJOU BRIGITTE Online-Shop",
+    "email": "socialmedia@Bijou-Brigitte.com",
+    "status": "researched",
+    "researchedAt": "2026-03-09T10:15:19.514Z"
+  },
+  {
+    "id": "5224dd7f-1fcd-42b8-a78b-8df91b4b1dcb",
+    "shopName": "Leslii Online Shop",
+    "shopDomain": "leslii.de",
+    "shopUrl": "https://leslii.de",
+    "productUrl": "https://leslii.de/",
+    "productName": "Leslii Online Shop",
+    "email": "info@leslii.net",
+    "status": "researched",
+    "researchedAt": "2026-03-09T10:15:24.583Z"
+  },
+  {
+    "id": "58c558af-332a-4625-8363-6cb76933bf19",
+    "shopName": "getDigital",
+    "shopDomain": "www.getdigital.de",
+    "shopUrl": "https://www.getdigital.de",
+    "productUrl": "https://www.getdigital.de/",
+    "productName": "Gadgets, Geschenke, T-Shirts im Geek Shop nicht nur für den Nerd",
+    "email": "support@getdigital.de",
+    "status": "researched",
+    "researchedAt": "2026-03-09T10:15:50.640Z"
+  },
+  {
+    "id": "4920b158-65d1-4b08-9731-8a09c5eb35de",
+    "shopName": "MyGadget-Shop -",
+    "shopDomain": "www.mygadget-shop.de",
+    "shopUrl": "https://www.mygadget-shop.de",
+    "productUrl": "https://www.mygadget-shop.de/Impressum/",
+    "productName": "Impressum - MyGadget-Shop",
+    "email": "support@dbsw-trading.de",
+    "status": "researched",
+    "researchedAt": "2026-03-09T10:16:10.478Z"
   }
 ]
