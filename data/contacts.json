@@ -327,7 +327,7 @@
     "productUrl": "https://www.horando.de/",
     "productName": "HORANDO | Luxusuhren online kaufen • Herren & Damen Uhren",
     "email": "service@horando.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-07T09:54:02.867Z"
   },
   {
@@ -338,7 +338,7 @@
     "productUrl": "https://uhren-primus.de/",
     "productName": "Uhren Primus - Luxusuhren in Hamburg",
     "email": "info@uhren-primus.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-07T09:54:05.801Z"
   },
   {
@@ -349,7 +349,7 @@
     "productUrl": "https://www.aurum-watches.de/",
     "productName": "Aurum Watches – Luxusuhren online kaufen & verkaufen",
     "email": "info@aurum-watches.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-07T09:54:09.458Z"
   },
   {
@@ -360,7 +360,7 @@
     "productUrl": "https://picard-fashion.com/",
     "productName": "PICARD Fashion Onlineshop | Handtaschen und Accessoires",
     "email": "info@picard-fashion.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-07T09:54:15.180Z"
   },
   {
@@ -371,7 +371,7 @@
     "productUrl": "https://gusti-leder.de/collections/handtaschen",
     "productName": "Handtaschen aus Leder",
     "email": "info@gusti-leder.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-07T09:54:20.235Z"
   },
   {
@@ -615,5 +615,71 @@
     "email": "support@dbsw-trading.de",
     "status": "researched",
     "researchedAt": "2026-03-09T10:16:10.478Z"
+  },
+  {
+    "id": "ec12fe43-6884-4618-bbbc-f9c8d37ec729",
+    "shopName": "Deko Unlimited – Exklusive Wohnaccessoires, Designerstücke & Dekoidee",
+    "shopDomain": "deko-unlimited.de",
+    "shopUrl": "https://deko-unlimited.de",
+    "productUrl": "https://deko-unlimited.de/",
+    "productName": "Deko Unlimited – Exklusive Wohnaccessoires, Designerstücke & Dekoidee",
+    "email": "info@deko-unlimited.de",
+    "status": "researched",
+    "researchedAt": "2026-03-12T10:08:39.064Z"
+  },
+  {
+    "id": "d93ac934-becf-4f3b-88ae-03b883e61655",
+    "shopName": "Exclusive Watches Shop",
+    "shopDomain": "exclusive-watches.de",
+    "shopUrl": "https://exclusive-watches.de",
+    "productUrl": "https://exclusive-watches.de/",
+    "productName": "Luxusuhren & Zubehör von Exclusive Watches",
+    "email": "info@exclusive-watches.de",
+    "status": "researched",
+    "researchedAt": "2026-03-12T10:10:03.330Z"
+  },
+  {
+    "id": "11d39716-7b4f-474e-804e-9ef281f67dee",
+    "shopName": "timeboutique.de",
+    "shopDomain": "timeboutique.de",
+    "shopUrl": "https://timeboutique.de",
+    "productUrl": "https://timeboutique.de/",
+    "productName": "Luxusuhren München | Rolex Damenuhren | Time Boutique",
+    "email": "info@timeboutique.de",
+    "status": "researched",
+    "researchedAt": "2026-03-12T10:10:06.065Z"
+  },
+  {
+    "id": "aae93ca9-6be5-4729-9087-19276ab5ae54",
+    "shopName": "lua accessories | der offizielle Schmuck online-shop",
+    "shopDomain": "lua-love.com",
+    "shopUrl": "https://lua-love.com",
+    "productUrl": "https://lua-love.com/",
+    "productName": "lua accessories | der offizielle Schmuck online-shop",
+    "email": "info@lua-accessories.com",
+    "status": "researched",
+    "researchedAt": "2026-03-12T10:10:28.525Z"
+  },
+  {
+    "id": "10e9717a-1985-45f1-9563-1dbf8b2c75b1",
+    "shopName": "Geheimshop.de: Gadgets, Geschenke und Geschenkideen",
+    "shopDomain": "geheimshop.de",
+    "shopUrl": "https://geheimshop.de",
+    "productUrl": "https://geheimshop.de/pages/impressum",
+    "productName": "Impressum",
+    "email": "info@geheimshop.de",
+    "status": "researched",
+    "researchedAt": "2026-03-12T10:10:50.585Z"
+  },
+  {
+    "id": "81bbea2a-2164-4947-8b0c-d0b4274ba531",
+    "shopName": "MakroElectronics Shop",
+    "shopDomain": "makroelectronics-shop.de",
+    "shopUrl": "https://makroelectronics-shop.de",
+    "productUrl": "https://makroelectronics-shop.de/impressum",
+    "productName": "MakroElectronics Shop",
+    "email": "info@makroelectronics.com",
+    "status": "researched",
+    "researchedAt": "2026-03-12T10:11:02.037Z"
   }
 ]
