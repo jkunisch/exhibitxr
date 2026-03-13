@@ -382,7 +382,7 @@
     "productUrl": "https://www.holzrichter.berlin/",
     "productName": "HOLZRICHTER Berlin - Ledertaschen & Lederwaren",
     "email": "concierge@holzrichter-berlin.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-07T09:54:24.362Z"
   },
   {
@@ -393,7 +393,7 @@
     "productUrl": "https://www.thielemann-lederwaren.de/shop/handtaschen/",
     "productName": "THIELEMANN  ❘ Handtaschen für Damen & Herren aus Echtleder ... | Lederunikate Made in Germany",
     "email": "info@thielemann-lederwaren.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-07T09:54:36.812Z"
   },
   {
@@ -404,7 +404,7 @@
     "productUrl": "https://www.homeline1.de/impressum",
     "productName": "Homeline der Möbel Onlineshop für Preisbewusste",
     "email": "info@homeline1.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-08T09:52:53.622Z"
   },
   {
@@ -415,7 +415,7 @@
     "productUrl": "https://www.kaufvilla.de/legal-disclosure",
     "productName": "Impressum | Kaufvilla-schön wohnen! - Möbel-Onlineshop",
     "email": "info@kaufvilla.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-08T09:53:10.548Z"
   },
   {
@@ -426,7 +426,7 @@
     "productUrl": "https://www.lovemadecrafts.com/",
     "productName": "Handgemachter Occhi-Schmuck aus Salzburg | LovemadeCrafts",
     "email": "verena@lovemadecrafts.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-08T09:53:24.461Z"
   },
   {
@@ -681,5 +681,49 @@
     "email": "info@makroelectronics.com",
     "status": "researched",
     "researchedAt": "2026-03-12T10:11:02.037Z"
+  },
+  {
+    "id": "1c9edcfd-7a3d-41a0-8cfe-283f7b7488b0",
+    "shopName": "Gosia Jewelry",
+    "shopDomain": "www.gosia-jewelry.de",
+    "shopUrl": "https://www.gosia-jewelry.de",
+    "productUrl": "https://www.gosia-jewelry.de/",
+    "productName": "GOSIA Jewelry - handgemachter und nachhaltiger Schmuck",
+    "email": "gosiajewelry@web.de",
+    "status": "researched",
+    "researchedAt": "2026-03-13T10:03:41.099Z"
+  },
+  {
+    "id": "3c5deacc-a613-4747-a0c1-6b0774d44b67",
+    "shopName": "LEONARDO Onlineshop",
+    "shopDomain": "www.leonardo.de",
+    "shopUrl": "https://www.leonardo.de",
+    "productUrl": "https://www.leonardo.de/collections/vasen-keramik",
+    "productName": "Keramik Vasen",
+    "email": "service@leonardo.de",
+    "status": "researched",
+    "researchedAt": "2026-03-13T10:05:57.299Z"
+  },
+  {
+    "id": "d17f97d1-6bd6-43f3-b962-bed579c244d3",
+    "shopName": "Eleganza Gioielli",
+    "shopDomain": "eleganza-gioielli.de",
+    "shopUrl": "https://eleganza-gioielli.de",
+    "productUrl": "https://eleganza-gioielli.de/",
+    "productName": "Eleganza Gioeilli - Modeschmuck Boutique",
+    "email": "Iacino.businnes@gmail.com",
+    "status": "researched",
+    "researchedAt": "2026-03-13T10:06:22.207Z"
+  },
+  {
+    "id": "42ab986d-36d5-4939-b5f5-481b2a0a6903",
+    "shopName": "JACOB Elektronik GmbH",
+    "shopDomain": "www.jacob.de",
+    "shopUrl": "https://www.jacob.de",
+    "productUrl": "https://www.jacob.de/kontakt.html",
+    "productName": "JACOB - IT Business Next Level",
+    "email": "impressum@jacob.de",
+    "status": "researched",
+    "researchedAt": "2026-03-13T10:06:32.905Z"
   }
 ]
