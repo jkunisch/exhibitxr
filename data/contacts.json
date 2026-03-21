@@ -492,7 +492,7 @@
     "productUrl": "https://richters-luxusuhren.de/",
     "productName": "RICHTERS | Rolex, Breitling, Omega, IWC, Luxusuhren Online Kaufen",
     "email": "timrichters@richters-luxusuhren.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-08T09:55:43.541Z"
   },
   {
@@ -503,7 +503,7 @@
     "productUrl": "https://www.lederoase.de/taschen/",
     "productName": "Taschen",
     "email": "info@lederoase.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-08T09:56:02.565Z"
   },
   {
@@ -514,7 +514,7 @@
     "productUrl": "https://www.inhofer.de/impressum",
     "productName": "Impressum | Möbel Inhofer",
     "email": "info@moebel-inhofer.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-09T10:12:34.284Z"
   },
   {
@@ -525,7 +525,7 @@
     "productUrl": "https://wohnsinn-garreis.de/",
     "productName": "Handgemachte Deko & Wohnaccessoires online kaufen | WohnSinn",
     "email": "info@wohnsinn-garreis.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-09T10:13:27.672Z"
   },
   {
@@ -536,7 +536,7 @@
     "productUrl": "https://rothfuss-watches.de/",
     "productName": "Rothfuss Watch Boutique | Rolex, AP, Patek, Omega & mehr",
     "email": "kontakt@rothfuss.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-09T10:14:30.002Z"
   },
   {
@@ -725,5 +725,93 @@
     "email": "impressum@jacob.de",
     "status": "researched",
     "researchedAt": "2026-03-13T10:06:32.905Z"
+  },
+  {
+    "id": "d7148f89-1550-44d3-a36f-76a5cc67270a",
+    "shopName": "kamajewellery",
+    "shopDomain": "www.kama-jewellery.com",
+    "shopUrl": "https://www.kama-jewellery.com",
+    "productUrl": "https://www.kama-jewellery.com/",
+    "productName": "Handgemachter Schmuck | Kamajewellery",
+    "email": "kamajewellery@outlook.com",
+    "status": "researched",
+    "researchedAt": "2026-03-21T09:54:54.698Z"
+  },
+  {
+    "id": "fdc784ff-1b17-4acc-9e76-4e947d99fc1d",
+    "shopName": "Neona",
+    "shopDomain": "www.neona.store",
+    "shopUrl": "https://www.neona.store",
+    "productUrl": "https://www.neona.store/",
+    "productName": "Moderne Lampen für stilvolle Räume » Designerleuchten entdecken",
+    "email": "support@neona.store",
+    "status": "researched",
+    "researchedAt": "2026-03-21T09:55:44.753Z"
+  },
+  {
+    "id": "7602aec0-5d62-4784-b853-bdba860e365a",
+    "shopName": "WILD YOURSELF",
+    "shopDomain": "wildyourself.de",
+    "shopUrl": "https://wildyourself.de",
+    "productUrl": "https://wildyourself.de/",
+    "productName": "Dein Deko Online Shop - hochwertige Wohnaccessoires",
+    "email": "info@wildyourself.de",
+    "status": "researched",
+    "researchedAt": "2026-03-21T09:55:55.230Z"
+  },
+  {
+    "id": "a92dc413-6990-4744-b96a-7fcb11acb19d",
+    "shopName": "KangaROOS Onlineshop",
+    "shopDomain": "kangaroos.de",
+    "shopUrl": "https://kangaroos.de",
+    "productUrl": "https://kangaroos.de/",
+    "productName": "KangaROOS Onlineshop",
+    "email": "hallo@kangaroos.de",
+    "status": "researched",
+    "researchedAt": "2026-03-21T09:57:25.505Z"
+  },
+  {
+    "id": "56b0044a-b547-4eb5-9405-312274b833eb",
+    "shopName": "Reebok EU",
+    "shopDomain": "www.reebok.eu",
+    "shopUrl": "https://www.reebok.eu",
+    "productUrl": "https://www.reebok.eu/de-de/",
+    "productName": "Reebok EU | Sport Is Everything",
+    "email": "support@reebok.eu",
+    "status": "researched",
+    "researchedAt": "2026-03-21T09:57:40.823Z"
+  },
+  {
+    "id": "897715d1-f2ae-4b9e-a854-f3166ed3330f",
+    "shopName": "www.reno.de",
+    "shopDomain": "www.reno.de",
+    "shopUrl": "https://www.reno.de",
+    "productUrl": "https://www.reno.de/",
+    "productName": "Schuhe & Accessoires für die ganze Familie | RENO Online-Shop | Reno",
+    "email": "kontakt@reno.de",
+    "status": "researched",
+    "researchedAt": "2026-03-21T09:57:48.113Z"
+  },
+  {
+    "id": "1f072b4a-4871-49d2-8556-ec8cfd637fcd",
+    "shopName": "LandLeder - Online-Shop",
+    "shopDomain": "landleder-onlineshop.de",
+    "shopUrl": "https://landleder-onlineshop.de",
+    "productUrl": "https://landleder-onlineshop.de/",
+    "productName": "LandLeder - Online-Shop",
+    "email": "info@rs-versand.de",
+    "status": "researched",
+    "researchedAt": "2026-03-21T09:58:14.359Z"
+  },
+  {
+    "id": "5c660253-d2ea-49b3-97e2-4044fd1f14aa",
+    "shopName": "ICRUSH",
+    "shopDomain": "icrush.de",
+    "shopUrl": "https://icrush.de",
+    "productUrl": "https://icrush.de/",
+    "productName": "ICRUSH - Wasserfester Schmuck",
+    "email": "info@icrush.de",
+    "status": "researched",
+    "researchedAt": "2026-03-21T09:58:42.112Z"
   }
 ]
