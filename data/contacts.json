@@ -547,7 +547,7 @@
     "productUrl": "https://www.voi-design.de/",
     "productName": "voi leather design - hochwertige Taschen für deinen Alltag!",
     "email": "shop@voi-design.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-09T10:14:44.877Z"
   },
   {
@@ -558,7 +558,7 @@
     "productUrl": "https://pineapple-style.com/de/wohndeko/wohnaccessoires/vasen/",
     "productName": "Keramik Vase Kaufen - Vase Bestellen | Pineapple Style",
     "email": "my@email.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-09T10:15:07.539Z"
   },
   {
@@ -569,7 +569,7 @@
     "productUrl": "https://www.sylter-wohnlust.de/collections/keramikvasen",
     "productName": "Keramikvasen online kaufen | Zeitlos & Elegant",
     "email": "info@digitalsprung.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-09T10:15:14.027Z"
   },
   {
@@ -580,7 +580,7 @@
     "productUrl": "https://www.bijou-brigitte.com/",
     "productName": "Schmuck und Accessoires im BIJOU BRIGITTE Online-Shop",
     "email": "socialmedia@Bijou-Brigitte.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-09T10:15:19.514Z"
   },
   {
@@ -591,7 +591,7 @@
     "productUrl": "https://leslii.de/",
     "productName": "Leslii Online Shop",
     "email": "info@leslii.net",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-09T10:15:24.583Z"
   },
   {
@@ -813,5 +813,27 @@
     "email": "info@icrush.de",
     "status": "researched",
     "researchedAt": "2026-03-21T09:58:42.112Z"
+  },
+  {
+    "id": "09dcce65-5758-4f74-874e-e5696a628bf6",
+    "shopName": "Karmann Watches",
+    "shopDomain": "karmannwatches.de",
+    "shopUrl": "https://karmannwatches.de",
+    "productUrl": "https://karmannwatches.de/",
+    "productName": "Karmann Watches - Ihr Partner für exklusive Luxus Uhren",
+    "email": "info@karmannwatches.de",
+    "status": "researched",
+    "researchedAt": "2026-03-22T09:57:23.570Z"
+  },
+  {
+    "id": "e413f3db-74e9-471d-b04c-11065408359a",
+    "shopName": "WGSoft.de Shop",
+    "shopDomain": "www.wgsoft.de",
+    "shopUrl": "https://www.wgsoft.de",
+    "productUrl": "https://www.wgsoft.de/shop/impressum",
+    "productName": "Impressum",
+    "email": "shop@wgsoft.de",
+    "status": "researched",
+    "researchedAt": "2026-03-22T09:58:20.229Z"
   }
 ]
