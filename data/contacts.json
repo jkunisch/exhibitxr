@@ -602,7 +602,7 @@
     "productUrl": "https://www.getdigital.de/",
     "productName": "Gadgets, Geschenke, T-Shirts im Geek Shop nicht nur für den Nerd",
     "email": "support@getdigital.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-09T10:15:50.640Z"
   },
   {
@@ -613,7 +613,7 @@
     "productUrl": "https://www.mygadget-shop.de/Impressum/",
     "productName": "Impressum - MyGadget-Shop",
     "email": "support@dbsw-trading.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-09T10:16:10.478Z"
   },
   {
@@ -624,7 +624,7 @@
     "productUrl": "https://deko-unlimited.de/",
     "productName": "Deko Unlimited – Exklusive Wohnaccessoires, Designerstücke & Dekoidee",
     "email": "info@deko-unlimited.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-12T10:08:39.064Z"
   },
   {
@@ -635,7 +635,7 @@
     "productUrl": "https://exclusive-watches.de/",
     "productName": "Luxusuhren & Zubehör von Exclusive Watches",
     "email": "info@exclusive-watches.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-12T10:10:03.330Z"
   },
   {
@@ -646,7 +646,7 @@
     "productUrl": "https://timeboutique.de/",
     "productName": "Luxusuhren München | Rolex Damenuhren | Time Boutique",
     "email": "info@timeboutique.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-12T10:10:06.065Z"
   },
   {
@@ -835,5 +835,49 @@
     "email": "shop@wgsoft.de",
     "status": "researched",
     "researchedAt": "2026-03-22T09:58:20.229Z"
+  },
+  {
+    "id": "4532f354-c13c-4661-b491-9feb5d9f5957",
+    "shopName": "makou Jewelry",
+    "shopDomain": "makoujewelry.de",
+    "shopUrl": "https://makoujewelry.de",
+    "productUrl": "https://makoujewelry.de/",
+    "productName": "makou.de | Besondere Schmuckstücke mit Liebe handgemacht aus Pforzheim",
+    "email": "support@starapps.studio",
+    "status": "researched",
+    "researchedAt": "2026-03-23T10:32:40.303Z"
+  },
+  {
+    "id": "170c4ccc-bbf7-4317-a6ad-e09ae34aac10",
+    "shopName": "Lederjaeger.de",
+    "shopDomain": "www.lederjaeger.de",
+    "shopUrl": "https://www.lederjaeger.de",
+    "productUrl": "https://www.lederjaeger.de/",
+    "productName": "Lederjaeger.de",
+    "email": "support@lederjaeger.de",
+    "status": "researched",
+    "researchedAt": "2026-03-23T10:34:30.840Z"
+  },
+  {
+    "id": "a30a4929-d74f-460c-9d6e-f1b66a4ee0d2",
+    "shopName": "www.jahn-lederwaren.de",
+    "shopDomain": "www.jahn-lederwaren.de",
+    "shopUrl": "https://www.jahn-lederwaren.de",
+    "productUrl": "https://www.jahn-lederwaren.de/",
+    "productName": "Taschen & Rucksäcke aus Leder | Jahn Lederwaren",
+    "email": "jahn@jahn-lederwaren.de",
+    "status": "researched",
+    "researchedAt": "2026-03-23T10:34:42.711Z"
+  },
+  {
+    "id": "fdf918b5-43fb-44bc-8168-3dc1a4290f33",
+    "shopName": "Tiziano Home",
+    "shopDomain": "tiziano-home.de",
+    "shopUrl": "https://tiziano-home.de",
+    "productUrl": "https://tiziano-home.de/collections/vasen",
+    "productName": "Vasen bei Tiziano Home",
+    "email": "shop@tiziano-home.de",
+    "status": "researched",
+    "researchedAt": "2026-03-23T10:35:10.209Z"
   }
 ]
