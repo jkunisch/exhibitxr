@@ -657,7 +657,7 @@
     "productUrl": "https://lua-love.com/",
     "productName": "lua accessories | der offizielle Schmuck online-shop",
     "email": "info@lua-accessories.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-12T10:10:28.525Z"
   },
   {
@@ -668,7 +668,7 @@
     "productUrl": "https://geheimshop.de/pages/impressum",
     "productName": "Impressum",
     "email": "info@geheimshop.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-12T10:10:50.585Z"
   },
   {
@@ -679,7 +679,7 @@
     "productUrl": "https://makroelectronics-shop.de/impressum",
     "productName": "MakroElectronics Shop",
     "email": "info@makroelectronics.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-12T10:11:02.037Z"
   },
   {
@@ -690,7 +690,7 @@
     "productUrl": "https://www.gosia-jewelry.de/",
     "productName": "GOSIA Jewelry - handgemachter und nachhaltiger Schmuck",
     "email": "gosiajewelry@web.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-13T10:03:41.099Z"
   },
   {
@@ -701,7 +701,7 @@
     "productUrl": "https://www.leonardo.de/collections/vasen-keramik",
     "productName": "Keramik Vasen",
     "email": "service@leonardo.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-13T10:05:57.299Z"
   },
   {
@@ -879,5 +879,16 @@
     "email": "shop@tiziano-home.de",
     "status": "researched",
     "researchedAt": "2026-03-23T10:35:10.209Z"
+  },
+  {
+    "id": "8583bd17-62c8-4565-a1c4-76703460a35f",
+    "shopName": "Luxus Uhrenhandel GmbH",
+    "shopDomain": "luxusuhrenhandel.de",
+    "shopUrl": "https://luxusuhrenhandel.de",
+    "productUrl": "https://luxusuhrenhandel.de/",
+    "productName": "Exklusive Damen- und Herrenuhren | Luxusuhrenhandel.de",
+    "email": "info@luxusuhrenhandel.de",
+    "status": "researched",
+    "researchedAt": "2026-03-24T10:16:01.842Z"
   }
 ]
