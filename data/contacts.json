@@ -712,7 +712,7 @@
     "productUrl": "https://eleganza-gioielli.de/",
     "productName": "Eleganza Gioeilli - Modeschmuck Boutique",
     "email": "Iacino.businnes@gmail.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-13T10:06:22.207Z"
   },
   {
@@ -723,7 +723,7 @@
     "productUrl": "https://www.jacob.de/kontakt.html",
     "productName": "JACOB - IT Business Next Level",
     "email": "impressum@jacob.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-13T10:06:32.905Z"
   },
   {
@@ -734,7 +734,7 @@
     "productUrl": "https://www.kama-jewellery.com/",
     "productName": "Handgemachter Schmuck | Kamajewellery",
     "email": "kamajewellery@outlook.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-21T09:54:54.698Z"
   },
   {
@@ -745,7 +745,7 @@
     "productUrl": "https://www.neona.store/",
     "productName": "Moderne Lampen für stilvolle Räume » Designerleuchten entdecken",
     "email": "support@neona.store",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-21T09:55:44.753Z"
   },
   {
@@ -756,7 +756,7 @@
     "productUrl": "https://wildyourself.de/",
     "productName": "Dein Deko Online Shop - hochwertige Wohnaccessoires",
     "email": "info@wildyourself.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-21T09:55:55.230Z"
   },
   {
@@ -890,5 +890,16 @@
     "email": "info@luxusuhrenhandel.de",
     "status": "researched",
     "researchedAt": "2026-03-24T10:16:01.842Z"
+  },
+  {
+    "id": "d1610582-c42f-4f91-b2be-e2efd505ae8d",
+    "shopName": "www.stilord.de",
+    "shopDomain": "www.stilord.de",
+    "shopUrl": "https://www.stilord.de",
+    "productUrl": "https://www.stilord.de/handtaschen/",
+    "productName": "Leder Handtaschen für Damen kaufen: 100% Echtleder | STILORD",
+    "email": "service@stilord.de",
+    "status": "researched",
+    "researchedAt": "2026-03-25T10:20:01.341Z"
   }
 ]
