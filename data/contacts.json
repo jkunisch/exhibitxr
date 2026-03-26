@@ -767,7 +767,7 @@
     "productUrl": "https://kangaroos.de/",
     "productName": "KangaROOS Onlineshop",
     "email": "hallo@kangaroos.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-21T09:57:25.505Z"
   },
   {
@@ -778,7 +778,7 @@
     "productUrl": "https://www.reebok.eu/de-de/",
     "productName": "Reebok EU | Sport Is Everything",
     "email": "support@reebok.eu",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-21T09:57:40.823Z"
   },
   {
@@ -789,7 +789,7 @@
     "productUrl": "https://www.reno.de/",
     "productName": "Schuhe & Accessoires für die ganze Familie | RENO Online-Shop | Reno",
     "email": "kontakt@reno.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-21T09:57:48.113Z"
   },
   {
@@ -800,7 +800,7 @@
     "productUrl": "https://landleder-onlineshop.de/",
     "productName": "LandLeder - Online-Shop",
     "email": "info@rs-versand.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-21T09:58:14.359Z"
   },
   {
@@ -811,7 +811,7 @@
     "productUrl": "https://icrush.de/",
     "productName": "ICRUSH - Wasserfester Schmuck",
     "email": "info@icrush.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-21T09:58:42.112Z"
   },
   {
@@ -901,5 +901,38 @@
     "email": "service@stilord.de",
     "status": "researched",
     "researchedAt": "2026-03-25T10:20:01.341Z"
+  },
+  {
+    "id": "0810c94d-df69-4d6e-aeab-9751a6abaab6",
+    "shopName": "LUMIÈRE DESIGN",
+    "shopDomain": "lumiere-design.de",
+    "shopUrl": "https://lumiere-design.de",
+    "productUrl": "https://lumiere-design.de/",
+    "productName": "LUMIÈRE Design | Moderne Leuchten für dein Zuhause",
+    "email": "service@lumiere-design.de",
+    "status": "researched",
+    "researchedAt": "2026-03-26T10:30:37.230Z"
+  },
+  {
+    "id": "ab24d15c-d9c6-4687-82d1-82ce2ce58ac3",
+    "shopName": "https://www.sneakertwins.de/",
+    "shopDomain": "www.sneakertwins.de",
+    "shopUrl": "https://www.sneakertwins.de",
+    "productUrl": "https://www.sneakertwins.de/",
+    "productName": "adidas & Nike Sneakers Onlineshop | Sneaker Twins Store",
+    "email": "shop@sneakertwins.de",
+    "status": "researched",
+    "researchedAt": "2026-03-26T10:32:02.405Z"
+  },
+  {
+    "id": "e980f1d3-ffa8-44c8-b0c9-d561bbf77fd6",
+    "shopName": "BLOOMBERRY.de",
+    "shopDomain": "bloomberry.de",
+    "shopUrl": "https://bloomberry.de",
+    "productUrl": "https://bloomberry.de/",
+    "productName": "Bloomberry Online Shop für Damen Schmuck, Ketten und Accessoires",
+    "email": "info@bloomberry.de",
+    "status": "researched",
+    "researchedAt": "2026-03-26T10:32:49.299Z"
   }
 ]
