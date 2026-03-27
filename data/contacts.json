@@ -822,7 +822,7 @@
     "productUrl": "https://karmannwatches.de/",
     "productName": "Karmann Watches - Ihr Partner für exklusive Luxus Uhren",
     "email": "info@karmannwatches.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-22T09:57:23.570Z"
   },
   {
@@ -833,7 +833,7 @@
     "productUrl": "https://www.wgsoft.de/shop/impressum",
     "productName": "Impressum",
     "email": "shop@wgsoft.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-22T09:58:20.229Z"
   },
   {
@@ -844,7 +844,7 @@
     "productUrl": "https://makoujewelry.de/",
     "productName": "makou.de | Besondere Schmuckstücke mit Liebe handgemacht aus Pforzheim",
     "email": "support@starapps.studio",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-23T10:32:40.303Z"
   },
   {
@@ -855,7 +855,7 @@
     "productUrl": "https://www.lederjaeger.de/",
     "productName": "Lederjaeger.de",
     "email": "support@lederjaeger.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-23T10:34:30.840Z"
   },
   {
@@ -866,7 +866,7 @@
     "productUrl": "https://www.jahn-lederwaren.de/",
     "productName": "Taschen & Rucksäcke aus Leder | Jahn Lederwaren",
     "email": "jahn@jahn-lederwaren.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-23T10:34:42.711Z"
   },
   {
@@ -934,5 +934,27 @@
     "email": "info@bloomberry.de",
     "status": "researched",
     "researchedAt": "2026-03-26T10:32:49.299Z"
+  },
+  {
+    "id": "33895004-1eae-46b0-8b00-9ce6f9b56c56",
+    "shopName": "Pletzsch",
+    "shopDomain": "www.pletzsch.de",
+    "shopUrl": "https://www.pletzsch.de",
+    "productUrl": "https://www.pletzsch.de/",
+    "productName": "Luxusuhren & Schmuck - Juwelier seit 125 Jahren",
+    "email": "shop@pletzsch.de",
+    "status": "researched",
+    "researchedAt": "2026-03-27T10:13:35.211Z"
+  },
+  {
+    "id": "bef3b26f-c699-424b-a056-a909dfe36002",
+    "shopName": "Lajoia",
+    "shopDomain": "lajoia.de",
+    "shopUrl": "https://lajoia.de",
+    "productUrl": "https://lajoia.de/",
+    "productName": "LAJOIA Onlineshop für Schmuck und Accessoires",
+    "email": "service@lajoia.de",
+    "status": "researched",
+    "researchedAt": "2026-03-27T10:14:16.655Z"
   }
 ]
