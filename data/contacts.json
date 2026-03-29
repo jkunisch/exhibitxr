@@ -932,7 +932,7 @@
     "productUrl": "https://bloomberry.de/",
     "productName": "Bloomberry Online Shop für Damen Schmuck, Ketten und Accessoires",
     "email": "info@bloomberry.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-26T10:32:49.299Z"
   },
   {
@@ -943,7 +943,7 @@
     "productUrl": "https://www.pletzsch.de/",
     "productName": "Luxusuhren & Schmuck - Juwelier seit 125 Jahren",
     "email": "shop@pletzsch.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-27T10:13:35.211Z"
   },
   {
@@ -954,7 +954,18 @@
     "productUrl": "https://lajoia.de/",
     "productName": "LAJOIA Onlineshop für Schmuck und Accessoires",
     "email": "service@lajoia.de",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-03-27T10:14:16.655Z"
+  },
+  {
+    "id": "82fa1ec2-6a01-4963-91a1-fe407b2e5528",
+    "shopName": "LUWATRA Luxusuhren",
+    "shopDomain": "luwatra.de",
+    "shopUrl": "https://luwatra.de",
+    "productUrl": "https://luwatra.de/kontakt/",
+    "productName": "Kontaktieren Sie uns - LUWATRA Luxusuhren Online Shop",
+    "email": "office@luwatra.de",
+    "status": "failed",
+    "researchedAt": "2026-03-29T10:03:22.222Z"
   }
 ]
