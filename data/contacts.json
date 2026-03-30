@@ -967,5 +967,16 @@
     "email": "office@luwatra.de",
     "status": "failed",
     "researchedAt": "2026-03-29T10:03:22.222Z"
+  },
+  {
+    "id": "2049f137-6eac-4513-b28a-5a98118742e0",
+    "shopName": "Leuchten Lokal",
+    "shopDomain": "www.leuchtenlokal.de",
+    "shopUrl": "https://www.leuchtenlokal.de",
+    "productUrl": "https://www.leuchtenlokal.de/",
+    "productName": "Leuchten Lokal : Der Referenz-Shop für Leuchten",
+    "email": "kontakt@leuchtenlokal.de",
+    "status": "failed",
+    "researchedAt": "2026-03-30T10:45:14.235Z"
   }
 ]
