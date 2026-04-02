@@ -1000,5 +1000,49 @@
     "email": "service@pollin.de",
     "status": "failed",
     "researchedAt": "2026-04-01T10:37:17.193Z"
+  },
+  {
+    "id": "b0fdf337-9cb9-4422-b354-6c533df92cf4",
+    "shopName": "Fink Living",
+    "shopDomain": "fink-shop.com",
+    "shopUrl": "https://fink-shop.com",
+    "productUrl": "https://fink-shop.com/",
+    "productName": "Exklusive Deko & Wohnaccessoires von Fink | fink-shop.com",
+    "email": "kontakt@fink-shop.com",
+    "status": "failed",
+    "researchedAt": "2026-04-02T10:31:45.583Z"
+  },
+  {
+    "id": "497fb826-ff0c-4875-a457-09c9f9e8c88b",
+    "shopName": "Asphaltgold",
+    "shopDomain": "www.asphaltgold.com",
+    "shopUrl": "https://www.asphaltgold.com",
+    "productUrl": "https://www.asphaltgold.com/collections/sneaker",
+    "productName": "Sneaker - jetzt bei Asphaltgold online kaufen!",
+    "email": "hello@asphaltgold.com",
+    "status": "failed",
+    "researchedAt": "2026-04-02T10:33:05.730Z"
+  },
+  {
+    "id": "bbffc9e5-3fd7-4e14-adc7-545b67049685",
+    "shopName": "www.timezone.watch",
+    "shopDomain": "www.timezone.watch",
+    "shopUrl": "https://www.timezone.watch",
+    "productUrl": "https://www.timezone.watch/",
+    "productName": "Entdecken Sie exklusive Luxusuhren bei Timezone Watches",
+    "email": "timezone-info@web.de",
+    "status": "failed",
+    "researchedAt": "2026-04-02T10:39:48.562Z"
+  },
+  {
+    "id": "584dbd70-809c-4e8b-acb5-fd3d23590911",
+    "shopName": "Kaiser Watch Trading GmbH",
+    "shopDomain": "www.kaiserwatch.de",
+    "shopUrl": "https://www.kaiserwatch.de",
+    "productUrl": "https://www.kaiserwatch.de/",
+    "productName": "Kaiser Watch Trading GmbH",
+    "email": "info@kaiserwatch.de",
+    "status": "failed",
+    "researchedAt": "2026-04-02T10:39:52.812Z"
   }
 ]
