@@ -1044,5 +1044,38 @@
     "email": "info@kaiserwatch.de",
     "status": "failed",
     "researchedAt": "2026-04-02T10:39:52.812Z"
+  },
+  {
+    "id": "254895ce-1f40-4ad6-9761-08de6a552c51",
+    "shopName": "Mila Studio",
+    "shopDomain": "mila-studio.de",
+    "shopUrl": "https://mila-studio.de",
+    "productUrl": "https://mila-studio.de/",
+    "productName": "Mila Studio – Handgemachter Schmuck mit Liebe und Leidenschaft",
+    "email": "delia.denzer24@gmail.com",
+    "status": "failed",
+    "researchedAt": "2026-04-04T10:02:28.992Z"
+  },
+  {
+    "id": "5aab9907-c1b7-4843-8bb5-9045715875eb",
+    "shopName": "Uhren2000",
+    "shopDomain": "www.uhren2000.de",
+    "shopUrl": "https://www.uhren2000.de",
+    "productUrl": "https://www.uhren2000.de/",
+    "productName": "Rolex, Breitling, Omega, IWC Luxusuhren online kaufen",
+    "email": "info@uhren2000.de",
+    "status": "failed",
+    "researchedAt": "2026-04-04T10:04:41.136Z"
+  },
+  {
+    "id": "ab114824-ea96-4fba-a90b-08b3f1eae2c5",
+    "shopName": "NewGadgets.de",
+    "shopDomain": "www.newgadgets.de",
+    "shopUrl": "https://www.newgadgets.de",
+    "productUrl": "https://www.newgadgets.de/impressum/",
+    "productName": "Impressum - NewGadgets.de",
+    "email": "info@newgadgets.de",
+    "status": "failed",
+    "researchedAt": "2026-04-04T10:05:30.705Z"
   }
 ]
