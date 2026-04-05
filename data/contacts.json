@@ -1077,5 +1077,27 @@
     "email": "info@newgadgets.de",
     "status": "failed",
     "researchedAt": "2026-04-04T10:05:30.705Z"
+  },
+  {
+    "id": "e2a11ec0-be58-4d12-b615-51d1587ff902",
+    "shopName": "Prediger Lichtberater",
+    "shopDomain": "prediger.de",
+    "shopUrl": "https://prediger.de",
+    "productUrl": "https://prediger.de/",
+    "productName": "Designleuchten & Designlampen | Prediger Lichtberater",
+    "email": "info@prediger.de",
+    "status": "failed",
+    "researchedAt": "2026-04-05T10:03:29.473Z"
+  },
+  {
+    "id": "da9f42b6-63af-4d5f-aaca-e13cc8dc0680",
+    "shopName": "Frank Flechtwaren",
+    "shopDomain": "www.frank-flechtwaren.de",
+    "shopUrl": "https://www.frank-flechtwaren.de",
+    "productUrl": "https://www.frank-flechtwaren.de/",
+    "productName": "Frank Flechtwaren Onlineshop | Hier werden Träume wahr",
+    "email": "kundenservice@frank-flechtwaren.de",
+    "status": "failed",
+    "researchedAt": "2026-04-05T10:04:03.314Z"
   }
 ]
