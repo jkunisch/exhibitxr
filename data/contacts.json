@@ -1110,5 +1110,27 @@
     "email": "moin@harbour2nd.de",
     "status": "failed",
     "researchedAt": "2026-04-06T10:40:35.702Z"
+  },
+  {
+    "id": "d7e64837-965b-496a-b300-e4ad068503aa",
+    "shopName": "Megafuchs",
+    "shopDomain": "www.megafuchs.de",
+    "shopUrl": "https://www.megafuchs.de",
+    "productUrl": "https://www.megafuchs.de/",
+    "productName": "Megafuchs – Deko & Wohnaccessoires online kaufen | Stilvoll einrichten",
+    "email": "sales@megafuchs.de",
+    "status": "failed",
+    "researchedAt": "2026-04-07T10:34:57.152Z"
+  },
+  {
+    "id": "084b4871-c192-4b23-9a5a-1a81a205f01a",
+    "shopName": "www.nanu-nana.de",
+    "shopDomain": "www.nanu-nana.de",
+    "shopUrl": "https://www.nanu-nana.de",
+    "productUrl": "https://www.nanu-nana.de/",
+    "productName": "NANU-NANA | suchen stöbern finden | Der Onlineshop (DE)",
+    "email": "onlineshop@nanu-nana.de",
+    "status": "failed",
+    "researchedAt": "2026-04-07T10:35:00.399Z"
   }
 ]
