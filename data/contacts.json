@@ -1132,5 +1132,16 @@
     "email": "onlineshop@nanu-nana.de",
     "status": "failed",
     "researchedAt": "2026-04-07T10:35:00.399Z"
+  },
+  {
+    "id": "8102ab62-2ad8-4935-a352-f39cdcbad86c",
+    "shopName": "MCF Aurum Shop",
+    "shopDomain": "mcf-aurum-shop.de",
+    "shopUrl": "https://mcf-aurum-shop.de",
+    "productUrl": "https://mcf-aurum-shop.de/",
+    "productName": "MCF Aurum Shop | Luxusuhren in Gütersloh kaufen",
+    "email": "info@aurum-atelier.de",
+    "status": "failed",
+    "researchedAt": "2026-04-08T10:38:49.006Z"
   }
 ]
