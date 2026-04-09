@@ -1143,5 +1143,27 @@
     "email": "info@aurum-atelier.de",
     "status": "failed",
     "researchedAt": "2026-04-08T10:38:49.006Z"
+  },
+  {
+    "id": "1609030d-4ccd-4715-9d7f-5fa4dbeee5df",
+    "shopName": "Sagatron",
+    "shopDomain": "www.sagatron.de",
+    "shopUrl": "https://www.sagatron.de",
+    "productUrl": "https://www.sagatron.de/informationen/impressum/",
+    "productName": "Impressum & Unternehmensinformationen | SAGATRON",
+    "email": "vertrieb@sagatron.de",
+    "status": "failed",
+    "researchedAt": "2026-04-09T10:44:01.027Z"
+  },
+  {
+    "id": "9b9ea359-e658-4807-9776-1a1704925c83",
+    "shopName": "Shop für Elektronik - großes Sortiment, schnelle Lieferung, ohne MOQ",
+    "shopDomain": "www.werner-electronic.de",
+    "shopUrl": "https://www.werner-electronic.de",
+    "productUrl": "https://www.werner-electronic.de/",
+    "productName": "Shop für Elektronik - großes Sortiment, schnelle Lieferung, ohne MOQ",
+    "email": "info@werner-electronic.de",
+    "status": "failed",
+    "researchedAt": "2026-04-09T10:48:36.471Z"
   }
 ]
