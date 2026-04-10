@@ -1165,5 +1165,27 @@
     "email": "info@werner-electronic.de",
     "status": "failed",
     "researchedAt": "2026-04-09T10:48:36.471Z"
+  },
+  {
+    "id": "61065f36-7931-4e7f-9ab6-fe5b74e9bd39",
+    "shopName": "Juwelier Mayr GmbH",
+    "shopDomain": "mayrwatches.com",
+    "shopUrl": "https://mayrwatches.com",
+    "productUrl": "https://mayrwatches.com/",
+    "productName": "Mayr Watches – Luxusuhren kaufen & verkaufen | Juwelier Mayr GmbH",
+    "email": "info@mayrwatches.com",
+    "status": "failed",
+    "researchedAt": "2026-04-10T10:36:13.448Z"
+  },
+  {
+    "id": "60109b2a-87ac-4b6e-979e-9c44fd1c1861",
+    "shopName": "Lux4Watches GmbH",
+    "shopDomain": "lux4watches.de",
+    "shopUrl": "https://lux4watches.de",
+    "productUrl": "https://lux4watches.de/",
+    "productName": "Lux4Watches – Verkauf und Ankauf von exklusiven Luxusuhren",
+    "email": "info@lux4watches.de",
+    "status": "failed",
+    "researchedAt": "2026-04-10T10:36:17.831Z"
   }
 ]
