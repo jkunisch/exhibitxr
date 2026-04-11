@@ -1187,5 +1187,38 @@
     "email": "info@lux4watches.de",
     "status": "failed",
     "researchedAt": "2026-04-10T10:36:17.831Z"
+  },
+  {
+    "id": "fba449de-b040-42dd-a630-a8bb75366604",
+    "shopName": "Minnak Fine Jewelry",
+    "shopDomain": "www.minnak.de",
+    "shopUrl": "https://www.minnak.de",
+    "productUrl": "https://www.minnak.de/",
+    "productName": "Handgefertigter Schmuck aus Deutschland | Minnak Fine Jewelry",
+    "email": "info@minnak.de",
+    "status": "failed",
+    "researchedAt": "2026-04-11T10:04:38.550Z"
+  },
+  {
+    "id": "be6db72d-9cb1-4470-9025-a1e4650eb622",
+    "shopName": "Kaheku",
+    "shopDomain": "www.kaheku.com",
+    "shopUrl": "https://www.kaheku.com",
+    "productUrl": "https://www.kaheku.com/",
+    "productName": "Wohnaccessoires | Kaheku schönes Wohnen | Hildesheim",
+    "email": "office@kaheku.com",
+    "status": "failed",
+    "researchedAt": "2026-04-11T10:05:05.548Z"
+  },
+  {
+    "id": "6b73068e-5f0b-42fa-9468-80bd17448ac0",
+    "shopName": "Chronum Uhren",
+    "shopDomain": "chronum-uhren.de",
+    "shopUrl": "https://chronum-uhren.de",
+    "productUrl": "https://chronum-uhren.de/kontakt/",
+    "productName": "Kontakt - Chronum Uhren",
+    "email": "info@chronum-uhren.de",
+    "status": "failed",
+    "researchedAt": "2026-04-11T10:06:50.162Z"
   }
 ]
