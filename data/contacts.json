@@ -1220,5 +1220,16 @@
     "email": "info@chronum-uhren.de",
     "status": "failed",
     "researchedAt": "2026-04-11T10:06:50.162Z"
+  },
+  {
+    "id": "a570dac7-a1fc-493c-9a7a-c9665ace3ee7",
+    "shopName": "fairtronics.de",
+    "shopDomain": "www.fairtronics.de",
+    "shopUrl": "https://www.fairtronics.de",
+    "productUrl": "https://www.fairtronics.de/",
+    "productName": "Entdecken Sie innovative Elektronik und Gadgets bei Fairtronics!",
+    "email": "info@fairtronics.de",
+    "status": "failed",
+    "researchedAt": "2026-04-14T10:48:13.062Z"
   }
 ]
