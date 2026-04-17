@@ -1231,5 +1231,16 @@
     "email": "info@fairtronics.de",
     "status": "failed",
     "researchedAt": "2026-04-14T10:48:13.062Z"
+  },
+  {
+    "id": "1cc5155f-16ea-48e4-80f9-40b8c974eb1b",
+    "shopName": "LAMPIFY",
+    "shopDomain": "lampify.de",
+    "shopUrl": "https://lampify.de",
+    "productUrl": "https://lampify.de/",
+    "productName": "Lampify - die Lichtmacher",
+    "email": "info@lampify.de",
+    "status": "failed",
+    "researchedAt": "2026-04-17T10:38:45.197Z"
   }
 ]
