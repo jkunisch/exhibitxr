@@ -1242,5 +1242,49 @@
     "email": "info@lampify.de",
     "status": "failed",
     "researchedAt": "2026-04-17T10:38:45.197Z"
+  },
+  {
+    "id": "fc752597-e0a8-4ade-babe-551924b05b9b",
+    "shopName": "moebel-shop.de",
+    "shopDomain": "www.moebel-shop.de",
+    "shopUrl": "https://www.moebel-shop.de",
+    "productUrl": "https://www.moebel-shop.de/",
+    "productName": "moebel-shop.de",
+    "email": "kontakt@moebel-shop.de",
+    "status": "failed",
+    "researchedAt": "2026-04-18T10:07:22.159Z"
+  },
+  {
+    "id": "5c5359f1-8172-4e6e-8971-40f0fec0a027",
+    "shopName": "So Loved Manufacture",
+    "shopDomain": "www.soloved.de",
+    "shopUrl": "https://www.soloved.de",
+    "productUrl": "https://www.soloved.de/",
+    "productName": "So Loved Manufacture – Moderner Schmuck & Accessoires",
+    "email": "desi@soloved.de",
+    "status": "failed",
+    "researchedAt": "2026-04-18T10:07:39.519Z"
+  },
+  {
+    "id": "cf5345c5-27fe-4c85-bdac-5fa4dd04fd3b",
+    "shopName": "www.prestige-home.de",
+    "shopDomain": "www.prestige-home.de",
+    "shopUrl": "https://www.prestige-home.de",
+    "productUrl": "https://www.prestige-home.de/de/category/deko-wohnaccessoires",
+    "productName": "Deko & Wohnaccessoires online kaufen | Stilvolle Wohnideen für Ihr Zuhause",
+    "email": "support@prestige-home.de",
+    "status": "failed",
+    "researchedAt": "2026-04-18T10:08:07.063Z"
+  },
+  {
+    "id": "f8d8afc4-bd91-48b7-b772-a2123653a391",
+    "shopName": "www.blume2000.de",
+    "shopDomain": "www.blume2000.de",
+    "shopUrl": "https://www.blume2000.de",
+    "productUrl": "https://www.blume2000.de/wohnaccessoires-moebel/vasen",
+    "productName": "Vasen kaufen - große Auswahl | BLUME2000",
+    "email": "service@blume2000.de",
+    "status": "failed",
+    "researchedAt": "2026-04-18T10:09:58.611Z"
   }
 ]
