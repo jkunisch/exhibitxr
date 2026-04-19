@@ -1286,5 +1286,16 @@
     "email": "service@blume2000.de",
     "status": "failed",
     "researchedAt": "2026-04-18T10:09:58.611Z"
+  },
+  {
+    "id": "a5ebd98c-e334-4f0d-99fa-3d915ddf7fdb",
+    "shopName": "Cologne Watch",
+    "shopDomain": "www.colognewatch.de",
+    "shopUrl": "https://www.colognewatch.de",
+    "productUrl": "https://www.colognewatch.de/",
+    "productName": "Cologne Watch",
+    "email": "info@colognewatch.de",
+    "status": "failed",
+    "researchedAt": "2026-04-19T10:09:52.584Z"
   }
 ]
