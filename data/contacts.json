@@ -1297,5 +1297,38 @@
     "email": "info@colognewatch.de",
     "status": "failed",
     "researchedAt": "2026-04-19T10:09:52.584Z"
+  },
+  {
+    "id": "765019d4-10c0-4a62-9a07-7c4958a1fd24",
+    "shopName": "butlersonline.shop",
+    "shopDomain": "butlersonline.shop",
+    "shopUrl": "https://butlersonline.shop",
+    "productUrl": "https://butlersonline.shop/",
+    "productName": "Moderne Wohnaccessoires & Deko ✨",
+    "email": "support@butlersonlineshop.com",
+    "status": "failed",
+    "researchedAt": "2026-04-22T10:48:20.177Z"
+  },
+  {
+    "id": "79dad84e-9e45-4641-a85c-43604f935112",
+    "shopName": "www.luxus-uhren-freiburg.de",
+    "shopDomain": "www.luxus-uhren-freiburg.de",
+    "shopUrl": "https://www.luxus-uhren-freiburg.de",
+    "productUrl": "https://www.luxus-uhren-freiburg.de/",
+    "productName": "LUXUS UHREN FREIBURG GmbH",
+    "email": "info@luxus-uhren-freiburg.de",
+    "status": "failed",
+    "researchedAt": "2026-04-22T10:49:49.550Z"
+  },
+  {
+    "id": "d8acd093-2d2f-4f6a-95bd-6a586cd882a6",
+    "shopName": "Leopold & Co.",
+    "shopDomain": "www.juwelier-leopold.de",
+    "shopUrl": "https://www.juwelier-leopold.de",
+    "productUrl": "https://www.juwelier-leopold.de/",
+    "productName": "Juwelier und Leihhaus Leopold & Co. | Meinekestr. 5, Berlin",
+    "email": "info@juwelier-leopold.de",
+    "status": "failed",
+    "researchedAt": "2026-04-22T10:49:52.713Z"
   }
 ]
