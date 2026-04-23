@@ -1330,5 +1330,27 @@
     "email": "info@juwelier-leopold.de",
     "status": "failed",
     "researchedAt": "2026-04-22T10:49:52.713Z"
+  },
+  {
+    "id": "1bb86e6a-1358-4ccc-9842-81f2adf6760c",
+    "shopName": "Polène DE",
+    "shopDomain": "de.polene-paris.com",
+    "shopUrl": "https://de.polene-paris.com",
+    "productUrl": "https://de.polene-paris.com/",
+    "productName": "Polène - Pariser Lederwarenhaus - E-shop",
+    "email": "contact@polene-paris.com",
+    "status": "failed",
+    "researchedAt": "2026-04-23T10:55:23.839Z"
+  },
+  {
+    "id": "613d1789-eed8-4f3c-9bc1-d3cddbed38c8",
+    "shopName": "GigaElektronik",
+    "shopDomain": "gigaelektronik.de",
+    "shopUrl": "https://gigaelektronik.de",
+    "productUrl": "https://gigaelektronik.de/",
+    "productName": "GigaElektronik",
+    "email": "kundenservice@gigaelektronik.de",
+    "status": "failed",
+    "researchedAt": "2026-04-23T10:55:52.004Z"
   }
 ]
