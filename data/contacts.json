@@ -1352,5 +1352,16 @@
     "email": "kundenservice@gigaelektronik.de",
     "status": "failed",
     "researchedAt": "2026-04-23T10:55:52.004Z"
+  },
+  {
+    "id": "c3b53441-feab-4d1f-99ca-b482b7f9e223",
+    "shopName": "SolaceDeco",
+    "shopDomain": "solacedeco.com",
+    "shopUrl": "https://solacedeco.com",
+    "productUrl": "https://solacedeco.com/product-category/wohndeko/keramikvasen/",
+    "productName": "Keramikvasen Archives",
+    "email": "info@solacedeco.com",
+    "status": "failed",
+    "researchedAt": "2026-04-28T11:25:06.376Z"
   }
 ]
