@@ -1385,5 +1385,27 @@
     "email": "kontakt@prigge-recht.de",
     "status": "failed",
     "researchedAt": "2026-04-29T11:17:53.275Z"
+  },
+  {
+    "id": "29efd4ac-ec0b-4ce5-8211-d61fb02c67f1",
+    "shopName": "https://www.riess-ambiente.net/",
+    "shopDomain": "www.riess-ambiente.net",
+    "shopUrl": "https://www.riess-ambiente.net",
+    "productUrl": "https://www.riess-ambiente.net/lampen-leuchten/",
+    "productName": "Design-Lampen exklusiv und einzigartig | Riess-Ambiente.de",
+    "email": "info@riess-ambiente.de",
+    "status": "failed",
+    "researchedAt": "2026-04-30T11:14:45.934Z"
+  },
+  {
+    "id": "66760085-ee28-4a65-a18f-6659d18a152b",
+    "shopName": "Verbraucherzentrale.de",
+    "shopDomain": "www.verbraucherzentrale.de",
+    "shopUrl": "https://www.verbraucherzentrale.de",
+    "productUrl": "https://www.verbraucherzentrale.de/fakeshopfinder-71560",
+    "productName": "Fakeshop-Finder: Prüfen Sie, ob ein Online-Shop seriös ist | Verbraucherzentrale.de",
+    "email": "info@vzbv.de",
+    "status": "failed",
+    "researchedAt": "2026-04-30T11:17:34.770Z"
   }
 ]
