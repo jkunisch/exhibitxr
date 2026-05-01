@@ -1407,5 +1407,27 @@
     "email": "info@vzbv.de",
     "status": "failed",
     "researchedAt": "2026-04-30T11:17:34.770Z"
+  },
+  {
+    "id": "d968eac9-d322-4fbd-85b0-d7df5b628602",
+    "shopName": "Motel a Miio",
+    "shopDomain": "www.motelamiio.com",
+    "shopUrl": "https://www.motelamiio.com",
+    "productUrl": "https://www.motelamiio.com/collections/vasen",
+    "productName": "Vasen",
+    "email": "hello@motelamiio.com",
+    "status": "failed",
+    "researchedAt": "2026-05-01T10:56:23.661Z"
+  },
+  {
+    "id": "25cb28d3-1fc3-4f7e-bb67-9cf1aef9db98",
+    "shopName": "Lovely Aurora",
+    "shopDomain": "lovely-aurora.de",
+    "shopUrl": "https://lovely-aurora.de",
+    "productUrl": "https://lovely-aurora.de/",
+    "productName": "Lovely Aurora - Einzigartige und elegante Accessoires für Frauen",
+    "email": "circle@lovely-aurora.de",
+    "status": "failed",
+    "researchedAt": "2026-05-01T10:56:36.907Z"
   }
 ]
