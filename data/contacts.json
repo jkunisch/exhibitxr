@@ -1429,5 +1429,27 @@
     "email": "circle@lovely-aurora.de",
     "status": "failed",
     "researchedAt": "2026-05-01T10:56:36.907Z"
+  },
+  {
+    "id": "fc441bce-55ab-4f4e-acb4-e4ec59695674",
+    "shopName": "Schmucklinie.shop",
+    "shopDomain": "schmucklinie.shop",
+    "shopUrl": "https://schmucklinie.shop",
+    "productUrl": "https://schmucklinie.shop/",
+    "productName": "Goldschmiede Bochum | Handgefertigter Unikatschmuck – Schmucklinie",
+    "email": "brief@schmucklinie-shop.de",
+    "status": "failed",
+    "researchedAt": "2026-05-03T10:31:54.518Z"
+  },
+  {
+    "id": "5d708742-46e6-447e-992e-e09525ad2519",
+    "shopName": "Belcarat",
+    "shopDomain": "belcaratshop.com",
+    "shopUrl": "https://belcaratshop.com",
+    "productUrl": "https://belcaratshop.com/",
+    "productName": "Belcarat Jewelry - Handgearbeitet und mit Liebe gestaltet.",
+    "email": "hello@belcarat.com",
+    "status": "failed",
+    "researchedAt": "2026-05-03T10:31:58.677Z"
   }
 ]
