@@ -1451,5 +1451,16 @@
     "email": "hello@belcarat.com",
     "status": "failed",
     "researchedAt": "2026-05-03T10:31:58.677Z"
+  },
+  {
+    "id": "36d54e68-0fe8-4319-92ee-4858134eef1e",
+    "shopName": "Paradies der Lust",
+    "shopDomain": "www.paradiesderlust.de",
+    "shopUrl": "https://www.paradiesderlust.de",
+    "productUrl": "https://www.paradiesderlust.de/impressum",
+    "productName": "Impressum | Paradies der Lust",
+    "email": "imprint@idnr-inc.com",
+    "status": "failed",
+    "researchedAt": "2026-05-04T11:22:28.230Z"
   }
 ]
