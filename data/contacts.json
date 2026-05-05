@@ -1462,5 +1462,16 @@
     "email": "imprint@idnr-inc.com",
     "status": "failed",
     "researchedAt": "2026-05-04T11:22:28.230Z"
+  },
+  {
+    "id": "e8bdb055-844f-47b9-a272-05bc848f9f98",
+    "shopName": "https://www.kreativwolke-shop.de/",
+    "shopDomain": "www.kreativwolke-shop.de",
+    "shopUrl": "https://www.kreativwolke-shop.de",
+    "productUrl": "https://www.kreativwolke-shop.de/",
+    "productName": "Modeschmuck-Zubehoer | Kreativwolke",
+    "email": "info@kreativwolke-shop.de",
+    "status": "failed",
+    "researchedAt": "2026-05-05T11:08:46.638Z"
   }
 ]
