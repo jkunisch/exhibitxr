@@ -1473,5 +1473,49 @@
     "email": "info@kreativwolke-shop.de",
     "status": "failed",
     "researchedAt": "2026-05-05T11:08:46.638Z"
+  },
+  {
+    "id": "c1558758-9581-43fc-bab1-68d043623276",
+    "shopName": "Feyart Schmuck",
+    "shopDomain": "www.feyart.de",
+    "shopUrl": "https://www.feyart.de",
+    "productUrl": "https://www.feyart.de/",
+    "productName": "Feyart Schmuck | Handgemachter Schmuck aus Norddeutschland",
+    "email": "schmuck@feyart.de",
+    "status": "failed",
+    "researchedAt": "2026-05-06T11:25:14.900Z"
+  },
+  {
+    "id": "456b6eb9-e4df-4927-a434-7c8b6916b148",
+    "shopName": "skapetze® - Licht trifft Design.",
+    "shopDomain": "skapetze.com",
+    "shopUrl": "https://skapetze.com",
+    "productUrl": "https://skapetze.com/",
+    "productName": "Designerlampen & Leuchten online kaufen",
+    "email": "service@skapetze.com",
+    "status": "failed",
+    "researchedAt": "2026-05-06T11:25:22.522Z"
+  },
+  {
+    "id": "9300aee6-03d2-4d7f-a155-5a4ccc43e804",
+    "shopName": "Designort Licht & Leuchten",
+    "shopDomain": "www.designort.com",
+    "shopUrl": "https://www.designort.com",
+    "productUrl": "https://www.designort.com/home-1/",
+    "productName": "Premium Designerleuchten & Designerlampen Online kaufen",
+    "email": "licht@designort.com",
+    "status": "failed",
+    "researchedAt": "2026-05-06T11:25:41.258Z"
+  },
+  {
+    "id": "23c8e802-44c9-4d0f-a952-e7d6e8dce0ca",
+    "shopName": "Lampen24.de",
+    "shopDomain": "www.lampen24.de",
+    "shopUrl": "https://www.lampen24.de",
+    "productUrl": "https://www.lampen24.de/shop/",
+    "productName": "Dein Shop für Lampen & Leuchten | Lampen24.de",
+    "email": "affiliateportale@synatix.com",
+    "status": "failed",
+    "researchedAt": "2026-05-06T11:26:04.505Z"
   }
 ]
