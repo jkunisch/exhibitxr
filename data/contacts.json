@@ -1517,5 +1517,16 @@
     "email": "affiliateportale@synatix.com",
     "status": "failed",
     "researchedAt": "2026-05-06T11:26:04.505Z"
+  },
+  {
+    "id": "d6983df4-d094-4892-a608-14bc17b3c390",
+    "shopName": "RW ELECTRONICS eK E-Shop",
+    "shopDomain": "shop.dernetzwerkladen.de",
+    "shopUrl": "https://shop.dernetzwerkladen.de",
+    "productUrl": "https://shop.dernetzwerkladen.de/de/ueber-uns/impressum",
+    "productName": "Impressum - RW ELECTRONICS eK",
+    "email": "info@dernetzwerkladen.de",
+    "status": "failed",
+    "researchedAt": "2026-05-11T12:31:37.834Z"
   }
 ]
