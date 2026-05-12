@@ -1528,5 +1528,16 @@
     "email": "info@dernetzwerkladen.de",
     "status": "failed",
     "researchedAt": "2026-05-11T12:31:37.834Z"
+  },
+  {
+    "id": "28c122e2-cd00-4716-b12b-f762ee1efe6e",
+    "shopName": "CG Wohnaccessoires",
+    "shopDomain": "www.cg-wohnaccessoires.de",
+    "shopUrl": "https://www.cg-wohnaccessoires.de",
+    "productUrl": "https://www.cg-wohnaccessoires.de/",
+    "productName": "CG Wohnaccessoires",
+    "email": "info@cg-wohnaccessoires.de",
+    "status": "failed",
+    "researchedAt": "2026-05-12T11:32:07.876Z"
   }
 ]
