@@ -1539,5 +1539,16 @@
     "email": "info@cg-wohnaccessoires.de",
     "status": "failed",
     "researchedAt": "2026-05-12T11:32:07.876Z"
+  },
+  {
+    "id": "74c34627-f1d0-4672-b237-4adf30709ab1",
+    "shopName": "Vogue Germany",
+    "shopDomain": "www.vogue.de",
+    "shopUrl": "https://www.vogue.de",
+    "productUrl": "https://www.vogue.de/mode/artikel/top-20-schmuckmarken",
+    "productName": "Schmuckfans, aufgepasst – das sind die Top-20-Schmuckmarken, die Sie auf dem Radar haben sollten!",
+    "email": "mail@condenast.de",
+    "status": "failed",
+    "researchedAt": "2026-05-16T10:49:29.134Z"
   }
 ]
