@@ -1550,5 +1550,27 @@
     "email": "mail@condenast.de",
     "status": "failed",
     "researchedAt": "2026-05-16T10:49:29.134Z"
+  },
+  {
+    "id": "57470bec-38f1-437e-b59c-303efa1e1531",
+    "shopName": "MONTREDO",
+    "shopDomain": "www.montredo.com",
+    "shopUrl": "https://www.montredo.com",
+    "productUrl": "https://www.montredo.com/de",
+    "productName": "MONTREDO  Europas führender Online-Händler für Luxusuhren",
+    "email": "service@montredo.com",
+    "status": "failed",
+    "researchedAt": "2026-05-17T10:53:05.433Z"
+  },
+  {
+    "id": "dc94a44c-69b6-4b9f-b056-a1d0f55f9747",
+    "shopName": "CHRONEXT - Die Plattform für Luxusuhren",
+    "shopDomain": "www.chronext.de",
+    "shopUrl": "https://www.chronext.de",
+    "productUrl": "https://www.chronext.de/",
+    "productName": "CHRONEXT - Die Plattform für Luxusuhren",
+    "email": "support@chronext.com",
+    "status": "failed",
+    "researchedAt": "2026-05-17T10:53:10.753Z"
   }
 ]
