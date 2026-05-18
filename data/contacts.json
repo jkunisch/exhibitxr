@@ -1572,5 +1572,38 @@
     "email": "support@chronext.com",
     "status": "failed",
     "researchedAt": "2026-05-17T10:53:10.753Z"
+  },
+  {
+    "id": "c3f31ab7-1ac3-48b1-b568-8fd0c03e9742",
+    "shopName": "versand-rodnik.de",
+    "shopDomain": "versand-rodnik.de",
+    "shopUrl": "https://versand-rodnik.de",
+    "productUrl": "https://versand-rodnik.de/",
+    "productName": "versand-rodnik.de",
+    "email": "kundenservice@versand-rodnik.de",
+    "status": "failed",
+    "researchedAt": "2026-05-18T12:50:36.326Z"
+  },
+  {
+    "id": "9e69ab50-dd6d-4b53-9843-9a03fdf954f7",
+    "shopName": "IchLiebeDesign.de",
+    "shopDomain": "www.ichliebedesign.de",
+    "shopUrl": "https://www.ichliebedesign.de",
+    "productUrl": "https://www.ichliebedesign.de/technik/designer-leuchten-lampen/",
+    "productName": "Hochwertige Designer Leuchten & Lampen kaufen | IchLiebeDesign.de",
+    "email": "legal@shopware.com",
+    "status": "failed",
+    "researchedAt": "2026-05-18T12:51:02.300Z"
+  },
+  {
+    "id": "d2168c3a-604b-4701-a1c6-428eaf017f98",
+    "shopName": "www.fashionette.de",
+    "shopDomain": "www.fashionette.de",
+    "shopUrl": "https://www.fashionette.de",
+    "productUrl": "https://www.fashionette.de/",
+    "productName": "fashionette Designer Marktplatz: Designer Taschen, Mode, Schuhe, Schmuck & Accessoires",
+    "email": "service@fashionette.de",
+    "status": "failed",
+    "researchedAt": "2026-05-18T12:53:17.982Z"
   }
 ]
