@@ -1605,5 +1605,27 @@
     "email": "service@fashionette.de",
     "status": "failed",
     "researchedAt": "2026-05-18T12:53:17.982Z"
+  },
+  {
+    "id": "1df917c1-8099-4071-a43b-f8ba06c9f6e4",
+    "shopName": "Perlkönig",
+    "shopDomain": "www.perlkoenig.de",
+    "shopUrl": "https://www.perlkoenig.de",
+    "productUrl": "https://www.perlkoenig.de/",
+    "productName": "Perlkönig Schmuckmanufaktur - Schmuck ist unsere Leidenschaft",
+    "email": "info@perlkoenig.com",
+    "status": "failed",
+    "researchedAt": "2026-05-19T12:25:58.054Z"
+  },
+  {
+    "id": "37f88789-00eb-4162-8bbd-8c88f441a90a",
+    "shopName": "CS-Electronic Startseite",
+    "shopDomain": "cs-shop.de",
+    "shopUrl": "https://cs-shop.de",
+    "productUrl": "https://cs-shop.de/",
+    "productName": "CS-Electronic Startseite",
+    "email": "info@cs-electronic.com",
+    "status": "failed",
+    "researchedAt": "2026-05-19T12:29:18.608Z"
   }
 ]
