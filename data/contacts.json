@@ -1627,5 +1627,49 @@
     "email": "info@cs-electronic.com",
     "status": "failed",
     "researchedAt": "2026-05-19T12:29:18.608Z"
+  },
+  {
+    "id": "84f2bf86-7e7c-4534-a36c-dabd74e7e38f",
+    "shopName": "HolzBriketts | SPARK Online Shop",
+    "shopDomain": "briketts.shop",
+    "shopUrl": "https://briketts.shop",
+    "productUrl": "https://briketts.shop/impressum",
+    "productName": "HolzBriketts | SPARK Online Shop",
+    "email": "info@briketts.shop",
+    "status": "failed",
+    "researchedAt": "2026-05-20T12:07:52.957Z"
+  },
+  {
+    "id": "2661cd56-bddb-4a41-b52b-9dc18e1d499c",
+    "shopName": "Uhren-Miquel",
+    "shopDomain": "uhren-miquel.de",
+    "shopUrl": "https://uhren-miquel.de",
+    "productUrl": "https://uhren-miquel.de/",
+    "productName": "Luxusuhren kaufen und verkaufen seit rund 30 Jahren.",
+    "email": "info@uhren-miquel.de",
+    "status": "failed",
+    "researchedAt": "2026-05-20T12:10:45.764Z"
+  },
+  {
+    "id": "58e43904-49a3-4f49-89c0-f32c7d2f2227",
+    "shopName": "Deko Vase",
+    "shopDomain": "deko-vase.de",
+    "shopUrl": "https://deko-vase.de",
+    "productUrl": "https://deko-vase.de/",
+    "productName": "Startseite",
+    "email": "contact@deko-vase.de",
+    "status": "failed",
+    "researchedAt": "2026-05-20T12:11:12.682Z"
+  },
+  {
+    "id": "6e46f1c2-dbb0-4c83-8484-8cc74b7ae867",
+    "shopName": "LSdigital-Shop",
+    "shopDomain": "www.lsdigital-shop.de",
+    "shopUrl": "https://www.lsdigital-shop.de",
+    "productUrl": "https://www.lsdigital-shop.de/impressum/",
+    "productName": "Impressum",
+    "email": "lsdigital@buehler-electronic.de",
+    "status": "failed",
+    "researchedAt": "2026-05-20T12:11:24.331Z"
   }
 ]
