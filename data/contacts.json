@@ -1671,5 +1671,16 @@
     "email": "lsdigital@buehler-electronic.de",
     "status": "failed",
     "researchedAt": "2026-05-20T12:11:24.331Z"
+  },
+  {
+    "id": "9f604972-245f-425b-a49a-3eef0f8c66f0",
+    "shopName": "Rahaus",
+    "shopDomain": "www.rahaus.de",
+    "shopUrl": "https://www.rahaus.de",
+    "productUrl": "https://www.rahaus.de/",
+    "productName": "Möbel Online Shop von Rahaus - Wohnträume wahr machen",
+    "email": "max@mustermann.de",
+    "status": "failed",
+    "researchedAt": "2026-05-21T12:31:50.310Z"
   }
 ]
