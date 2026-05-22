@@ -1682,5 +1682,16 @@
     "email": "max@mustermann.de",
     "status": "failed",
     "researchedAt": "2026-05-21T12:31:50.310Z"
+  },
+  {
+    "id": "43931a15-da6a-489e-bbb7-fd41ce29a52f",
+    "shopName": "Megagadgets Deutschland",
+    "shopDomain": "mega-gadgets.de",
+    "shopUrl": "https://mega-gadgets.de",
+    "productUrl": "https://mega-gadgets.de/pages/impressum",
+    "productName": "Impressum",
+    "email": "kundenservice@mega-gadgets.de",
+    "status": "failed",
+    "researchedAt": "2026-05-22T12:07:27.217Z"
   }
 ]
