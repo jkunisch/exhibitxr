@@ -1693,5 +1693,16 @@
     "email": "kundenservice@mega-gadgets.de",
     "status": "failed",
     "researchedAt": "2026-05-22T12:07:27.217Z"
+  },
+  {
+    "id": "de19a0cc-bd94-41e9-8c52-1b41145b512a",
+    "shopName": "Schmuckzicke",
+    "shopDomain": "www.schmuckzicke.de",
+    "shopUrl": "https://www.schmuckzicke.de",
+    "productUrl": "https://www.schmuckzicke.de/",
+    "productName": "Individuellen, hochwertigen und handgefertigten Edelsteinschmuck online kaufen.",
+    "email": "dergolfclub@t-online.de",
+    "status": "failed",
+    "researchedAt": "2026-05-24T10:55:28.118Z"
   }
 ]
