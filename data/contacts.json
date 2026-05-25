@@ -1704,5 +1704,16 @@
     "email": "dergolfclub@t-online.de",
     "status": "failed",
     "researchedAt": "2026-05-24T10:55:28.118Z"
+  },
+  {
+    "id": "2bc49c70-2a22-49b0-94ad-8a2a018c37e4",
+    "shopName": "LUXUHRIA",
+    "shopDomain": "luxuhria.de",
+    "shopUrl": "https://luxuhria.de",
+    "productUrl": "https://luxuhria.de/en/pages/kontakt",
+    "productName": "Contact",
+    "email": "info@luxuhria.de",
+    "status": "failed",
+    "researchedAt": "2026-05-25T12:52:00.099Z"
   }
 ]
