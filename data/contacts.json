@@ -1715,5 +1715,27 @@
     "email": "info@luxuhria.de",
     "status": "failed",
     "researchedAt": "2026-05-25T12:52:00.099Z"
+  },
+  {
+    "id": "2524cce8-7738-4149-b3a3-45bd144d64f1",
+    "shopName": "MiMaKäfer - Online-Shop für handgemachte Geschenke, Schmuck und mehr",
+    "shopDomain": "www.mimakaefer.de",
+    "shopUrl": "https://www.mimakaefer.de",
+    "productUrl": "https://www.mimakaefer.de/",
+    "productName": "Startseite",
+    "email": "shop@mimakaefer.de",
+    "status": "failed",
+    "researchedAt": "2026-05-28T12:49:52.237Z"
+  },
+  {
+    "id": "adc38cee-708e-4375-b8b2-f35a82d218d7",
+    "shopName": "Ackermann Taschen",
+    "shopDomain": "ackermann-leder.de",
+    "shopUrl": "https://ackermann-leder.de",
+    "productUrl": "https://ackermann-leder.de/",
+    "productName": "Ledertaschen - made in Germany",
+    "email": "office1@ackermann-leder.de",
+    "status": "failed",
+    "researchedAt": "2026-05-28T12:52:22.463Z"
   }
 ]
