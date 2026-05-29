@@ -1737,5 +1737,16 @@
     "email": "office1@ackermann-leder.de",
     "status": "failed",
     "researchedAt": "2026-05-28T12:52:22.463Z"
+  },
+  {
+    "id": "c61c502e-5685-4c62-9749-7c195daaed73",
+    "shopName": "Schmucke Sachen",
+    "shopDomain": "www.schmuckesachenshop.de",
+    "shopUrl": "https://www.schmuckesachenshop.de",
+    "productUrl": "https://www.schmuckesachenshop.de/",
+    "productName": "Hey!",
+    "email": "info@schmucke-sachen.de",
+    "status": "failed",
+    "researchedAt": "2026-05-29T12:31:52.294Z"
   }
 ]
