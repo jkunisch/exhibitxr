@@ -1748,5 +1748,16 @@
     "email": "info@schmucke-sachen.de",
     "status": "failed",
     "researchedAt": "2026-05-29T12:31:52.294Z"
+  },
+  {
+    "id": "ca03ef1d-a5c9-4476-b43a-40752a5fce1a",
+    "shopName": "99rooms",
+    "shopDomain": "99rooms.de",
+    "shopUrl": "https://99rooms.de",
+    "productUrl": "https://99rooms.de/",
+    "productName": "99rooms: Der Online-Möbelshop für Wohnen, Schlafen & mehr",
+    "email": "info@99rooms.de",
+    "status": "failed",
+    "researchedAt": "2026-05-30T10:57:06.319Z"
   }
 ]
