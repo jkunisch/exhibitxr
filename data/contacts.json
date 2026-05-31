@@ -1759,5 +1759,16 @@
     "email": "info@99rooms.de",
     "status": "failed",
     "researchedAt": "2026-05-30T10:57:06.319Z"
+  },
+  {
+    "id": "00ace780-ea8e-43d7-a748-8ad839daf530",
+    "shopName": "Lightkontor Online-Shop",
+    "shopDomain": "www.lightkontor.de",
+    "shopUrl": "https://www.lightkontor.de",
+    "productUrl": "https://www.lightkontor.de/",
+    "productName": "Leuchten & Lampen g�nstig online kaufen im Shop",
+    "email": "info@lightkontor.de",
+    "status": "failed",
+    "researchedAt": "2026-05-31T11:15:59.350Z"
   }
 ]
