@@ -1770,5 +1770,27 @@
     "email": "info@lightkontor.de",
     "status": "failed",
     "researchedAt": "2026-05-31T11:15:59.350Z"
+  },
+  {
+    "id": "17fdd504-76eb-460b-9780-64b664b77fa1",
+    "shopName": "OSTERMANN.de",
+    "shopDomain": "www.ostermann.de",
+    "shopUrl": "https://www.ostermann.de",
+    "productUrl": "https://www.ostermann.de/",
+    "productName": "OSTERMANN.de",
+    "email": "kundenservice@ostermann.de",
+    "status": "failed",
+    "researchedAt": "2026-06-02T12:56:11.735Z"
+  },
+  {
+    "id": "fb47b935-cb7c-42f6-8e98-5d94858fdaa2",
+    "shopName": "Connox",
+    "shopDomain": "www.connox.de",
+    "shopUrl": "https://www.connox.de",
+    "productUrl": "https://www.connox.de/kategorien/dekoration.html",
+    "productName": "'Design-Deko für Wohnzimmer, Küche & Garten'",
+    "email": "service@connox.de",
+    "status": "failed",
+    "researchedAt": "2026-06-02T12:56:34.644Z"
   }
 ]
