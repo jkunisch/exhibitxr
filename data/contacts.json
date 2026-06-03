@@ -1792,5 +1792,38 @@
     "email": "service@connox.de",
     "status": "failed",
     "researchedAt": "2026-06-02T12:56:34.644Z"
+  },
+  {
+    "id": "264eb167-37c3-47d6-bc1f-fda1c5a8e643",
+    "shopName": "DEKORUNDUM",
+    "shopDomain": "www.dekorundum.com",
+    "shopUrl": "https://www.dekorundum.com",
+    "productUrl": "https://www.dekorundum.com/",
+    "productName": "Ihr Deko Online-Shop: Willkommen bei DEKORUNDUM. Für Ihr Zuhause.",
+    "email": "shop@dekorundum.com",
+    "status": "failed",
+    "researchedAt": "2026-06-03T14:14:47.288Z"
+  },
+  {
+    "id": "b9523ac1-fb48-4d0a-bc45-06c68a56cf0d",
+    "shopName": "Accessoires in großer Auswahl versandkostenfrei bestellen",
+    "shopDomain": "www.nonarte.de",
+    "shopUrl": "https://www.nonarte.de",
+    "productUrl": "https://www.nonarte.de/",
+    "productName": "NONarte",
+    "email": "susan.ecker@freenet.de",
+    "status": "failed",
+    "researchedAt": "2026-06-03T14:24:13.541Z"
+  },
+  {
+    "id": "5d8bde4e-2f05-4341-bf19-ae6d3fc4f1dd",
+    "shopName": "Verbraucherschutz.com",
+    "shopDomain": "www.verbraucherschutz.com",
+    "shopUrl": "https://www.verbraucherschutz.com",
+    "productUrl": "https://www.verbraucherschutz.com/warnungsticker/warnung-vor-onlineshops-hier-duerfen-sie-nicht-einkaufen/",
+    "productName": "Warnung vor Onlineshops: Hier dürfen Sie nicht einkaufen (Fakeshop Liste)",
+    "email": "kontakt@verbraucherschutz.com",
+    "status": "failed",
+    "researchedAt": "2026-06-03T14:25:07.017Z"
   }
 ]
