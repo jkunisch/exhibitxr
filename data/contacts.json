@@ -1825,5 +1825,82 @@
     "email": "kontakt@verbraucherschutz.com",
     "status": "failed",
     "researchedAt": "2026-06-03T14:25:07.017Z"
+  },
+  {
+    "id": "b9df4b21-c496-434d-bb8f-db74c62add11",
+    "shopName": "Runte Schmuck",
+    "shopDomain": "runte-schmuck.com",
+    "shopUrl": "https://runte-schmuck.com",
+    "productUrl": "https://runte-schmuck.com/",
+    "productName": "Handgefertigte Ketten, Armbänder und Ohrringe | Schmuck aus Stuttgart",
+    "email": "hello@runte-schmuck.com",
+    "status": "failed",
+    "researchedAt": "2026-06-04T12:27:20.153Z"
+  },
+  {
+    "id": "b9819bbe-129a-40d0-8fd8-d638e4403b5d",
+    "shopName": "UR LUXURY",
+    "shopDomain": "www.ur-luxury.com",
+    "shopUrl": "https://www.ur-luxury.com",
+    "productUrl": "https://www.ur-luxury.com/",
+    "productName": "UR-LUXURY | Exklusive Luxusuhren & Concierge-Service",
+    "email": "ecom-swiper@11.css",
+    "status": "failed",
+    "researchedAt": "2026-06-04T12:29:33.062Z"
+  },
+  {
+    "id": "19b53b11-58f3-474a-bcb8-eca94c2da1ad",
+    "shopName": "Lancaster",
+    "shopDomain": "www.lancaster.com",
+    "shopUrl": "https://www.lancaster.com",
+    "productUrl": "https://www.lancaster.com/de-de",
+    "productName": "Lancaster | Handtaschen und Lederwaren | Offizielle Website",
+    "email": "contact@lancaster.com",
+    "status": "failed",
+    "researchedAt": "2026-06-04T12:29:43.337Z"
+  },
+  {
+    "id": "38ea88b8-1a05-49f0-a04a-92cca0064fc2",
+    "shopName": "Hack Lederware",
+    "shopDomain": "www.lederware.de",
+    "shopUrl": "https://www.lederware.de",
+    "productUrl": "https://www.lederware.de/collections/alle-taschen",
+    "productName": "Alle Taschen & Accessoires",
+    "email": "info@lederware.de",
+    "status": "failed",
+    "researchedAt": "2026-06-04T12:29:46.794Z"
+  },
+  {
+    "id": "c4327b36-f3b5-44f8-b662-cb768a08bd7b",
+    "shopName": "Cinino",
+    "shopDomain": "www.cinino.de",
+    "shopUrl": "https://www.cinino.de",
+    "productUrl": "https://www.cinino.de/",
+    "productName": "Cinino - Günstige Ledertaschen & Handtaschen | Cinino®",
+    "email": "info@cinino.de",
+    "status": "failed",
+    "researchedAt": "2026-06-04T12:29:50.047Z"
+  },
+  {
+    "id": "c71bad37-3f10-4392-84bb-2c84bb0e586d",
+    "shopName": "Luxussachen.com",
+    "shopDomain": "www.luxussachen.com",
+    "shopUrl": "https://www.luxussachen.com",
+    "productUrl": "https://www.luxussachen.com/taschen/",
+    "productName": "Taschen",
+    "email": "kontakt@luxussachen.com",
+    "status": "researched",
+    "researchedAt": "2026-06-04T12:29:53.474Z"
+  },
+  {
+    "id": "c8ec7f55-8164-4176-b817-4a500b7478e5",
+    "shopName": "www.chesterfieldbags.com",
+    "shopDomain": "www.chesterfieldbags.com",
+    "shopUrl": "https://www.chesterfieldbags.com",
+    "productUrl": "https://www.chesterfieldbags.com/de/",
+    "productName": "The Chesterfield Brand® | Leder Taschen & Accessoires | Online Shop",
+    "email": "klantenservice@chesterfieldbags.com",
+    "status": "researched",
+    "researchedAt": "2026-06-04T12:29:58.909Z"
   }
 ]
