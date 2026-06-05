@@ -1889,7 +1889,7 @@
     "productUrl": "https://www.luxussachen.com/taschen/",
     "productName": "Taschen",
     "email": "kontakt@luxussachen.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-06-04T12:29:53.474Z"
   },
   {
@@ -1900,7 +1900,7 @@
     "productUrl": "https://www.chesterfieldbags.com/de/",
     "productName": "The Chesterfield Brand® | Leder Taschen & Accessoires | Online Shop",
     "email": "klantenservice@chesterfieldbags.com",
-    "status": "researched",
+    "status": "failed",
     "researchedAt": "2026-06-04T12:29:58.909Z"
   }
 ]
