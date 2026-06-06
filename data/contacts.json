@@ -1902,5 +1902,16 @@
     "email": "klantenservice@chesterfieldbags.com",
     "status": "failed",
     "researchedAt": "2026-06-04T12:29:58.909Z"
+  },
+  {
+    "id": "d45ab22e-040a-4c0c-97f4-4e81a096b9b6",
+    "shopName": "www.lampenwelt.de",
+    "shopDomain": "www.lampenwelt.de",
+    "shopUrl": "https://www.lampenwelt.de",
+    "productUrl": "https://www.lampenwelt.de/inspiration/designer-lampen",
+    "productName": "Designer Lampen - Lichtideen berühmter Designer",
+    "email": "service@lampenwelt.de",
+    "status": "failed",
+    "researchedAt": "2026-06-06T11:04:10.005Z"
   }
 ]
