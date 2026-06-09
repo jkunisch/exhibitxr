@@ -1924,5 +1924,16 @@
     "email": "duesseldorf@juwelier-fineart.com",
     "status": "failed",
     "researchedAt": "2026-06-08T13:52:25.336Z"
+  },
+  {
+    "id": "03e955a0-2efe-4cc7-9b5a-f3482e69b1c4",
+    "shopName": "Lichtkarree.de",
+    "shopDomain": "lichtkarree.de",
+    "shopUrl": "https://lichtkarree.de",
+    "productUrl": "https://lichtkarree.de/",
+    "productName": "Exklusive Lampen und Leuchten | LICHTKARREE",
+    "email": "info@lichtkarree.de",
+    "status": "failed",
+    "researchedAt": "2026-06-09T12:22:17.134Z"
   }
 ]
