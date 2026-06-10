@@ -1935,5 +1935,16 @@
     "email": "info@lichtkarree.de",
     "status": "failed",
     "researchedAt": "2026-06-09T12:22:17.134Z"
+  },
+  {
+    "id": "520cf8c6-b255-4dc8-93eb-c8c2cf641bb6",
+    "shopName": "www.e-recht24.de",
+    "shopDomain": "www.e-recht24.de",
+    "shopUrl": "https://www.e-recht24.de",
+    "productUrl": "https://www.e-recht24.de/impressum/13077-impressum-fuer-ihren-online-shop.html",
+    "productName": "Online-Shop-Betreiber aufgepasst: Diese Pflichtangaben müssen Sie für Ihr Impressum berücksichtigen",
+    "email": "max.mustermann@domain.de",
+    "status": "failed",
+    "researchedAt": "2026-06-10T12:48:32.411Z"
   }
 ]
