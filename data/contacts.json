@@ -1946,5 +1946,60 @@
     "email": "max.mustermann@domain.de",
     "status": "failed",
     "researchedAt": "2026-06-10T12:48:32.411Z"
+  },
+  {
+    "id": "ad4e535f-f97b-428d-8f2d-2f147c01bf6a",
+    "shopName": "My Furniture",
+    "shopDomain": "www.my-furniture.com",
+    "shopUrl": "https://www.my-furniture.com",
+    "productUrl": "https://www.my-furniture.com/de/",
+    "productName": "my-furniture.com - Εrschwingliche Luxus Möbel",
+    "email": "kundenservice_de@my-furniture.com",
+    "status": "failed",
+    "researchedAt": "2026-06-11T13:00:45.281Z"
+  },
+  {
+    "id": "26dc7d88-93cf-4fd5-9342-b0c1705253ce",
+    "shopName": "www.moebel-direkt-online.de",
+    "shopDomain": "www.moebel-direkt-online.de",
+    "shopUrl": "https://www.moebel-direkt-online.de",
+    "productUrl": "https://www.moebel-direkt-online.de/",
+    "productName": "möbel direkt online",
+    "email": "info@hhm24.de",
+    "status": "failed",
+    "researchedAt": "2026-06-11T13:00:49.588Z"
+  },
+  {
+    "id": "37265754-4f60-4258-bc04-e30e246e2241",
+    "shopName": "dekorativ wohnen | Onlineshop | Design & Wohnaccessoires",
+    "shopDomain": "www.dekorativ-wohnen.de",
+    "shopUrl": "https://www.dekorativ-wohnen.de",
+    "productUrl": "https://www.dekorativ-wohnen.de/",
+    "productName": "dekorativ wohnen | Onlineshop | Design & Wohnaccessoires",
+    "email": "Analytics@Digital-Feil.com",
+    "status": "failed",
+    "researchedAt": "2026-06-11T13:01:33.749Z"
+  },
+  {
+    "id": "4366caa2-b18a-4b6f-b942-4a00f4e7011a",
+    "shopName": "GUNDT HOME",
+    "shopDomain": "gundthome.com",
+    "shopUrl": "https://gundthome.com",
+    "productUrl": "https://gundthome.com/",
+    "productName": "Design Wohnaccessoires online kaufen | GUNDT HOME in Husum",
+    "email": "hello@gundthome.com",
+    "status": "failed",
+    "researchedAt": "2026-06-11T13:01:37.047Z"
+  },
+  {
+    "id": "bba38752-343e-4880-8811-b8b90d8a8f93",
+    "shopName": "Verbraucherzentrale Niedersachsen",
+    "shopDomain": "www.verbraucherzentrale-niedersachsen.de",
+    "shopUrl": "https://www.verbraucherzentrale-niedersachsen.de",
+    "productUrl": "https://www.verbraucherzentrale-niedersachsen.de/vorsicht-falle/dectronics-com-kein-impressum-kein-eintrag-der-handelsregisternummer",
+    "productName": "de.ctronics .com - Kein Impressum, kein Eintrag der Handelsregisternummer",
+    "email": "info@vzniedersachsen.de",
+    "status": "failed",
+    "researchedAt": "2026-06-11T13:04:21.626Z"
   }
 ]
