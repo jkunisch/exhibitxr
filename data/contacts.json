@@ -2001,5 +2001,16 @@
     "email": "info@vzniedersachsen.de",
     "status": "failed",
     "researchedAt": "2026-06-11T13:04:21.626Z"
+  },
+  {
+    "id": "354bc931-1f2f-4381-8905-4bef18b699f9",
+    "shopName": "Sanuka",
+    "shopDomain": "sanuka.de",
+    "shopUrl": "https://sanuka.de",
+    "productUrl": "https://sanuka.de/",
+    "productName": "Sanuka - Schmuck, Kleidung und Accessoires",
+    "email": "info@sanuka.de",
+    "status": "failed",
+    "researchedAt": "2026-06-12T12:44:19.085Z"
   }
 ]
