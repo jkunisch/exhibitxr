@@ -2012,5 +2012,38 @@
     "email": "info@sanuka.de",
     "status": "failed",
     "researchedAt": "2026-06-12T12:44:19.085Z"
+  },
+  {
+    "id": "6e57cd26-7ce8-48f4-a161-3d135f4b38ce",
+    "shopName": "Zentralstelle Verbraucherschutz Deutschland",
+    "shopDomain": "www.zentralstelle-verbraucherschutz.org",
+    "shopUrl": "https://www.zentralstelle-verbraucherschutz.org",
+    "productUrl": "https://www.zentralstelle-verbraucherschutz.org/aktuelles/fake-shop-moebel-warnung",
+    "productName": "ZVD – Zentralstelle Verbraucherschutz Deutschland",
+    "email": "online@zvd-deutschland.de",
+    "status": "failed",
+    "researchedAt": "2026-06-13T11:28:04.094Z"
+  },
+  {
+    "id": "64bd0644-6391-4a35-8eda-6ad531e42a6a",
+    "shopName": "Minimal Stones",
+    "shopDomain": "www.minimalstones.com",
+    "shopUrl": "https://www.minimalstones.com",
+    "productUrl": "https://www.minimalstones.com/",
+    "productName": "Startseite | Minimal Stones",
+    "email": "contact@minimalstones.com",
+    "status": "failed",
+    "researchedAt": "2026-06-13T11:28:16.223Z"
+  },
+  {
+    "id": "c3b7bed2-0cc3-47e1-91f7-a4d81021b6f9",
+    "shopName": "Koni Design Shop",
+    "shopDomain": "konidesignshop.com",
+    "shopUrl": "https://konidesignshop.com",
+    "productUrl": "https://konidesignshop.com/",
+    "productName": "Koni Design – Handgefertigter Schmuck und Forever Bracelets",
+    "email": "hello@konidesignshop.com",
+    "status": "failed",
+    "researchedAt": "2026-06-13T11:28:20.797Z"
   }
 ]
