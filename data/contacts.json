@@ -2045,5 +2045,16 @@
     "email": "hello@konidesignshop.com",
     "status": "failed",
     "researchedAt": "2026-06-13T11:28:20.797Z"
+  },
+  {
+    "id": "14feb0bd-6f6a-48f7-a219-dc6ac29c2b20",
+    "shopName": "Sandra Bormann Design",
+    "shopDomain": "www.bormanndesign.de",
+    "shopUrl": "https://www.bormanndesign.de",
+    "productUrl": "https://www.bormanndesign.de/",
+    "productName": "Individuell handgefertigter Schmuck Lederarmbänder",
+    "email": "Bormann.design@gmail.com",
+    "status": "failed",
+    "researchedAt": "2026-06-14T11:39:27.944Z"
   }
 ]
