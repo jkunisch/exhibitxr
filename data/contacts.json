@@ -2067,5 +2067,27 @@
     "email": "info@schoeniglich.de",
     "status": "failed",
     "researchedAt": "2026-06-16T14:30:41.395Z"
+  },
+  {
+    "id": "94c1c2ba-a517-467b-aa8d-b45dc5e7b602",
+    "shopName": "Wurm | wurm.com",
+    "shopDomain": "wurm.com",
+    "shopUrl": "https://wurm.com",
+    "productUrl": "https://wurm.com/",
+    "productName": "Großhandel für Deko- & Geschenkartikel",
+    "email": "info@wurm.com",
+    "status": "failed",
+    "researchedAt": "2026-06-17T13:02:38.514Z"
+  },
+  {
+    "id": "638b3834-37cc-4e82-883e-d8e001c610a0",
+    "shopName": "Sneak-R",
+    "shopDomain": "sneak-r.de",
+    "shopUrl": "https://sneak-r.de",
+    "productUrl": "https://sneak-r.de/",
+    "productName": "Sneak-R | Exklusive Sneaker",
+    "email": "Kundensupport@Sneak-r.de",
+    "status": "failed",
+    "researchedAt": "2026-06-17T13:03:02.809Z"
   }
 ]
