@@ -2100,5 +2100,27 @@
     "email": "info@leuchtenland.com",
     "status": "failed",
     "researchedAt": "2026-06-18T12:37:18.472Z"
+  },
+  {
+    "id": "ae24fc8f-2fb6-4b9d-aec5-556d5739086a",
+    "shopName": "Segmueller.de",
+    "shopDomain": "www.segmueller.de",
+    "shopUrl": "https://www.segmueller.de",
+    "productUrl": "https://www.segmueller.de/",
+    "productName": "SEGMÜLLER | Möbelhaus & Onlineshop",
+    "email": "friedberg@segmueller.de",
+    "status": "failed",
+    "researchedAt": "2026-06-19T12:58:55.602Z"
+  },
+  {
+    "id": "e9242174-72c5-45bd-a87d-9d902a166b95",
+    "shopName": "www.store-of-luxus.de",
+    "shopDomain": "www.store-of-luxus.de",
+    "shopUrl": "https://www.store-of-luxus.de",
+    "productUrl": "https://www.store-of-luxus.de/",
+    "productName": "Store of Luxus – Exklusive Wohnaccessoires & stilvolle EinrichtungStore of Luxus – Exklusive Wohnaccessoires & stilvolle EinrichtungInformation iconCookie iconCookie icon",
+    "email": "info@store-of-luxus.de",
+    "status": "failed",
+    "researchedAt": "2026-06-19T12:59:27.927Z"
   }
 ]
