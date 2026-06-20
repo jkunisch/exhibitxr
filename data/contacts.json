@@ -2122,5 +2122,16 @@
     "email": "info@store-of-luxus.de",
     "status": "failed",
     "researchedAt": "2026-06-19T12:59:27.927Z"
+  },
+  {
+    "id": "bb52d5a6-d5af-402c-93d2-30004afff4a1",
+    "shopName": "Fabel-Time GmbH",
+    "shopDomain": "fabel-time.com",
+    "shopUrl": "https://fabel-time.com",
+    "productUrl": "https://fabel-time.com/",
+    "productName": "Fabel-Time GmbH | Luxusuhren & exklusive Markenuhren",
+    "email": "info@fabel-time.com",
+    "status": "failed",
+    "researchedAt": "2026-06-20T11:32:27.420Z"
   }
 ]
