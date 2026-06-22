@@ -2133,5 +2133,16 @@
     "email": "info@fabel-time.com",
     "status": "failed",
     "researchedAt": "2026-06-20T11:32:27.420Z"
+  },
+  {
+    "id": "15cd8f00-49b8-4a8a-b32e-7839f5c54c9d",
+    "shopName": "COEUR DE LION",
+    "shopDomain": "www.coeur.de",
+    "shopUrl": "https://www.coeur.de",
+    "productUrl": "https://www.coeur.de/",
+    "productName": "COEUR DE LION | Offizieller Online Shop‎",
+    "email": "service@coeur.de",
+    "status": "failed",
+    "researchedAt": "2026-06-22T15:04:59.380Z"
   }
 ]
