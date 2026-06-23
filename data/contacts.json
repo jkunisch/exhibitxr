@@ -2144,5 +2144,16 @@
     "email": "service@coeur.de",
     "status": "failed",
     "researchedAt": "2026-06-22T15:04:59.380Z"
+  },
+  {
+    "id": "2d7914fe-224e-45f3-b938-3909be635052",
+    "shopName": "Sneakerless",
+    "shopDomain": "sneakerless.eu",
+    "shopUrl": "https://sneakerless.eu",
+    "productUrl": "https://sneakerless.eu/",
+    "productName": "Sneakerless – Premium Sneaker Günstig & Schnell online kaufen",
+    "email": "support@sneakerless.eu",
+    "status": "failed",
+    "researchedAt": "2026-06-23T12:23:32.692Z"
   }
 ]
