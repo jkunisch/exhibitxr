@@ -2155,5 +2155,27 @@
     "email": "support@sneakerless.eu",
     "status": "failed",
     "researchedAt": "2026-06-23T12:23:32.692Z"
+  },
+  {
+    "id": "3c893dbd-c3be-4c37-ba4c-d370ef9ea5ee",
+    "shopName": "Hutshopping Online-Shop",
+    "shopDomain": "www.hutshopping.de",
+    "shopUrl": "https://www.hutshopping.de",
+    "productUrl": "https://www.hutshopping.de/Kontakt_Impressum.html",
+    "productName": "Impressum & Kontakt | Hutshopping",
+    "email": "support@hutshopping.de",
+    "status": "failed",
+    "researchedAt": "2026-06-24T12:05:30.143Z"
+  },
+  {
+    "id": "ce590d57-51ac-4098-a1d7-0db6bef5494e",
+    "shopName": "Gadgets & Geschenkideen findest Du im Geek Shop",
+    "shopDomain": "www.geek-shop.net",
+    "shopUrl": "https://www.geek-shop.net",
+    "productUrl": "https://www.geek-shop.net/kontakt",
+    "productName": "Gadgets & Geschenkideen findest Du im Geek Shop",
+    "email": "kontakt@fosu.de",
+    "status": "failed",
+    "researchedAt": "2026-06-24T12:14:53.040Z"
   }
 ]
