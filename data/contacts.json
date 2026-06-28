@@ -2188,5 +2188,60 @@
     "email": "kundenservice@hodalump-ratschkatl.de",
     "status": "failed",
     "researchedAt": "2026-06-26T12:00:37.962Z"
+  },
+  {
+    "id": "6a2c2693-70e6-4e54-915c-82a24092084a",
+    "shopName": "möbelando - einfach online einrichten",
+    "shopDomain": "www.moebelando.de",
+    "shopUrl": "https://www.moebelando.de",
+    "productUrl": "https://www.moebelando.de/",
+    "productName": "möbelando - einfach online einrichten",
+    "email": "info@moebelando.de",
+    "status": "failed",
+    "researchedAt": "2026-06-28T11:20:07.458Z"
+  },
+  {
+    "id": "06e925a5-eb17-4d7c-ab0b-98708303f474",
+    "shopName": "Leuchtenking.de - LTLUX24 GmbH",
+    "shopDomain": "www.leuchtenking.de",
+    "shopUrl": "https://www.leuchtenking.de",
+    "productUrl": "https://www.leuchtenking.de/",
+    "productName": "Lampen & Leuchten online kaufen - LED, Designerlampen | Leuchtenking",
+    "email": "info@leuchtenking.de",
+    "status": "failed",
+    "researchedAt": "2026-06-28T11:20:20.064Z"
+  },
+  {
+    "id": "601f247e-9e98-472f-ae3a-cff1dda02bae",
+    "shopName": "Luzissimo - Designleuchten aus europäischen Manufakturen",
+    "shopDomain": "www.luzissimo-leuchten.de",
+    "shopUrl": "https://www.luzissimo-leuchten.de",
+    "productUrl": "https://www.luzissimo-leuchten.de/",
+    "productName": "Luzissimo - Designleuchten aus europäischen Manufakturen",
+    "email": "info@luzissimo-leuchten.de",
+    "status": "failed",
+    "researchedAt": "2026-06-28T11:20:30.412Z"
+  },
+  {
+    "id": "50ed073f-0496-46cd-a8f6-35a99f5db63d",
+    "shopName": "www.dekowunder.de",
+    "shopDomain": "www.dekowunder.de",
+    "shopUrl": "https://www.dekowunder.de",
+    "productUrl": "https://www.dekowunder.de/",
+    "productName": "Deko | Dekoration online kaufen auf Dekowunder.de | Dekowunder",
+    "email": "info@dekowunder.de",
+    "status": "failed",
+    "researchedAt": "2026-06-28T11:21:07.013Z"
+  },
+  {
+    "id": "9624fcdf-2227-483e-93d4-e5e22d8a750e",
+    "shopName": "COMPUTER BILD",
+    "shopDomain": "www.computerbild.de",
+    "shopUrl": "https://www.computerbild.de",
+    "productUrl": "https://www.computerbild.de/artikel/News-Sicherheit-Fake-Shop-Liste-Hier-sehen-Sie-welche-Online-Shops-Sie-betruegen-wollen-36033445.html",
+    "productName": "Fake-Shop-Liste: Hier sehen Sie, welche Online-Shops Sie betrügen wollen",
+    "email": "redaktion@computerbild.de",
+    "status": "failed",
+    "researchedAt": "2026-06-28T11:22:52.822Z"
   }
 ]
