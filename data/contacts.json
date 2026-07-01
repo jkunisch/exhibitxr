@@ -2243,5 +2243,27 @@
     "email": "redaktion@computerbild.de",
     "status": "failed",
     "researchedAt": "2026-06-28T11:22:52.822Z"
+  },
+  {
+    "id": "0616ec42-9f93-4465-b8b4-d08d56f16bd9",
+    "shopName": "Luxusuhren online & im Fachgeschäft | Olfert & Co. Juweliere",
+    "shopDomain": "www.olfert-co.de",
+    "shopUrl": "https://www.olfert-co.de",
+    "productUrl": "https://www.olfert-co.de/",
+    "productName": "Luxusuhren online & im Fachgeschäft | Olfert & Co. Juweliere",
+    "email": "info@olfert-co.de",
+    "status": "failed",
+    "researchedAt": "2026-07-01T12:23:07.996Z"
+  },
+  {
+    "id": "26c0fbc3-9644-4361-8193-4f62987078af",
+    "shopName": "ohn.haendlerbund.de",
+    "shopDomain": "ohn.haendlerbund.de",
+    "shopUrl": "https://ohn.haendlerbund.de",
+    "productUrl": "https://ohn.haendlerbund.de/recht/rechtsfragen/abmahnung-wegen-impressumsfehler-online-shop-muss-telefonnummer-angeben",
+    "productName": "Abmahnung wegen Impressumsfehler: Online-Shop muss Telefonnummer angeben",
+    "email": "support@haendlerbund.de",
+    "status": "failed",
+    "researchedAt": "2026-07-01T12:24:04.595Z"
   }
 ]
