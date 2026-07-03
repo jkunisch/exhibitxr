@@ -2265,5 +2265,16 @@
     "email": "support@haendlerbund.de",
     "status": "failed",
     "researchedAt": "2026-07-01T12:24:04.595Z"
+  },
+  {
+    "id": "b94acbde-5ccf-4400-b0aa-03dfdd55d8a9",
+    "shopName": "Letslighting DE",
+    "shopDomain": "letslighting.de",
+    "shopUrl": "https://letslighting.de",
+    "productUrl": "https://letslighting.de/",
+    "productName": "Letslighting | Leuchten und Lampen | Modern Klassisch Zeitlos",
+    "email": "contact@letslighting.de",
+    "status": "failed",
+    "researchedAt": "2026-07-03T11:50:39.644Z"
   }
 ]
