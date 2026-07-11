@@ -2276,5 +2276,27 @@
     "email": "contact@letslighting.de",
     "status": "failed",
     "researchedAt": "2026-07-03T11:50:39.644Z"
+  },
+  {
+    "id": "cb96a649-a015-453c-a101-57c4be1b00e6",
+    "shopName": "Allbirds",
+    "shopDomain": "allbirds.de",
+    "shopUrl": "https://allbirds.de",
+    "productUrl": "https://allbirds.de/",
+    "productName": "Nachhaltige Schuhe & Sneaker für Damen & Herren | Allbirds",
+    "email": "service@allbirds.eu",
+    "status": "failed",
+    "researchedAt": "2026-07-11T10:44:23.837Z"
+  },
+  {
+    "id": "9e98c93a-579f-4769-b71e-c62883cb4d2c",
+    "shopName": "CoolGadget",
+    "shopDomain": "www.coolgadget.de",
+    "shopUrl": "https://www.coolgadget.de",
+    "productUrl": "https://www.coolgadget.de/pages/kundenservice",
+    "productName": "Kundenservice & Kontakt | CoolGadget",
+    "email": "info@coolgadget.de",
+    "status": "failed",
+    "researchedAt": "2026-07-11T10:45:01.399Z"
   }
 ]
