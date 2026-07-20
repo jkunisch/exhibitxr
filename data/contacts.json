@@ -2298,5 +2298,16 @@
     "email": "info@coolgadget.de",
     "status": "failed",
     "researchedAt": "2026-07-11T10:45:01.399Z"
+  },
+  {
+    "id": "41a2d9fc-7816-4998-992b-eeb601ae8e49",
+    "shopName": "Benthill",
+    "shopDomain": "benthill.de",
+    "shopUrl": "https://benthill.de",
+    "productUrl": "https://benthill.de/",
+    "productName": "Hochwertige und Stilvolle Lederwaren für Damen & Herren | Benthill",
+    "email": "info@benthill.de",
+    "status": "failed",
+    "researchedAt": "2026-07-20T12:03:05.195Z"
   }
 ]
