@@ -2309,5 +2309,16 @@
     "email": "info@benthill.de",
     "status": "failed",
     "researchedAt": "2026-07-20T12:03:05.195Z"
+  },
+  {
+    "id": "0dfafabd-03ad-447b-af2a-8122dc4fc916",
+    "shopName": "www.andlight.com",
+    "shopDomain": "www.andlight.com",
+    "shopUrl": "https://www.andlight.com",
+    "productUrl": "https://www.andlight.com/de/",
+    "productName": "Designlampen – Über 2000 Lampen zu günstigen Preisen",
+    "email": "info@andlight.de",
+    "status": "failed",
+    "researchedAt": "2026-07-22T11:25:32.510Z"
   }
 ]
