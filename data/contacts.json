@@ -2320,5 +2320,16 @@
     "email": "info@andlight.de",
     "status": "failed",
     "researchedAt": "2026-07-22T11:25:32.510Z"
+  },
+  {
+    "id": "7e30c305-dc43-4fd6-8005-c9976164a238",
+    "shopName": "Schmuckwerk",
+    "shopDomain": "www.schmuckwerk.de",
+    "shopUrl": "https://www.schmuckwerk.de",
+    "productUrl": "https://www.schmuckwerk.de/",
+    "productName": "Startseite - Schmuckwerk",
+    "email": "info@schmuckwerk.de",
+    "status": "failed",
+    "researchedAt": "2026-07-25T10:51:52.447Z"
   }
 ]
