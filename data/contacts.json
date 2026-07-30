@@ -2331,5 +2331,27 @@
     "email": "info@schmuckwerk.de",
     "status": "failed",
     "researchedAt": "2026-07-25T10:51:52.447Z"
+  },
+  {
+    "id": "4cd76309-692f-432f-a7f5-faccb734ee6e",
+    "shopName": "Maron Watches",
+    "shopDomain": "www.maronwatches.de",
+    "shopUrl": "https://www.maronwatches.de",
+    "productUrl": "https://www.maronwatches.de/",
+    "productName": "Maron Watches | Exklusive Luxusuhren – Rolex, Omega, Panerai & mehr",
+    "email": "info@maronwatches.de",
+    "status": "failed",
+    "researchedAt": "2026-07-30T11:31:37.913Z"
+  },
+  {
+    "id": "46ed0b2d-67d7-4ba9-a528-b2b1e36b0a6f",
+    "shopName": "CHRONOWERK",
+    "shopDomain": "www.chronowerk.de",
+    "shopUrl": "https://www.chronowerk.de",
+    "productUrl": "https://www.chronowerk.de/",
+    "productName": "CHRONOWERK – Premium Marktplatz für Luxusuhren",
+    "email": "info@chronowerk.de",
+    "status": "failed",
+    "researchedAt": "2026-07-30T11:31:41.428Z"
   }
 ]
