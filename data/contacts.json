@@ -2353,5 +2353,16 @@
     "email": "info@chronowerk.de",
     "status": "failed",
     "researchedAt": "2026-07-30T11:31:41.428Z"
+  },
+  {
+    "id": "66fe7a78-a431-407f-b9e8-22ba720aaea4",
+    "shopName": "MONDSTUECK",
+    "shopDomain": "mondstueck-unikatschmuck.de",
+    "shopUrl": "https://mondstueck-unikatschmuck.de",
+    "productUrl": "https://mondstueck-unikatschmuck.de/",
+    "productName": "MONDSTUECK Unikatschmuck - Goldschmiede für handgemachten Schmuck",
+    "email": "annika@mondstueck-goldschmiede.deMobi",
+    "status": "failed",
+    "researchedAt": "2026-08-13T10:35:55.699Z"
   }
 ]
