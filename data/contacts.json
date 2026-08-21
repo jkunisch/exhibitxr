@@ -2364,5 +2364,16 @@
     "email": "annika@mondstueck-goldschmiede.deMobi",
     "status": "failed",
     "researchedAt": "2026-08-13T10:35:55.699Z"
+  },
+  {
+    "id": "8dad558a-7ac2-42b0-b0d6-f0967b5268cc",
+    "shopName": "Herzensmanufaktur",
+    "shopDomain": "herzensmanufaktur.com",
+    "shopUrl": "https://herzensmanufaktur.com",
+    "productUrl": "https://herzensmanufaktur.com/",
+    "productName": "Herzensmanufaktur | Geschenke, Schmuck & Deko",
+    "email": "kontakt@herzensmanufaktur.com",
+    "status": "failed",
+    "researchedAt": "2026-08-21T10:00:31.605Z"
   }
 ]
