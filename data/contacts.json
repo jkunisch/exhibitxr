@@ -2375,5 +2375,16 @@
     "email": "kontakt@herzensmanufaktur.com",
     "status": "failed",
     "researchedAt": "2026-08-21T10:00:31.605Z"
+  },
+  {
+    "id": "9b31c353-bdcb-4bdc-9c6d-a653eadcd2c1",
+    "shopName": "XL Moebel",
+    "shopDomain": "www.xlmoebel.de",
+    "shopUrl": "https://www.xlmoebel.de",
+    "productUrl": "https://www.xlmoebel.de/",
+    "productName": "XLmoebel.de – Hochwertige Möbel für Ihr schönes Zuhause",
+    "email": "info@xlmoebel.de",
+    "status": "failed",
+    "researchedAt": "2026-08-22T09:51:19.853Z"
   }
 ]
