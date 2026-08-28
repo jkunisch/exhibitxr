@@ -2397,5 +2397,27 @@
     "email": "info@sedex.de",
     "status": "failed",
     "researchedAt": "2026-08-27T19:55:54.724Z"
+  },
+  {
+    "id": "b6638490-27ba-4a9e-89a7-d58d74b08422",
+    "shopName": "Gadget-Hero",
+    "shopDomain": "gadget-for-you.de",
+    "shopUrl": "https://gadget-for-you.de",
+    "productUrl": "https://gadget-for-you.de/impressum/",
+    "productName": "ᐅ Impressum - Gadget-Hero - Wenn dir gezeigt wird, was du vermisst!",
+    "email": "impressum@gadget-hero.de",
+    "status": "failed",
+    "researchedAt": "2026-08-28T21:01:38.436Z"
+  },
+  {
+    "id": "ceac6419-8950-4275-9fb9-2213b8111e21",
+    "shopName": "123-Elektronik.de",
+    "shopDomain": "www.123-elektronik.de",
+    "shopUrl": "https://www.123-elektronik.de",
+    "productUrl": "https://www.123-elektronik.de/impressum",
+    "productName": "123-Elektronik.de",
+    "email": "shop@123-elektronik.de",
+    "status": "failed",
+    "researchedAt": "2026-08-28T21:01:48.234Z"
   }
 ]
