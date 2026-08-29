@@ -2419,5 +2419,16 @@
     "email": "shop@123-elektronik.de",
     "status": "failed",
     "researchedAt": "2026-08-28T21:01:48.234Z"
+  },
+  {
+    "id": "27372c7b-92b6-48fc-b63b-09d3f47c4351",
+    "shopName": "STATOUR",
+    "shopDomain": "www.statourschmuck.com",
+    "shopUrl": "https://www.statourschmuck.com",
+    "productUrl": "https://www.statourschmuck.com/",
+    "productName": "handgemachter Schmuck aus Sterling Silber – hochwertig & nachhaltig",
+    "email": "bonjour@st-atour.de",
+    "status": "failed",
+    "researchedAt": "2026-08-29T14:38:26.203Z"
   }
 ]
