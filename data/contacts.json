@@ -2430,5 +2430,16 @@
     "email": "bonjour@st-atour.de",
     "status": "failed",
     "researchedAt": "2026-08-29T14:38:26.203Z"
+  },
+  {
+    "id": "da55b026-4222-4897-bfbd-c459ab00d565",
+    "shopName": "Hahn & Vo",
+    "shopDomain": "hahn-vo.de",
+    "shopUrl": "https://hahn-vo.de",
+    "productUrl": "https://hahn-vo.de/",
+    "productName": "Hahn & Vo — Luxury Watches · Frankfurt am Main",
+    "email": "info@hahntime.com",
+    "status": "failed",
+    "researchedAt": "2026-08-30T14:31:50.671Z"
   }
 ]
