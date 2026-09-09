@@ -2463,5 +2463,27 @@
     "email": "info@handmadejewelleery.de",
     "status": "failed",
     "researchedAt": "2026-09-07T15:09:06.604Z"
+  },
+  {
+    "id": "1e7d98d5-c78b-4c46-9622-d25b7a00a700",
+    "shopName": "Perle-Perle",
+    "shopDomain": "www.perle-perle.de",
+    "shopUrl": "https://www.perle-perle.de",
+    "productUrl": "https://www.perle-perle.de/",
+    "productName": "Modeschmuck und Accessoires Onlineshop",
+    "email": "info@perle-perle.de",
+    "status": "failed",
+    "researchedAt": "2026-09-09T13:54:47.529Z"
+  },
+  {
+    "id": "52c8786b-4b07-4fd6-8991-71ca2535ffc4",
+    "shopName": "2GO-Shop",
+    "shopDomain": "2go-shop.de",
+    "shopUrl": "https://2go-shop.de",
+    "productUrl": "https://2go-shop.de/policies/legal-notice",
+    "productName": "Impressum",
+    "email": "service@acv-electronic.de",
+    "status": "failed",
+    "researchedAt": "2026-09-09T13:54:52.548Z"
   }
 ]
