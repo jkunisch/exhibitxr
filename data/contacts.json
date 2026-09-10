@@ -2485,5 +2485,16 @@
     "email": "service@acv-electronic.de",
     "status": "failed",
     "researchedAt": "2026-09-09T13:54:52.548Z"
+  },
+  {
+    "id": "4edb13f7-3ddb-438b-8347-9bdad99d6861",
+    "shopName": "Remember",
+    "shopDomain": "www.remember.de",
+    "shopUrl": "https://www.remember.de",
+    "productUrl": "https://www.remember.de/",
+    "productName": "REMEMBER® Shop – Wohnaccessoires & Design",
+    "email": "service@remember.de",
+    "status": "failed",
+    "researchedAt": "2026-09-10T13:46:10.422Z"
   }
 ]
