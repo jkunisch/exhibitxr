@@ -2496,5 +2496,16 @@
     "email": "service@remember.de",
     "status": "failed",
     "researchedAt": "2026-09-10T13:46:10.422Z"
+  },
+  {
+    "id": "32af8fcd-21a9-4e12-9e3f-6c94b676625b",
+    "shopName": "Möbel Style",
+    "shopDomain": "www.moebel-style.de",
+    "shopUrl": "https://www.moebel-style.de",
+    "productUrl": "https://www.moebel-style.de/pages/contact",
+    "productName": "Kontaktieren Sie Möbel Style Deutschland",
+    "email": "info@moebel-style.de",
+    "status": "failed",
+    "researchedAt": "2026-09-12T13:00:33.510Z"
   }
 ]
