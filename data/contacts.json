@@ -2507,5 +2507,16 @@
     "email": "info@moebel-style.de",
     "status": "failed",
     "researchedAt": "2026-09-12T13:00:33.510Z"
+  },
+  {
+    "id": "aa9ea770-c1dc-424e-a22e-db8fd7b1301d",
+    "shopName": "GadgetCube®",
+    "shopDomain": "gadgetcube.de",
+    "shopUrl": "https://gadgetcube.de",
+    "productUrl": "https://gadgetcube.de/",
+    "productName": "GadgetCube®",
+    "email": "service@gadgetcube.de",
+    "status": "failed",
+    "researchedAt": "2026-09-15T14:28:33.594Z"
   }
 ]
