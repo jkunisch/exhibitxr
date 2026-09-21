@@ -2518,5 +2518,16 @@
     "email": "service@gadgetcube.de",
     "status": "failed",
     "researchedAt": "2026-09-15T14:28:33.594Z"
+  },
+  {
+    "id": "72a2cd22-e6e1-418a-9a7a-ca96409da7fe",
+    "shopName": "Sneaxx",
+    "shopDomain": "sneaxx.com",
+    "shopUrl": "https://sneaxx.com",
+    "productUrl": "https://sneaxx.com/de",
+    "productName": "Sneaxx - Exklusive Sneakers kaufen",
+    "email": "info@sneaxx.com",
+    "status": "failed",
+    "researchedAt": "2026-09-21T16:00:40.779Z"
   }
 ]
