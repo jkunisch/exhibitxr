@@ -2529,5 +2529,16 @@
     "email": "info@sneaxx.com",
     "status": "failed",
     "researchedAt": "2026-09-21T16:00:40.779Z"
+  },
+  {
+    "id": "5ff40282-c062-484f-8f6e-3bd6de4fd147",
+    "shopName": "USM Online Shop Deutschland",
+    "shopDomain": "de.shop.usm.com",
+    "shopUrl": "https://de.shop.usm.com",
+    "productUrl": "https://de.shop.usm.com/policies/legal-notice",
+    "productName": "Impressum",
+    "email": "shop.de@usm.com",
+    "status": "failed",
+    "researchedAt": "2026-09-24T14:18:32.432Z"
   }
 ]
