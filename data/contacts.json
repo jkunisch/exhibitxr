@@ -2540,5 +2540,27 @@
     "email": "shop.de@usm.com",
     "status": "failed",
     "researchedAt": "2026-09-24T14:18:32.432Z"
+  },
+  {
+    "id": "44f8706a-d1dc-490f-9e22-ce72fc46ab81",
+    "shopName": "https://www.cairo.de/",
+    "shopDomain": "www.cairo.de",
+    "shopUrl": "https://www.cairo.de",
+    "productUrl": "https://www.cairo.de/willkommen-bei-ikarus/",
+    "productName": "Willkommen bei ikarus | cairo.de",
+    "email": "cairo@cairo.de",
+    "status": "failed",
+    "researchedAt": "2026-09-25T14:42:06.364Z"
+  },
+  {
+    "id": "dcbc3a82-07b4-4245-b03f-3dfda42554bf",
+    "shopName": "Deko-Andreas – Deko. Schenken. Genießen.",
+    "shopDomain": "shop.andreas-gmbh.de",
+    "shopUrl": "https://shop.andreas-gmbh.de",
+    "productUrl": "https://shop.andreas-gmbh.de/lifestyle-wohnen/deko/",
+    "productName": "Deko",
+    "email": "onlineshop@andreas-gmbh.de",
+    "status": "failed",
+    "researchedAt": "2026-09-25T14:42:23.650Z"
   }
 ]
