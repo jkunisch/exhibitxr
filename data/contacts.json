@@ -2562,5 +2562,27 @@
     "email": "onlineshop@andreas-gmbh.de",
     "status": "failed",
     "researchedAt": "2026-09-25T14:42:23.650Z"
+  },
+  {
+    "id": "48ba9bac-be92-47ba-a1de-c63d61a9dec3",
+    "shopName": "bagmondo.de",
+    "shopDomain": "www.lederwischert.de",
+    "shopUrl": "https://www.lederwischert.de",
+    "productUrl": "https://www.lederwischert.de/",
+    "productName": "Wischert Lederwaren Online Shop – Taschen & Koffer kaufen",
+    "email": "support@bagmondo.de",
+    "status": "failed",
+    "researchedAt": "2026-09-27T14:48:16.672Z"
+  },
+  {
+    "id": "d81323ad-1e20-4675-b3ed-d99d2b0f38ad",
+    "shopName": "shopimix.de",
+    "shopDomain": "shopimix.de",
+    "shopUrl": "https://shopimix.de",
+    "productUrl": "https://shopimix.de/",
+    "productName": "SHOPIMIX GADGET SHOP",
+    "email": "mixshop.company@gmail.com",
+    "status": "failed",
+    "researchedAt": "2026-09-27T14:48:40.526Z"
   }
 ]
