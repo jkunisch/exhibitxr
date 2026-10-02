@@ -2595,5 +2595,27 @@
     "email": "info@dekoala.de",
     "status": "failed",
     "researchedAt": "2026-09-28T17:46:53.337Z"
+  },
+  {
+    "id": "8dcefdf3-50b4-4900-b3de-c30fb0fe8167",
+    "shopName": "Uhrwechsel",
+    "shopDomain": "uhrwechsel.com",
+    "shopUrl": "https://uhrwechsel.com",
+    "productUrl": "https://uhrwechsel.com/",
+    "productName": "Uhrwechsel - An- und Verkauf von hochwertigen Uhren",
+    "email": "info@uhrwechsel.com",
+    "status": "failed",
+    "researchedAt": "2026-10-02T15:57:35.494Z"
+  },
+  {
+    "id": "f4189746-f6fb-42df-a771-dbf0c4aa706a",
+    "shopName": "sense-of-time.de",
+    "shopDomain": "sense-of-time.de",
+    "shopUrl": "https://sense-of-time.de",
+    "productUrl": "https://sense-of-time.de/",
+    "productName": "Luxusuhren-Handel sense-of-time by Michael Uphoff",
+    "email": "info@sense-of-time.de",
+    "status": "failed",
+    "researchedAt": "2026-10-02T15:57:39.585Z"
   }
 ]
