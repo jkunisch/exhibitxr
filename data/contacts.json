@@ -2617,5 +2617,38 @@
     "email": "info@sense-of-time.de",
     "status": "failed",
     "researchedAt": "2026-10-02T15:57:39.585Z"
+  },
+  {
+    "id": "e0b4d715-e7a6-493f-ab53-e267f3943eb8",
+    "shopName": "OnlineShop für Echt- und Modeschmuck in Silber, Gold & Rosegold",
+    "shopDomain": "www.apricotroom.de",
+    "shopUrl": "https://www.apricotroom.de",
+    "productUrl": "https://www.apricotroom.de/",
+    "productName": "OnlineShop für Echt- und Modeschmuck in Silber, Gold & Rosegold",
+    "email": "shop@apricotroom.de",
+    "status": "failed",
+    "researchedAt": "2026-10-03T14:23:36.473Z"
+  },
+  {
+    "id": "25c48923-b4b6-47e8-af7c-06709105644e",
+    "shopName": "Wohnaccessoires Shop - Dekocharme",
+    "shopDomain": "dekocharme.de",
+    "shopUrl": "https://dekocharme.de",
+    "productUrl": "https://dekocharme.de/",
+    "productName": "Wohnaccessoires Shop - Dekocharme",
+    "email": "info@dekocharme.de",
+    "status": "failed",
+    "researchedAt": "2026-10-03T14:24:01.703Z"
+  },
+  {
+    "id": "3344a095-1e0e-435c-9563-488c0517c95f",
+    "shopName": "HOFF",
+    "shopDomain": "thehoffbrand.com",
+    "shopUrl": "https://thehoffbrand.com",
+    "productUrl": "https://thehoffbrand.com/de-de",
+    "productName": "HOFF | Tienda Online Oficial",
+    "email": "hola@thehoffbrand.com",
+    "status": "failed",
+    "researchedAt": "2026-10-03T14:24:58.094Z"
   }
 ]
