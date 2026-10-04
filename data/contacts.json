@@ -2650,5 +2650,27 @@
     "email": "hola@thehoffbrand.com",
     "status": "failed",
     "researchedAt": "2026-10-03T14:24:58.094Z"
+  },
+  {
+    "id": "99178c66-ff98-4d80-8371-4962779ea5bc",
+    "shopName": "Dexity",
+    "shopDomain": "dexity.de",
+    "shopUrl": "https://dexity.de",
+    "productUrl": "https://dexity.de/",
+    "productName": "Dexity | Design mit Wirkung",
+    "email": "kundenservice@dexity.info",
+    "status": "failed",
+    "researchedAt": "2026-10-04T14:56:37.905Z"
+  },
+  {
+    "id": "0012db92-8c1e-4dcf-888d-50deacfd981c",
+    "shopName": "Wohnaccessoires und Geschenke Made in Germany",
+    "shopDomain": "www.interluxe.de",
+    "shopUrl": "https://www.interluxe.de",
+    "productUrl": "https://www.interluxe.de/",
+    "productName": "Wohnaccessoires und Geschenke Made in Germany",
+    "email": "info@interluxe.de",
+    "status": "failed",
+    "researchedAt": "2026-10-04T14:56:58.345Z"
   }
 ]
