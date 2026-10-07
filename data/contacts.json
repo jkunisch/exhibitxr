@@ -2683,5 +2683,27 @@
     "email": "info@dailylead.de",
     "status": "failed",
     "researchedAt": "2026-10-06T16:08:54.152Z"
+  },
+  {
+    "id": "2c2d1fc5-8cd0-471d-95d7-debd632f8895",
+    "shopName": "www.slewo.com",
+    "shopDomain": "www.slewo.com",
+    "shopUrl": "https://www.slewo.com",
+    "productUrl": "https://www.slewo.com/",
+    "productName": "Möbel Shop • Online-Shop für Möbel und mehr • slewo.com",
+    "email": "info@slewo.com",
+    "status": "failed",
+    "researchedAt": "2026-10-07T16:47:36.099Z"
+  },
+  {
+    "id": "5fa23479-4d51-4cff-b626-fefb0cbc2cb1",
+    "shopName": "Sparwell",
+    "shopDomain": "sparwell.de",
+    "shopUrl": "https://sparwell.de",
+    "productUrl": "https://sparwell.de/",
+    "productName": "Ledertaschen von Sparwell | Ledertaschen Damen & Herren online Kaufen",
+    "email": "info@deimosfashion.com",
+    "status": "failed",
+    "researchedAt": "2026-10-07T16:49:18.895Z"
   }
 ]
