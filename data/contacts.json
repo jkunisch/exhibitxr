@@ -2705,5 +2705,27 @@
     "email": "info@deimosfashion.com",
     "status": "failed",
     "researchedAt": "2026-10-07T16:49:18.895Z"
+  },
+  {
+    "id": "6c1e36c9-b23f-40fe-9be0-7a59da4a2cc8",
+    "shopName": "moebel-schott.de",
+    "shopDomain": "moebel-schott.de",
+    "shopUrl": "https://moebel-schott.de",
+    "productUrl": "https://moebel-schott.de/policies/legal-notice",
+    "productName": "Impressum",
+    "email": "info@moebel-schott.de",
+    "status": "failed",
+    "researchedAt": "2026-10-10T15:31:20.678Z"
+  },
+  {
+    "id": "102e456e-8428-408a-ae80-789352c6adb4",
+    "shopName": "LuneNoirShop",
+    "shopDomain": "lunenoir.de",
+    "shopUrl": "https://lunenoir.de",
+    "productUrl": "https://lunenoir.de/",
+    "productName": "LuneNoir: Alternativer Schmuck | Handgemacht & Vegan",
+    "email": "shop@lunenoir.de",
+    "status": "failed",
+    "researchedAt": "2026-10-10T15:31:28.233Z"
   }
 ]
