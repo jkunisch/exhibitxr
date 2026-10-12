@@ -2727,5 +2727,16 @@
     "email": "shop@lunenoir.de",
     "status": "failed",
     "researchedAt": "2026-10-10T15:31:28.233Z"
+  },
+  {
+    "id": "79c9d873-cfb5-4b37-8f30-25364714c98e",
+    "shopName": "BARLA",
+    "shopDomain": "barla-online.de",
+    "shopUrl": "https://barla-online.de",
+    "productUrl": "https://barla-online.de/",
+    "productName": "BARLA | Handgefertigter Schmuck aus Vintage-Materialien",
+    "email": "kontakt@barla-online.de",
+    "status": "failed",
+    "researchedAt": "2026-10-12T19:13:28.981Z"
   }
 ]
