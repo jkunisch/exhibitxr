@@ -2738,5 +2738,16 @@
     "email": "kontakt@barla-online.de",
     "status": "failed",
     "researchedAt": "2026-10-12T19:13:28.981Z"
+  },
+  {
+    "id": "d5ec5297-e637-49c8-95b9-a486f480e3ef",
+    "shopName": "BEPANO",
+    "shopDomain": "bepano.de",
+    "shopUrl": "https://bepano.de",
+    "productUrl": "https://bepano.de/collections/vasen",
+    "productName": "Vasen Deko & Keramik Vasen – Stilvolle Blumenvase",
+    "email": "kundenservice@bepano.de",
+    "status": "failed",
+    "researchedAt": "2026-10-16T14:09:55.459Z"
   }
 ]
