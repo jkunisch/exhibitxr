@@ -2749,5 +2749,27 @@
     "email": "kundenservice@bepano.de",
     "status": "failed",
     "researchedAt": "2026-10-16T14:09:55.459Z"
+  },
+  {
+    "id": "e2157023-fea6-4eee-8d93-5c52f4ea70a2",
+    "shopName": "Homefinity",
+    "shopDomain": "www.homefinity.de",
+    "shopUrl": "https://www.homefinity.de",
+    "productUrl": "https://www.homefinity.de/de/wohnen-deko/",
+    "productName": "WOHNEN + DEKO",
+    "email": "service@homefinity.de",
+    "status": "failed",
+    "researchedAt": "2026-10-17T13:05:51.359Z"
+  },
+  {
+    "id": "b7a58795-5c37-44bd-8ae1-4c9dd3a87672",
+    "shopName": "WATCHVICE",
+    "shopDomain": "watchvice.de",
+    "shopUrl": "https://watchvice.de",
+    "productUrl": "https://watchvice.de/",
+    "productName": "WATCHVICE - Rolex, Omega, Patek & mehr kaufen",
+    "email": "service@watchvice.de",
+    "status": "failed",
+    "researchedAt": "2026-10-17T13:07:22.616Z"
   }
 ]
