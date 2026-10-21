@@ -2771,5 +2771,16 @@
     "email": "service@watchvice.de",
     "status": "failed",
     "researchedAt": "2026-10-17T13:07:22.616Z"
+  },
+  {
+    "id": "50cd9698-5aa4-472d-8e97-3f766da7e55c",
+    "shopName": "Stickertoo- Handmade",
+    "shopDomain": "stickertoo-handmade.com",
+    "shopUrl": "https://stickertoo-handmade.com",
+    "productUrl": "https://stickertoo-handmade.com/",
+    "productName": "Handgemachter Schmuck & Anhänger | Stickertoo Handmade",
+    "email": "info@stickertoo-handmade.com",
+    "status": "failed",
+    "researchedAt": "2026-10-21T14:34:40.643Z"
   }
 ]
