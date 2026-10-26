@@ -2782,5 +2782,27 @@
     "email": "info@stickertoo-handmade.com",
     "status": "failed",
     "researchedAt": "2026-10-21T14:34:40.643Z"
+  },
+  {
+    "id": "d109aedc-3f99-4c4b-a7bb-fead2aed485f",
+    "shopName": "Die Lampefabrik",
+    "shopDomain": "dielampefabrik.de",
+    "shopUrl": "https://dielampefabrik.de",
+    "productUrl": "https://dielampefabrik.de/",
+    "productName": "Einzigartige Lampen für jedes Interieur - Die Lampefabrik",
+    "email": "xxx@xxx.xxx",
+    "status": "failed",
+    "researchedAt": "2026-10-26T16:15:23.875Z"
+  },
+  {
+    "id": "f84f7ec0-7333-4de6-a237-cb807578152d",
+    "shopName": "The Gadgets",
+    "shopDomain": "the-gadgets.de",
+    "shopUrl": "https://the-gadgets.de",
+    "productUrl": "https://the-gadgets.de/pages/kontakt",
+    "productName": "Kontakt",
+    "email": "info@the-gadgets.de",
+    "status": "failed",
+    "researchedAt": "2026-10-26T16:18:26.239Z"
   }
 ]
