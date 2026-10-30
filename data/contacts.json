@@ -2804,5 +2804,27 @@
     "email": "info@the-gadgets.de",
     "status": "failed",
     "researchedAt": "2026-10-26T16:18:26.239Z"
+  },
+  {
+    "id": "3f85494a-94dc-40a8-affc-dd115e525873",
+    "shopName": "maSneakz",
+    "shopDomain": "masneakz.de",
+    "shopUrl": "https://masneakz.de",
+    "productUrl": "https://masneakz.de/",
+    "productName": "Sneaker, Schuhe & Streetwear online kaufen | maSneakz",
+    "email": "shop@masneakz.de",
+    "status": "failed",
+    "researchedAt": "2026-10-30T16:09:25.868Z"
+  },
+  {
+    "id": "4b1304da-3967-4128-8755-f3a82e54b104",
+    "shopName": "LG DE",
+    "shopDomain": "www.lg.com",
+    "shopUrl": "https://www.lg.com",
+    "productUrl": "https://www.lg.com/de/impressum/",
+    "productName": "Impressum | LG Deutschland",
+    "email": "info@lge.de",
+    "status": "failed",
+    "researchedAt": "2026-10-30T16:10:54.045Z"
   }
 ]
